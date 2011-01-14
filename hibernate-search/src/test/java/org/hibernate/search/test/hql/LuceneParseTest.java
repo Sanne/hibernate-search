@@ -54,14 +54,11 @@ public class LuceneParseTest extends SearchTestCase {
 	
 	public void testClassicHQLAggregationReturnTypes() {
 		// EJB3: COUNT returns Long
-//		QueryTranslator translator = createNewQueryTranslator( "select count(*) from Human h", sfi() );
-//		assertEquals( "incorrect return type count", 1, translator.getReturnTypes().length );
-//		assertEquals( "incorrect return type", Hibernate.LONG, translator.getReturnTypes()[0] );
+		QueryTranslator translator = createNewQueryTranslator( "select count(*) from Human h", sfi() );
+		assertEquals( "incorrect return type count", 1, translator.getReturnTypes().length );
+		assertEquals( "incorrect return type", Hibernate.LONG, translator.getReturnTypes()[0] );
 	}
 	
-	/**
-	 * @return
-	 */
 	private SessionFactoryImplementor sfi() {
 		return (SessionFactoryImplementor) getSessions();
 	}
