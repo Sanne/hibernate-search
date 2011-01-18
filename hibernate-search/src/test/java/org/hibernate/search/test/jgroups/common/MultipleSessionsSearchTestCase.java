@@ -24,12 +24,15 @@
 package org.hibernate.search.test.jgroups.common;
 
 import java.io.InputStream;
+import java.util.Collections;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.internal.ServicesRegistryBootstrap;
 import org.hibernate.classic.Session;
 import org.hibernate.search.test.SearchTestCase;
 import org.hibernate.search.util.FileHelper;
+import org.hibernate.service.internal.ServicesRegistryImpl;
 
 /**
  * Test class to simulate clustered environment (one master, and one slave node)
@@ -37,6 +40,8 @@ import org.hibernate.search.util.FileHelper;
  * @author Lukasz Moren
  */
 public abstract class MultipleSessionsSearchTestCase extends SearchTestCase {
+	
+	private final ServicesRegistryImpl serviceRegistry = new ServicesRegistryBootstrap().initiateServicesRegistry( Collections.EMPTY_MAP );
 
 	private static final String masterCopy = "/master/copy";
 
@@ -102,6 +107,7 @@ public abstract class MultipleSessionsSearchTestCase extends SearchTestCase {
 			slaveSessionFactory.close();
 		}
 		FileHelper.delete( getBaseIndexDir() );
+		serviceRegistry.destroy();
 	}
 
 	private void buildCommonSessionFactory() throws Exception {
@@ -124,7 +130,7 @@ public abstract class MultipleSessionsSearchTestCase extends SearchTestCase {
 			InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream( xmlFile );
 			getCommonConfiguration().addInputStream( is );
 		}
-		slaveSessionFactory = getCommonConfiguration().buildSessionFactory();
+		slaveSessionFactory = getCommonConfiguration().buildSessionFactory( serviceRegistry );
 	}
 
 	private void setCommonCfg(Configuration configuration) {

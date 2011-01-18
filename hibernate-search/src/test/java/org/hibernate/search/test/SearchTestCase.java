@@ -26,6 +26,7 @@ package org.hibernate.search.test;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Collections;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.KeywordAnalyzer;
@@ -42,6 +43,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.internal.ServicesRegistryBootstrap;
 import org.hibernate.event.PostInsertEventListener;
 import org.hibernate.impl.SessionFactoryImpl;
 import org.hibernate.search.FullTextSession;
@@ -51,6 +53,7 @@ import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.engine.SearchFactoryImplementor;
 import org.hibernate.search.event.FullTextIndexEventListener;
 import org.hibernate.search.test.util.JGroupsEnvironment;
+import org.hibernate.service.internal.ServicesRegistryImpl;
 import org.hibernate.testing.junit.functional.annotations.HibernateTestCase;
 
 /**
@@ -74,6 +77,7 @@ public abstract class SearchTestCase extends HibernateTestCase {
 
 	private static File targetDir;
 	private SearchFactoryImplementor searchFactory;
+	private final ServicesRegistryImpl serviceRegistry = new ServicesRegistryBootstrap().initiateServicesRegistry( Collections.EMPTY_MAP );
 
 	static {
 		ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
@@ -231,7 +235,7 @@ public abstract class SearchTestCase extends HibernateTestCase {
 				InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream( xmlFile );
 				getCfg().addInputStream( is );
 			}
-			setSessions( getCfg().buildSessionFactory( /*new TestInterceptor()*/ ) );
+			setSessions( getCfg().buildSessionFactory( serviceRegistry ) );
 		}
 		catch ( Exception e ) {
 			e.printStackTrace();

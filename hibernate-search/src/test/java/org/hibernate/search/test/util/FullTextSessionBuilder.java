@@ -24,16 +24,19 @@
 package org.hibernate.search.test.util;
 
 import java.io.File;
+import java.util.Collections;
 
 import org.apache.lucene.analysis.StopAnalyzer;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
+import org.hibernate.cfg.internal.ServicesRegistryBootstrap;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.hibernate.search.SearchFactory;
 import org.hibernate.search.util.FileHelper;
+import org.hibernate.service.internal.ServicesRegistryImpl;
 import org.slf4j.Logger;
 
 /**
@@ -53,6 +56,7 @@ public class FullTextSessionBuilder {
 	private Configuration cfg;
 	private SessionFactory sessionFactory;
 	private boolean usingFileSystem = false;
+	private final ServicesRegistryImpl serviceRegistry = new ServicesRegistryBootstrap().initiateServicesRegistry( Collections.EMPTY_MAP );
 	
 	static {
 		String buildDir = System.getProperty( "build.dir" );
@@ -133,6 +137,7 @@ public class FullTextSessionBuilder {
 	 * Make sure you close all sessions first
 	 */
 	public void close() {
+		serviceRegistry.destroy();
 		if ( sessionFactory == null ) {
 			throw new java.lang.IllegalStateException( "sessionFactory not yet built" );
 		}
@@ -147,7 +152,7 @@ public class FullTextSessionBuilder {
 	 * Builds the sessionFactory as configured so far.
 	 */
 	public FullTextSessionBuilder build() {
-		sessionFactory = cfg.buildSessionFactory();
+		sessionFactory = cfg.buildSessionFactory( serviceRegistry );
 		return this;
 	}
 

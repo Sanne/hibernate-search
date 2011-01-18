@@ -23,6 +23,7 @@
  */
 package org.hibernate.search.test.similarity;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.hibernate.HibernateException;
@@ -31,9 +32,11 @@ import org.hibernate.search.Search;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.FullTextQuery;
 import org.hibernate.search.Environment;
+import org.hibernate.service.internal.ServicesRegistryImpl;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.internal.ServicesRegistryBootstrap;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.index.Term;
 
@@ -41,6 +44,8 @@ import org.apache.lucene.index.Term;
  * @author Emmanuel Bernard
  */
 public class SimilarityTest extends SearchTestCase {
+	
+	private final ServicesRegistryImpl serviceRegistry = new ServicesRegistryBootstrap().initiateServicesRegistry( Collections.EMPTY_MAP );
 
 	public void testIndexLevelSimilarity() throws Exception {
 		Configuration config = new Configuration();
@@ -49,7 +54,7 @@ public class SimilarityTest extends SearchTestCase {
 		config.setProperty( "hibernate.search.default.directory_provider", "ram" );
 		config.setProperty( "hibernate.search.default.similarity", DummySimilarity.class.getName() );
 		try {
-			config.buildSessionFactory();
+			config.buildSessionFactory( serviceRegistry );
 			fail( "Session creation should have failed due to duplicate similarity definition" );
 		}
 		catch ( HibernateException e ) { // the SearchException will be wrapped in a HibernateException

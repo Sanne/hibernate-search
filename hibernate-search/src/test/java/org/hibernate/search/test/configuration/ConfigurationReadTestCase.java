@@ -23,8 +23,12 @@
  */
 package org.hibernate.search.test.configuration;
 
+import java.util.Collections;
+import java.util.HashMap;
+
 import org.hibernate.HibernateException;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.internal.ServicesRegistryBootstrap;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.hibernate.search.SearchException;
@@ -32,6 +36,7 @@ import org.hibernate.search.backend.configuration.IndexWriterSetting;
 import org.hibernate.search.engine.SearchFactoryImplementor;
 import org.hibernate.search.test.SearchTestCase;
 import org.hibernate.search.util.FileHelper;
+import org.hibernate.service.internal.ServicesRegistryImpl;
 
 /**
  * Contains some utility methods to simplify coding of
@@ -118,7 +123,8 @@ public abstract class ConfigurationReadTestCase extends SearchTestCase {
 				( configuration ).addAnnotatedClass( annotated );
 			}
 			configuration.setProperty( "hibernate.search.default.directory_provider", "ram" );
-			configuration.buildSessionFactory();
+			ServicesRegistryImpl serviceRegistry = new ServicesRegistryBootstrap().initiateServicesRegistry( Collections.EMPTY_MAP );
+			configuration.buildSessionFactory( serviceRegistry );
 			fail();
 		} catch (HibernateException e) {
 			//thrown exceptions means the test is ok when caused by a SearchException

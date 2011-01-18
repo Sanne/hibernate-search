@@ -1,4 +1,4 @@
-package org.hibernate.search.test.hql;
+package org.hibernate.search.test.hql.treewalkonly;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

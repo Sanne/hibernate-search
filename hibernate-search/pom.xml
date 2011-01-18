@@ -107,7 +107,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-testing</artifactId>
-            <version>${hibernateVersion}</version>
+            <version>3.6.0.Final</version>
             <scope>test</scope>
         </dependency>
         <dependency>

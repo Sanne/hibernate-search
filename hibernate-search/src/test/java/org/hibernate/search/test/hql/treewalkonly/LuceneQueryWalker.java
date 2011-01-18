@@ -21,24 +21,14 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.search.test.hql;
+package org.hibernate.search.test.hql.treewalkonly;
 
 import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
 import org.hibernate.QueryException;
-import org.hibernate.ScrollableResults;
-import org.hibernate.engine.QueryParameters;
 import org.hibernate.engine.SessionFactoryImplementor;
-import org.hibernate.engine.SessionImplementor;
-import org.hibernate.event.EventSource;
-import org.hibernate.hql.FilterTranslator;
-import org.hibernate.hql.ParameterTranslations;
 import org.hibernate.hql.antlr.HqlTokenTypes;
 import org.hibernate.hql.antlr.SqlTokenTypes;
 import org.hibernate.hql.ast.HqlParser;
@@ -46,8 +36,8 @@ import org.hibernate.hql.ast.QuerySyntaxException;
 import org.hibernate.hql.ast.QueryTranslatorImpl.JavaConstantConverter;
 import org.hibernate.hql.ast.util.ASTPrinter;
 import org.hibernate.hql.ast.util.NodeTraverser;
+import org.hibernate.search.engine.SearchFactoryImplementor;
 import org.hibernate.search.util.LoggerFactory;
-import org.hibernate.type.Type;
 import org.slf4j.Logger;
 
 import antlr.ANTLRException;
@@ -57,9 +47,9 @@ import antlr.collections.AST;
 
 /**
  * @author Sanne Grinovero
- * @see org.hibernate.hql.ast.QueryTranslatorImpl
+ *
  */
-public class LuceneQueryTranslatorImpl implements FilterTranslator {
+public class LuceneQueryWalker {
 	
 	private static final Logger log = LoggerFactory.make();
 	private static final Logger AST_LOG = org.slf4j.LoggerFactory.getLogger( "org.hibernate.hql.ast.AST" );
@@ -67,7 +57,8 @@ public class LuceneQueryTranslatorImpl implements FilterTranslator {
 	private final String queryIdentifier;
 	private final String hql;
 	private Map enabledFilters;
-	private final SessionFactoryImplementor factory;
+	private final SessionFactoryImplementor sessionFactory;
+	private final SearchFactoryImplementor searchFactory;
 	private boolean compiled = false;
 
 	private Map tokenReplacements;
@@ -83,11 +74,12 @@ public class LuceneQueryTranslatorImpl implements FilterTranslator {
 	 * @param factory The session factory constructing this translator instance.
 	 */
 	@SuppressWarnings("rawtypes")
-	public LuceneQueryTranslatorImpl(String queryIdentifier, String queryString, Map filters, SessionFactoryImplementor factory) {
+	public LuceneQueryWalker(String queryIdentifier, String queryString, Map filters, SessionFactoryImplementor sessionFactory, SearchFactoryImplementor searchFactory) {
 		this.queryIdentifier = queryIdentifier;
 		this.hql = queryString;
 		this.enabledFilters = filters;
-		this.factory = factory;
+		this.sessionFactory = sessionFactory;
+		this.searchFactory = searchFactory;
 	}
 
 	public void compile(Map replacements, boolean shallow) throws QueryException, MappingException {
@@ -188,7 +180,7 @@ public class LuceneQueryTranslatorImpl implements FilterTranslator {
 	}
 	
 	private HqlLuceneWalker analyze(HqlParser parser, String collectionRole) throws QueryException, RecognitionException {
-		HqlLuceneWalker w = new HqlLuceneWalker( this, factory, parser, tokenReplacements, collectionRole );
+		HqlLuceneWalker w = new HqlLuceneWalker( this, sessionFactory, parser, tokenReplacements, collectionRole );
 		AST hqlAst = parser.getAST();
 
 		// Transform the tree.
@@ -215,136 +207,6 @@ public class LuceneQueryTranslatorImpl implements FilterTranslator {
 	
 	public Map getEnabledFilters() {
 		return this.enabledFilters;
-	}
-	
-	//*************************************************************** TODO:
-
-	/* (non-Javadoc)
-	 * @see org.hibernate.hql.QueryTranslator#list(org.hibernate.engine.SessionImplementor, org.hibernate.engine.QueryParameters)
-	 */
-	public List list(SessionImplementor session, QueryParameters queryParameters) throws HibernateException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.hibernate.hql.QueryTranslator#iterate(org.hibernate.engine.QueryParameters, org.hibernate.event.EventSource)
-	 */
-	public Iterator iterate(QueryParameters queryParameters, EventSource session) throws HibernateException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.hibernate.hql.QueryTranslator#scroll(org.hibernate.engine.QueryParameters, org.hibernate.engine.SessionImplementor)
-	 */
-	public ScrollableResults scroll(QueryParameters queryParameters, SessionImplementor session) throws HibernateException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.hibernate.hql.QueryTranslator#executeUpdate(org.hibernate.engine.QueryParameters, org.hibernate.engine.SessionImplementor)
-	 */
-	public int executeUpdate(QueryParameters queryParameters, SessionImplementor session) throws HibernateException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.hibernate.hql.QueryTranslator#getQuerySpaces()
-	 */
-	public Set getQuerySpaces() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.hibernate.hql.QueryTranslator#getQueryIdentifier()
-	 */
-	public String getQueryIdentifier() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.hibernate.hql.QueryTranslator#getSQLString()
-	 */
-	public String getSQLString() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.hibernate.hql.QueryTranslator#collectSqlStrings()
-	 */
-	public List collectSqlStrings() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.hibernate.hql.QueryTranslator#getQueryString()
-	 */
-	public String getQueryString() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.hibernate.hql.QueryTranslator#getReturnTypes()
-	 */
-	public Type[] getReturnTypes() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.hibernate.hql.QueryTranslator#getReturnAliases()
-	 */
-	public String[] getReturnAliases() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.hibernate.hql.QueryTranslator#getColumnNames()
-	 */
-	public String[][] getColumnNames() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.hibernate.hql.QueryTranslator#getParameterTranslations()
-	 */
-	public ParameterTranslations getParameterTranslations() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.hibernate.hql.QueryTranslator#validateScrollability()
-	 */
-	public void validateScrollability() throws HibernateException {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.hibernate.hql.QueryTranslator#containsCollectionFetches()
-	 */
-	public boolean containsCollectionFetches() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.hibernate.hql.QueryTranslator#isManipulationStatement()
-	 */
-	public boolean isManipulationStatement() {
-		// TODO Auto-generated method stub
-		return false;
 	}
 	
 }

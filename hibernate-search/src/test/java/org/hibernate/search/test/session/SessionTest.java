@@ -42,7 +42,6 @@ public class SessionTest extends SearchTestCase {
 	private static final Class[] SESS_PROXY_INTERFACES = new Class[] {
 			org.hibernate.classic.Session.class,
 			org.hibernate.engine.SessionImplementor.class,
-			org.hibernate.jdbc.JDBCContext.Context.class,
 			org.hibernate.event.EventSource.class
 	};
 
@@ -99,7 +98,7 @@ public class SessionTest extends SearchTestCase {
 
 	protected void configure(Configuration cfg) {
 		super.configure( cfg );
-		// for this test we explcitly set the auto commit mode since we are not explcitly starting a transaction
+		// for this test we explicitly set the auto commit mode since we are not explicitly starting a transaction
 		// which could be a problem in some databases.
 		cfg.setProperty( "hibernate.connection.autocommit", "true" );
 		//needed for testThreadBoundSessionWrappingOutOfTransaction

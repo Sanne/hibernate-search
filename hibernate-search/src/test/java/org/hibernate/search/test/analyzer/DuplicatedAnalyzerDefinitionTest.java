@@ -25,6 +25,7 @@
 package org.hibernate.search.test.analyzer;
 
 import java.lang.annotation.ElementType;
+import java.util.Collections;
 
 import org.apache.solr.analysis.GermanStemFilterFactory;
 import org.apache.solr.analysis.LowerCaseFilterFactory;
@@ -34,10 +35,12 @@ import org.slf4j.Logger;
 
 import org.hibernate.HibernateException;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.internal.ServicesRegistryBootstrap;
 import org.hibernate.search.Environment;
 import org.hibernate.search.cfg.SearchMapping;
 import org.hibernate.search.test.SearchTestCase;
 import org.hibernate.search.util.LoggerFactory;
+import org.hibernate.service.internal.ServicesRegistryImpl;
 
 /**
  * Tests for HSEARCH-569.
@@ -58,7 +61,8 @@ public class DuplicatedAnalyzerDefinitionTest extends SearchTestCase {
 		config.addAnnotatedClass( Entity2.class );
 		config.setProperty( "hibernate.search.default.directory_provider", "ram" );
 		try {
-			config.buildSessionFactory();
+			ServicesRegistryImpl serviceRegistry = new ServicesRegistryBootstrap().initiateServicesRegistry( Collections.EMPTY_MAP );
+			config.buildSessionFactory(serviceRegistry);
 			fail( "Session creation should have failed due to duplicate analyzer definition" );
 		}
 		catch ( HibernateException e ) { // the SearchException will be wrapped in a HibernateException
@@ -75,7 +79,8 @@ public class DuplicatedAnalyzerDefinitionTest extends SearchTestCase {
 		config.getProperties().put( Environment.MODEL_MAPPING, createSearchMapping() );
 		config.setProperty( "hibernate.search.default.directory_provider", "ram" );
 		try {
-			config.buildSessionFactory();
+			ServicesRegistryImpl serviceRegistry = new ServicesRegistryBootstrap().initiateServicesRegistry( Collections.EMPTY_MAP );
+			config.buildSessionFactory(serviceRegistry);
 			fail( "Session creation should have failed due to duplicate analyzer definition" );
 		}
 		catch ( HibernateException e ) { // the SearchException will be wrapped in a HibernateException

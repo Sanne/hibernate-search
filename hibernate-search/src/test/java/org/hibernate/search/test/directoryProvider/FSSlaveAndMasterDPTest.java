@@ -24,6 +24,7 @@
 package org.hibernate.search.test.directoryProvider;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -35,12 +36,14 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.HibernateException;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.internal.ServicesRegistryBootstrap;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.hibernate.search.SearchException;
 import org.hibernate.search.test.SearchTestCase;
 import org.hibernate.search.util.FileHelper;
 import org.hibernate.search.util.LoggerFactory;
+import org.hibernate.service.internal.ServicesRegistryImpl;
 
 /**
  * Test case for master/slave directories.
@@ -245,7 +248,8 @@ public class FSSlaveAndMasterDPTest extends MultipleSFTestCase {
 		cfg.addAnnotatedClass( SnowStorm.class );
 		long start = System.nanoTime();
 		try {
-			cfg.buildSessionFactory();
+			ServicesRegistryImpl serviceRegistry = new ServicesRegistryBootstrap().initiateServicesRegistry( Collections.EMPTY_MAP );
+			cfg.buildSessionFactory( serviceRegistry );
 		}
 		catch ( HibernateException e ) {
 			assertTrue( "expected configuration failure", e.getCause() instanceof SearchException );

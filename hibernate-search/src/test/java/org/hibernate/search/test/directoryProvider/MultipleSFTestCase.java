@@ -24,6 +24,7 @@
 package org.hibernate.search.test.directoryProvider;
 
 import java.io.InputStream;
+import java.util.Collections;
 
 import junit.framework.TestCase;
 
@@ -31,8 +32,10 @@ import org.apache.lucene.util.Version;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
+import org.hibernate.cfg.internal.ServicesRegistryBootstrap;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.search.test.SearchTestCase;
+import org.hibernate.service.internal.ServicesRegistryImpl;
 
 /**
  * Build multiple session factories from the same set of classes
@@ -46,6 +49,7 @@ public abstract class MultipleSFTestCase extends TestCase {
 	private static Configuration[] cfgs;
 	private static Dialect dialect;
 	private static Class lastTestClass;
+	private final ServicesRegistryImpl serviceRegistry = new ServicesRegistryBootstrap().initiateServicesRegistry( Collections.EMPTY_MAP );
 
 	protected abstract int getSFNbrs();
 
@@ -81,7 +85,7 @@ public abstract class MultipleSFTestCase extends TestCase {
 					cfgs[sfIndex].addInputStream( is );
 				}
 				setDialect( Dialect.getDialect() );
-				sessionFactories[sfIndex] = cfgs[sfIndex].buildSessionFactory( /*new TestInterceptor()*/ );
+				sessionFactories[sfIndex] = cfgs[sfIndex].buildSessionFactory( serviceRegistry );
 			}
 			catch ( Exception e ) {
 				e.printStackTrace();
@@ -101,6 +105,7 @@ public abstract class MultipleSFTestCase extends TestCase {
 		for ( SessionFactory sf : getSessionFactories() ) {
 			sf.close();
 		}
+		serviceRegistry.destroy();
 	}
 
 	protected abstract Class[] getAnnotatedClasses();

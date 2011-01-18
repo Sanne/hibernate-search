@@ -23,14 +23,22 @@
  */
 package org.hibernate.search.test.bridge;
 
+import java.util.Collections;
+
 import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.internal.ServicesRegistryBootstrap;
 import org.hibernate.search.SearchException;
+import org.hibernate.service.internal.ServicesRegistryImpl;
+
 import junit.framework.TestCase;
 
 /**
  * @author Emmanuel Bernard
  */
 public class UnresolvedBridgeTest extends TestCase {
+	
+	private final ServicesRegistryImpl serviceRegistry = new ServicesRegistryBootstrap().initiateServicesRegistry( Collections.EMPTY_MAP );
+	
 	public void testSerializableType() throws Exception {
 		Configuration cfg = new Configuration();
 
@@ -39,7 +47,7 @@ public class UnresolvedBridgeTest extends TestCase {
 		}
 		cfg.setProperty( "hibernate.search.default.directory_provider", "ram" );
 		try {
-			cfg.buildSessionFactory();
+			cfg.buildSessionFactory( serviceRegistry );
 			fail("Undefined bridge went through");
 		}
 		catch( Exception e ) {
