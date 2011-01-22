@@ -38,7 +38,7 @@ import org.hibernate.search.test.SearchTestCase;
 public class LuceneParseTest extends SearchTestCase {
 	
 	public void testClassicHQLAggregationReturnTypes() {
-		List results = executeHQL( "select count(*) from Human h" );
+		List results = executeHQL( "select h from Human h" );
 	}
 	
 	private List executeHQL(String hql){
