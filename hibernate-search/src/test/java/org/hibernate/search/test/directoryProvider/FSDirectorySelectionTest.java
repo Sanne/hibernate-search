@@ -24,8 +24,6 @@
 
 package org.hibernate.search.test.directoryProvider;
 
-import java.util.Collections;
-
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
 import org.apache.lucene.store.NIOFSDirectory;
@@ -35,14 +33,12 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.cfg.internal.ServicesRegistryBootstrap;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.hibernate.search.SearchException;
 import org.hibernate.search.store.DirectoryProvider;
 import org.hibernate.search.store.FSDirectoryProvider;
 import org.hibernate.search.test.SearchTestCase;
-import org.hibernate.service.internal.ServicesRegistryImpl;
 
 /**
  * @author Hardy Ferentschik
@@ -91,8 +87,7 @@ public class FSDirectorySelectionTest extends SearchTestCase {
 		config.setProperty( "hibernate.search.default.indexBase", getBaseIndexDir().getAbsolutePath() );
 		config.setProperty( "hibernate.search.default.directory_provider", FSDirectoryProvider.class.getName() );
 		config.setProperty( "hibernate.search.default.filesystem_access_type", directoryType );
-		ServicesRegistryImpl serviceRegistry = new ServicesRegistryBootstrap().initiateServicesRegistry( Collections.EMPTY_MAP );
-		return config.buildSessionFactory( serviceRegistry );
+		return config.buildSessionFactory();
 	}
 
 	protected Class<?>[] getAnnotatedClasses() {

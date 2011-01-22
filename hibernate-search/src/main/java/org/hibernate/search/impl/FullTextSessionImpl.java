@@ -61,12 +61,13 @@ import org.hibernate.engine.SessionFactoryImplementor;
 import org.hibernate.engine.SessionImplementor;
 import org.hibernate.engine.LoadQueryInfluencers;
 import org.hibernate.engine.NonFlushedChanges;
-import org.hibernate.engine.jdbc.spi.JDBCContext;
 import org.hibernate.engine.query.ParameterMetadata;
 import org.hibernate.engine.query.sql.NativeSQLQuerySpecification;
 import org.hibernate.event.EventListeners;
 import org.hibernate.event.EventSource;
 import org.hibernate.impl.CriteriaImpl;
+import org.hibernate.jdbc.Batcher;
+import org.hibernate.jdbc.JDBCContext;
 import org.hibernate.loader.custom.CustomQuery;
 import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.search.FullTextQuery;
@@ -817,6 +818,10 @@ public class FullTextSessionImpl implements FullTextSession, SessionImplementor 
 	
 	public JDBCContext getJDBCContext() {
 		return sessionImplementor.getJDBCContext();
+	}
+
+	public Batcher getBatcher() {
+		return sessionImplementor.getBatcher();
 	}
 
 }
