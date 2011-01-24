@@ -24,6 +24,7 @@
 package org.hibernate.search.test.hql.treewalkonly;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -106,6 +107,16 @@ public class HqlLuceneWalker extends HqlSqlWalker { // should extend HqlSqlBaseW
 		this.collectionFilterRole = collectionRole;
 		this.hqlParser = parser;
 		this.printer = new ASTPrinter( SqlTokenTypes.class );
+	}
+	
+	@Override
+	public boolean isShallowQuery() {
+		return true;//TODO find out what this means
+	}
+	
+	@Override
+	public Map getEnabledFilters() {
+		return Collections.emptyMap();
 	}
 	
 }
