@@ -111,7 +111,7 @@ public class HqlLuceneWalker extends HqlSqlWalker { // should extend HqlSqlBaseW
 	
 	@Override
 	public boolean isShallowQuery() {
-		return true;//TODO find out what this means
+		return false; // We don't support Shallow queries at the moment - TODO raise an exception if we detect one
 	}
 	
 	@Override
