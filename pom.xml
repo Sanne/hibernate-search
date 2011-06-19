@@ -802,6 +802,11 @@
                         </lifecycleMappingMetadata>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>antlr3-maven-plugin</artifactId>
+                    <version>3.3</version>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>

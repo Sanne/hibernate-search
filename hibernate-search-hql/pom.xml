@@ -54,9 +54,10 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>antlr</groupId>
+            <groupId>org.antlr</groupId>
             <artifactId>antlr</artifactId>
-            <version>2.7.6</version>
+            <version>3.3</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -68,56 +69,13 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <tags>
-                        <tag>
-                            <name>experimental</name>
-                            <placement>a</placement>
-                            <head>Experimental</head>
-                        </tag>
-                    </tags>
-                    <docfilessubdirs>true</docfilessubdirs>
-                    <stylesheetfile>${basedir}/src/main/javadoc/stylesheet.css</stylesheetfile>
-                    <links>
-                        <link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
-                        <link>http://docs.jboss.org/hibernate/stable/core/javadocs/</link>
-                        <link>http://lucene.apache.org/java/3_0_3/api/all</link>
-                    </links>
-                    <packagesheader>Hibernate Search Packages</packagesheader>
-                    <doctitle>Hibernate Search ${project.version}</doctitle>
-                    <windowtitle>Hibernate Search ${project.version}</windowtitle>
-                    <bottom>
-                        <![CDATA[Copyright &copy; ${project.inceptionYear}-{currentYear} <a href="http://redhat.com">Red Hat Middleware, LLC.</a>  All Rights Reserved]]></bottom>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <phase>deploy</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>antlr-maven-plugin</artifactId>
-                <version>2.1</version>
-                <configuration>
-                    <grammars>hql.g</grammars>
-                    <traceParser>true</traceParser>
-                    <traceTreeParser>true</traceTreeParser>
-                </configuration>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr3-maven-plugin</artifactId>
+                <version>3.3</version>
                 <executions>
                     <execution>
                         <goals>
-                            <goal>generate</goal>
+                            <goal>antlr</goal>
                         </goals>
                     </execution>
                 </executions>
