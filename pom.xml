@@ -45,6 +45,7 @@
         <module>hibernate-search-infinispan</module>
         <module>hibernate-search-archetype</module>
         <module>hibernate-search-integrationtest</module>
+        <module>hibernate-search-hql</module>
     </modules>
 
     <issueManagement>

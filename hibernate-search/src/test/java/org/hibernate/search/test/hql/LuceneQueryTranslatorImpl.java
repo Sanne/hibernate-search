@@ -46,7 +46,8 @@ import org.hibernate.hql.ast.QuerySyntaxException;
 import org.hibernate.hql.ast.QueryTranslatorImpl.JavaConstantConverter;
 import org.hibernate.hql.ast.util.ASTPrinter;
 import org.hibernate.hql.ast.util.NodeTraverser;
-import org.hibernate.search.util.LoggerFactory;
+import org.hibernate.search.util.logging.impl.Log;
+import org.hibernate.search.util.logging.impl.LoggerFactory;
 import org.hibernate.type.Type;
 import org.slf4j.Logger;
 
@@ -61,7 +62,7 @@ import antlr.collections.AST;
  */
 public class LuceneQueryTranslatorImpl implements FilterTranslator {
 	
-	private static final Logger log = LoggerFactory.make();
+	private static final Log log = LoggerFactory.make();
 	private static final Logger AST_LOG = org.slf4j.LoggerFactory.getLogger( "org.hibernate.hql.ast.AST" );
 	
 	private final String queryIdentifier;
