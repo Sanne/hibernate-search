@@ -38,15 +38,14 @@ options {
 package org.hibernate.sql.ast.origin.hql.parse;
 
 import java.util.LinkedList;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.Iterator;
+import org.hibernate.sql.ast.common.ParserContext;
 import org.hibernate.sql.ast.tree.EntityNameTree;
 }
 
 @parser::members {
 	private Stack enableParameterUsage = new Stack();
-	private ParserContext context = new ParserContextDefaultImpl();
+	private ParserContext context = null;
 	private List errorMessages = new LinkedList();
 
 	public void setParserContext(ParserContext context){

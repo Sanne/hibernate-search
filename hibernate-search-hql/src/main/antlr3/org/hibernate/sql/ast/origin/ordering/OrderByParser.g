@@ -39,7 +39,7 @@ options {
  */
 package org.hibernate.sql.ast.origin.ordering;
 
-import org.hibernate.sql.Template;
+import org.hibernate.sql.TemplateConstants;
 }
 
 @parser::members {
@@ -168,7 +168,7 @@ expression
         //enableParameterUsage.pop(); //FIXME
     }
 }
-   : QUOTED_IDENTIFIER -> ^( COLUMN ALIAS_REF[Template.TEMPLATE] QUOTED_IDENTIFIER[$QUOTED_IDENTIFIER] )
+   : QUOTED_IDENTIFIER -> ^( COLUMN ALIAS_REF[TemplateConstants.TEMPLATE] QUOTED_IDENTIFIER[$QUOTED_IDENTIFIER] )
     // we treat the so-called standard functions differently because they are handled differently by the HQL lexer which we also use here...
     | standardFunction
     | literal
@@ -187,7 +187,7 @@ expression
               identDotIdentStructure
         ->
               // we have a reference to a column which is not qualified
-              ^( COLUMN ALIAS_REF[Template.TEMPLATE] IDENTIFIER[$identDotIdentStructure.start,$identDotIdentStructure.text] )
+              ^( COLUMN ALIAS_REF[TemplateConstants.TEMPLATE] IDENTIFIER[$identDotIdentStructure.start,$identDotIdentStructure.text] )
     ;
 
 fragment
