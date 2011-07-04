@@ -10,6 +10,7 @@ target
 build
 bin
 test-output
+antlr-generated
 
 # IntelliJ specific files/directories
 /out
