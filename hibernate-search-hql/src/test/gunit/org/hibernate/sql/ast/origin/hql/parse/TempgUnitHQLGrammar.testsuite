@@ -4,7 +4,6 @@ gunit HQL;
 package org.hibernate.sql.ast.phase.hql.parse;
 }
 
-
 statement:
 
 /*

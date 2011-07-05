@@ -46,72 +46,67 @@ import org.hibernate.sql.ast.origin.hql.resolve.path.PathedPropertyReferenceSour
 }
 
 @members {
-    protected void registerPersisterSpace(Tree entityName, Tree alias) {
-        throw new UnsupportedOperationException( "must be overridden!" );
-    }
-    
+	protected void registerPersisterSpace(Tree entityName, Tree alias) {
+		throw new UnsupportedOperationException( "must be overridden!" );
+	}
+
 	protected boolean isUnqualifiedPropertyReference() {
-        throw new UnsupportedOperationException( "must be overridden!" );
-	}	
+		throw new UnsupportedOperationException( "must be overridden!" );
+	}
 
 	protected PathedPropertyReferenceSource normalizeUnqualifiedPropertyReference(Tree property) {
-        throw new UnsupportedOperationException( "must be overridden!" );
+		throw new UnsupportedOperationException( "must be overridden!" );
 	}
 	
 	protected boolean isPersisterReferenceAlias() {
-        throw new UnsupportedOperationException( "must be overridden!" );
-    }
+		throw new UnsupportedOperationException( "must be overridden!" );
+	}
 
-    protected PathedPropertyReferenceSource normalizeUnqualifiedRoot(Tree identifier382) {
-        throw new UnsupportedOperationException( "must be overridden!" );
+	protected PathedPropertyReferenceSource normalizeUnqualifiedRoot(Tree identifier382) {
+		throw new UnsupportedOperationException( "must be overridden!" );
 	}
 
 	protected PathedPropertyReferenceSource normalizeQualifiedRoot(Tree identifier381) {
-        throw new UnsupportedOperationException( "must be overridden!" );
+		throw new UnsupportedOperationException( "must be overridden!" );
 	}
 
-    protected PathedPropertyReferenceSource normalizePropertyPathIntermediary(
-            PathedPropertyReferenceSource source,
-            Tree propertyName) {
-        throw new UnsupportedOperationException( "must be overridden!" );
+	protected PathedPropertyReferenceSource normalizePropertyPathIntermediary(
+			PathedPropertyReferenceSource source, Tree propertyName) {
+		throw new UnsupportedOperationException( "must be overridden!" );
 	}
 
-    protected PathedPropertyReferenceSource normalizeIntermediateIndexOperation(
-            PathedPropertyReferenceSource propertyReferenceSource,
-            Tree collectionProperty,
-			Tree selector) {
-        throw new UnsupportedOperationException( "must be overridden!" );
+	protected PathedPropertyReferenceSource normalizeIntermediateIndexOperation(
+			PathedPropertyReferenceSource propertyReferenceSource, Tree collectionProperty, Tree selector) {
+		throw new UnsupportedOperationException( "must be overridden!" );
 	}
 
-    protected void normalizeTerminalIndexOperation(
-            PathedPropertyReferenceSource propertyReferenceSource,
-            Tree collectionProperty,
-			Tree selector ) {
-        throw new UnsupportedOperationException( "must be overridden!" );
-    }
-
-    protected PathedPropertyReferenceSource normalizeUnqualifiedPropertyReferenceSource(Tree identifier394) {
-        throw new UnsupportedOperationException( "must be overridden!" );
+	protected void normalizeTerminalIndexOperation(
+			PathedPropertyReferenceSource propertyReferenceSource, Tree collectionProperty, Tree selector ) {
+		throw new UnsupportedOperationException( "must be overridden!" );
 	}
 
-    protected Tree normalizePropertyPathTerminus(PathedPropertyReferenceSource source, Tree propertyNameNode) {
-        throw new UnsupportedOperationException( "must be overridden!" );
-    }
+	protected PathedPropertyReferenceSource normalizeUnqualifiedPropertyReferenceSource(Tree identifier394) {
+		throw new UnsupportedOperationException( "must be overridden!" );
+	}
+
+	protected Tree normalizePropertyPathTerminus(PathedPropertyReferenceSource source, Tree propertyNameNode) {
+		throw new UnsupportedOperationException( "must be overridden!" );
+	}
 
 	protected void pushFromStrategy(
-	        JoinType joinType,
+			JoinType joinType,
 			Tree assosiationFetchTree,
 			Tree propertyFetchTree,
 			Tree alias) {
-        throw new UnsupportedOperationException( "must be overridden!" );
+		throw new UnsupportedOperationException( "must be overridden!" );
 	}
 	
 	protected void pushSelectStrategy() {
-        throw new UnsupportedOperationException( "must be overridden!" );
+		throw new UnsupportedOperationException( "must be overridden!" );
 	}
 
 	protected void popStrategy(){
-        throw new UnsupportedOperationException( "must be overridden!" );
+		throw new UnsupportedOperationException( "must be overridden!" );
 	}	
 }
 
@@ -216,8 +211,8 @@ persisterSpaceRoot
 	;
 
 joins
-	:	^(PROPERTY_JOIN jt=joinType ft=FETCH? an=ALIAS_NAME pf=PROP_FETCH? 
-		{	pushFromStrategy($jt.joinType, $ft, $pf, $an );	}	
+	:	^(PROPERTY_JOIN jt=joinType ft=FETCH? an=ALIAS_NAME pf=PROP_FETCH?
+		{	pushFromStrategy($jt.joinType, $ft, $pf, $an );	}
 		(collectionExpression|propertyReference) withClause?)
 		{	popStrategy();	}
 	|	^(PERSISTER_JOIN joinType persisterSpaceRoot onClause?)
@@ -329,9 +324,9 @@ valueExpression
 	|	^( ASTERISK numericValueExpression numericValueExpression )
 	|	^( SOLIDUS numericValueExpression numericValueExpression )
 	|	^( EXISTS rowValueConstructor)
-    |	^( SOME valueExpression )
-    |	^( ALL valueExpression )
-    |	^( ANY valueExpression )
+	|	^( SOME valueExpression )
+	|	^( ALL valueExpression )
+	|	^( ANY valueExpression )
 	|	^( VECTOR_EXPR valueExpression+) // or a tuples or ^(AND or IN statement 
 	|	valueExpressionPrimary
 	;
@@ -409,8 +404,8 @@ standardFunction
 	;
 
 functionFunction
-    : ^( FUNCTION valueExpression* )
-    ;
+	: ^( FUNCTION valueExpression* )
+	;
 
 castFunction
 	: ^(CAST valueExpression IDENTIFIER)
@@ -580,7 +575,7 @@ propertyReference
 propertyReferencePath
 	: 	{isUnqualifiedPropertyReference()}? unqualifiedPropertyReference
 	|	pathedPropertyReference
-    |	terminalIndexOperation
+	|	terminalIndexOperation
 	;
 
 unqualifiedPropertyReference returns [PathedPropertyReferenceSource propertyReferenceSource]
@@ -595,10 +590,10 @@ pathedPropertyReference
 
 pathedPropertyReferenceSource returns [PathedPropertyReferenceSource propertyReferenceSource]
 	:	{(isPersisterReferenceAlias())}?=> IDENTIFIER { $propertyReferenceSource = normalizeQualifiedRoot( $IDENTIFIER ); }
-    |	{(isUnqualifiedPropertyReference())}?=> IDENTIFIER { $propertyReferenceSource = normalizeUnqualifiedRoot( $IDENTIFIER ); }
-    |	intermediatePathedPropertyReference { $propertyReferenceSource = $intermediatePathedPropertyReference.propertyReferenceSource; }
-    |	intermediateIndexOperation { $propertyReferenceSource = $intermediateIndexOperation.propertyReferenceSource; }
-    ;
+	|	{(isUnqualifiedPropertyReference())}?=> IDENTIFIER { $propertyReferenceSource = normalizeUnqualifiedRoot( $IDENTIFIER ); }
+	|	intermediatePathedPropertyReference { $propertyReferenceSource = $intermediatePathedPropertyReference.propertyReferenceSource; }
+	|	intermediateIndexOperation { $propertyReferenceSource = $intermediateIndexOperation.propertyReferenceSource; }
+	;
 
 intermediatePathedPropertyReference returns [PathedPropertyReferenceSource propertyReferenceSource]
 	:	^(DOT source=pathedPropertyReferenceSource IDENTIFIER )
@@ -619,9 +614,9 @@ indexOperationSource returns [PathedPropertyReferenceSource propertyReferenceSou
 	:	^(DOT pathedPropertyReferenceSource IDENTIFIER )
 	{	$propertyReferenceSource = $pathedPropertyReferenceSource.propertyReferenceSource;
 		$collectionProperty = $IDENTIFIER;	}
-    |	{(isUnqualifiedPropertyReference())}?=> IDENTIFIER
-    {	$propertyReferenceSource = normalizeUnqualifiedPropertyReferenceSource( $IDENTIFIER );
-    	$collectionProperty = $IDENTIFIER;	}
+		|	{(isUnqualifiedPropertyReference())}?=> IDENTIFIER
+		{	$propertyReferenceSource = normalizeUnqualifiedPropertyReferenceSource( $IDENTIFIER );
+			$collectionProperty = $IDENTIFIER;	}
 	;
 
 indexSelector

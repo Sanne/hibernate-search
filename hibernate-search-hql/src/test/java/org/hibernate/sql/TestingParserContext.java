@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.antlr.runtime.Token;
+import org.hibernate.sql.ast.alias.ImplicitAliasGenerator;
 import org.hibernate.sql.ast.common.ParserContext;
 
 public class TestingParserContext implements ParserContext {
+	
+	private final ImplicitAliasGenerator implicitAliasGenerator = new ImplicitAliasGenerator(); 
 	
 	//map of <entityName,List entityImplementors>
 	private final HashMap<String,List> knownEntities = new HashMap<String,List>();
@@ -21,9 +23,8 @@ public class TestingParserContext implements ParserContext {
 		}
 	}
 
-	public Token buildUniqueImplicitAlias() {
-		// TODO Auto-generated method stub
-		return null;
+	public String buildUniqueImplicitAlias() {
+		return implicitAliasGenerator.buildUniqueImplicitAlias();
 	}
 
 	public List getEntityImplementors(String entityName) {
