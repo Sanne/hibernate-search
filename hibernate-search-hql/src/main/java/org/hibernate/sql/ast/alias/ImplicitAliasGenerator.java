@@ -1,10 +1,10 @@
 /*
  * Hibernate, Relational Persistence for Idiomatic Java
  *
- * Copyright (c) 2010, Red Hat, Inc. and/or its affiliates or third-party contributors as
+ * Copyright (c) 2008, Red Hat Middleware LLC or third-party contributors as
  * indicated by the @author tags or express copyright attribution
  * statements applied by the authors.  All third-party contributions are
- * distributed under license by Red Hat, Inc.
+ * distributed under license by Red Hat Middleware LLC.
  *
  * This copyrighted material is made available to anyone wishing to use, modify,
  * copy, or redistribute it subject to the terms and conditions of the GNU
@@ -21,30 +21,32 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.search.test.hql;
-
-import java.util.Map;
-
-import org.hibernate.engine.SessionFactoryImplementor;
-import org.hibernate.hql.antlr.HqlSqlBaseWalker;
-import org.hibernate.hql.ast.HqlParser;
+package org.hibernate.sql.ast.alias;
 
 /**
- * @author Sanne Grinovero
+ * Handles generating implicit (or synthetic) aliases.
  *
+ * @author Steve Ebersole
  */
-public class HqlLuceneWalker extends HqlSqlBaseWalker {
+public class ImplicitAliasGenerator {
+	private int unaliasedCount = 0;
 
 	/**
-	 * @param luceneQueryTranslatorImpl
-	 * @param factory
-	 * @param parser
-	 * @param tokenReplacements
-	 * @param collectionRole
+	 * Builds a unique implicit alias.
+	 *
+	 * @return The generated alias.
 	 */
-	public HqlLuceneWalker(LuceneQueryTranslatorImpl luceneQueryTranslatorImpl, SessionFactoryImplementor factory, HqlParser parser, Map tokenReplacements,
-			String collectionRole) {
-		// TODO Auto-generated constructor stub
+	public synchronized String buildUniqueImplicitAlias() {
+		return "<gen:" + unaliasedCount++ + ">";
 	}
-	
+
+	/**
+	 * Determine if the given alias is implicit.
+	 *
+	 * @param alias The alias to check
+	 * @return True/false.
+	 */
+	public static boolean isImplicitAlias(String alias) {
+		return alias == null || ( alias.startsWith( "<gen:" ) && alias.endsWith( ">" ) );
+	}
 }
