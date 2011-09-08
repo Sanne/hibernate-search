@@ -86,8 +86,8 @@ public class DirectoryBasedIndexManager implements IndexManager {
 		this.directoryProvider = createDirectoryProvider( indexName, properties, buildContext );
 		this.indexingParameters = PropertiesParseHelper.extractIndexingPerformanceOptions( properties );
 		this.optimizer = PropertiesParseHelper.getOptimizerStrategy( this, properties, buildContext );
-		this.backend = createBackend( indexName, properties, buildContext );
 		this.directoryProvider.start( this );
+		this.backend = createBackend( indexName, properties, buildContext );
 		this.readers = createIndexReader( indexName, properties, buildContext );
 		this.serviceManager = buildContext.getServiceManager();
 	}
