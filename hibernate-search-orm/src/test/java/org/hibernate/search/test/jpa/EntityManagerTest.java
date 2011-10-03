@@ -26,6 +26,11 @@ package org.hibernate.search.test.jpa;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.test.TestConstants;
+import org.hibernate.search.test.util.BytemanHelper;
+import org.jboss.byteman.contrib.bmunit.BMRule;
+import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.queryParser.QueryParser;
@@ -34,9 +39,30 @@ import org.apache.lucene.index.Term;
 /**
  * @author Emmanuel Bernard
  */
+@RunWith(BMUnitRunner.class)
 public class EntityManagerTest extends JPATestCase {
+	
+	@Override
+	public void setUp() {
+		// no-op: we need to instrument the full test with Byteman
+	}
 
+	@Override
+	public void tearDown() {
+		// no-op
+	}
+
+	@Test
+	@BMRule(
+		targetClass = "^java.io.RandomAccessFile",
+		targetMethod = "<init>(File, String)",
+		helper = "org.hibernate.search.test.util.BytemanHelper",
+		targetLocation = "AFTER INVOKE",
+		action = "openingRandomAccessFile($0, $1)",
+		name = "EntityManager usage shall not leak files")
 	public void testQuery() throws Exception {
+		super.setUp();
+		
 		FullTextEntityManager em = Search.getFullTextEntityManager( factory.createEntityManager() );
 		em.getTransaction().begin();
 		Bretzel bretzel = new Bretzel( 23, 34 );
@@ -60,6 +86,12 @@ public class EntityManagerTest extends JPATestCase {
 		em.remove( em.find( Bretzel.class, bretzel.getId() ) );
 		em.getTransaction().commit();
 		em.close();
+
+		BytemanHelper.dumpUnclosedRandomAccessFiles();
+
+		super.tearDown();
+		
+		BytemanHelper.dumpUnclosedRandomAccessFiles();
 	}
 
 	public void testIndex() {

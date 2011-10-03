@@ -21,11 +21,17 @@ package org.hibernate.search.test.util;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.jboss.byteman.rule.Rule;
-import org.jboss.byteman.rule.helper.Helper;
+import java.io.File;
+import java.io.RandomAccessFile;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.LinkedList;
 
 import org.hibernate.search.util.logging.impl.Log;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
+
+import org.jboss.byteman.rule.Rule;
+import org.jboss.byteman.rule.helper.Helper;
 
 import static org.junit.Assert.fail;
 
@@ -38,6 +44,8 @@ public class BytemanHelper extends Helper {
 
 	public static final AtomicInteger counter = new AtomicInteger();
 
+	private static final LinkedList<OpenFileTrack> openedFiles = new LinkedList<OpenFileTrack>();
+	
 	protected BytemanHelper(Rule rule) {
 		super( rule );
 	}
@@ -72,4 +80,64 @@ public class BytemanHelper extends Helper {
 	public static int getAndResetInvocationCount() {
 		return counter.getAndSet( 0 );
 	}
+
+	public void closingFSIndexOutput(String fileName) {
+		System.out.println( "Closing:\t" + fileName );
+	}
+
+	public void openingRandomAccessFile(RandomAccessFile rafile, File file) {
+		OpenFileTrack tracker = new OpenFileTrack(rafile, file, formatStack());
+		synchronized (openedFiles) {
+			openedFiles.add(tracker);
+		}
+		//System.out.println( "Opening:\t" + file.getAbsolutePath() );
+	}
+
+	public static void dumpUnclosedRandomAccessFiles() {
+		synchronized ( openedFiles ) {
+			for (OpenFileTrack track : new ArrayList<OpenFileTrack>( openedFiles ) ) {
+				if ( ! isClosed( track.rafile ) ) {
+					System.out.println( "Unclosed File! " +track + "\n\tOpened at:" +
+							track.openingStack);
+				}
+			}
+		}
+	}
+
+	private static boolean isClosed(RandomAccessFile rafile) {
+		try {
+			Field field = RandomAccessFile.class.getDeclaredField("closed");
+			field.setAccessible(true);
+			Boolean object = (Boolean) field.get(rafile);
+			return object.booleanValue();
+		} catch (SecurityException e) {
+			log.error(e);
+		} catch (NoSuchFieldException e) {
+			log.error(e);
+		} catch (IllegalArgumentException e) {
+			log.error(e);
+		} catch (IllegalAccessException e) {
+			log.error(e);
+		}
+		return false;
+	}
+
+	private static class OpenFileTrack {
+
+		private final RandomAccessFile rafile;
+		private final File file;
+		private final String openingStack;
+
+		public OpenFileTrack(RandomAccessFile rafile, File file, String stack) {
+			this.rafile = rafile;
+			this.file = file;
+			this.openingStack = stack;
+		}
+
+		public String toString() {
+			return file.getAbsolutePath();
+		}
+
+	}
+
 }

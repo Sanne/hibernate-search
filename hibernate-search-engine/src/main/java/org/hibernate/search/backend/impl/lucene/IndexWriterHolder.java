@@ -180,6 +180,7 @@ class IndexWriterHolder {
 		final IndexWriter toClose = writer.getAndSet( null );
 		if ( toClose != null ) {
 			try {
+//				toClose.commit();
 				toClose.close();
 				log.trace( "IndexWriter closed" );
 			}
