@@ -2,7 +2,7 @@
 <!--
   ~ Hibernate, Relational Persistence for Idiomatic Java
   ~
-  ~  Copyright (c) 2010, Red Hat, Inc. and/or its affiliates or third-party contributors as
+  ~  Copyright (c) 2011, Red Hat, Inc. and/or its affiliates or third-party contributors as
   ~  indicated by the @author tags or express copyright attribution
   ~  statements applied by the authors.  All third-party contributions are
   ~  distributed under license by Red Hat, Inc.
@@ -56,20 +56,10 @@
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr</artifactId>
-            <version>3.3</version>
-            <scope>compile</scope>
-            <exclusions>
-                <exclusion>
-                    <artifactId>antlr</artifactId>
-                    <groupId>antlr</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>gunit</artifactId>
-            <version>3.3</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -83,7 +73,6 @@
             <plugin>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr3-maven-plugin</artifactId>
-                <version>3.3</version>
                 <executions>
                     <execution>
                         <goals>
@@ -93,19 +82,18 @@
                 </executions>
             </plugin>
             <plugin>
-				<groupId>org.antlr</groupId>
-				<artifactId>maven-gunit-plugin</artifactId>
-				<version>3.3</version>
-				<executions>
-					<execution>
-						<id>maven-gunit-plugin</id>
-						<phase>test</phase>
-						<goals>
-							<goal>gunit</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+                <groupId>org.antlr</groupId>
+                <artifactId>maven-gunit-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>maven-gunit-plugin</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>gunit</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>

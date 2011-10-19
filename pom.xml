@@ -145,6 +145,7 @@
         <jbossLoggingVersion>3.1.0.GA</jbossLoggingVersion>
         <jbossLoggingProcessorVersion>1.0.1.Final</jbossLoggingProcessorVersion>
         <jbossJTAVersion>4.16.4.Final</jbossJTAVersion>
+        <antlrVersion>3.3</antlrVersion>
     </properties>
 
     <dependencyManagement>
@@ -478,6 +479,23 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr</artifactId>
+                <version>${antlrVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>antlr</artifactId>
+                        <groupId>antlr</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>gunit</artifactId>
+                <version>${antlrVersion}</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -805,7 +823,12 @@
                 <plugin>
                     <groupId>org.antlr</groupId>
                     <artifactId>antlr3-maven-plugin</artifactId>
-                    <version>3.3</version>
+                    <version>${antlrVersion}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>maven-gunit-plugin</artifactId>
+                    <version>${antlrVersion}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
