@@ -83,8 +83,9 @@ public class BatchIndexingWorkspace implements Runnable {
 	public BatchIndexingWorkspace(SearchFactoryImplementor searchFactoryImplementor,
 								  SessionFactory sessionFactory,
 								  Class<?> entityType,
-								  int objectLoadingThreads,
-								  int collectionLoadingThreads,
+								  ThreadPoolExecutor objectLoadingThreads,
+								  ThreadPoolExecutor collectionLoadingThreads,
+								  ThreadPoolExecutor identifierLoadingExecutor,
 								  CacheMode cacheMode,
 								  int objectLoadingBatchSize,
 								  CountDownLatch endAllSignal,
@@ -109,12 +110,6 @@ public class BatchIndexingWorkspace implements Runnable {
 		this.cacheMode = cacheMode;
 		this.objectLoadingBatchSize = objectLoadingBatchSize;
 		this.backend = backend;
-
-		//executors: (quite expensive constructor)
-		//execIdentifiersLoader has size 1 and is not configurable: ensures the list is consistent as produced by one transaction
-		this.execIdentifiersLoader = Executors.newFixedThreadPool( 1, "identifierloader" );
-		this.execFirstLoader = Executors.newFixedThreadPool( objectLoadingThreadNum, "entityloader" );
-		this.execDocBuilding = Executors.newFixedThreadPool( luceneWorkerBuildingThreadNum, "collectionsloader" );
 
 		//pipelining queues:
 		this.fromIdentifierListToEntities = new ProducerConsumerQueue<List<Serializable>>( 1 );

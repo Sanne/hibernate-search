@@ -26,6 +26,7 @@ package org.hibernate.search.batchindexing.impl;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import org.hibernate.search.engine.spi.SearchFactoryImplementor;
 import org.hibernate.search.exception.ErrorHandler;
@@ -126,12 +127,17 @@ public class BatchCoordinator implements Runnable {
 	 * @throws InterruptedException if interrupted while waiting for endAllSignal.
 	 */
 	private void doBatchWork(BatchBackend backend) throws InterruptedException {
+		//executors: (quite expensive constructor)
+		//execIdentifiersLoader has size 1 and is not configurable: ensures the list is consistent as produced by one transaction
+		ThreadPoolExecutor execIdentifiersLoader = Executors.newFixedThreadPool( 1, "identifierloader" );
+		ThreadPoolExecutor execFirstLoader = Executors.newFixedThreadPool( objectLoadingThreads, "entityloader" );
+		ThreadPoolExecutor execDocBuilding = Executors.newFixedThreadPool( collectionLoadingThreads, "collectionsloader" );
 		ExecutorService executor = Executors.newFixedThreadPool( rootEntities.length, "BatchIndexingWorkspace" );
 		for ( Class<?> type : rootEntities ) {
 			executor.execute(
 					new BatchIndexingWorkspace(
 							searchFactoryImplementor, sessionFactory, type,
-							objectLoadingThreads, collectionLoadingThreads,
+							execIdentifiersLoader, execFirstLoader, execDocBuilding,
 							cacheMode, objectLoadingBatchSize, endAllSignal,
 							monitor, backend, objectsLimit, idFetchSize
 					)
