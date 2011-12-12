@@ -45,7 +45,7 @@ import org.hibernate.sql.ast.tree.EntityNameTree;
 
 @parser::members {
 	private Stack enableParameterUsage = new Stack();
-	private ParserContext context = null;
+	private ParserContext context = new org.hibernate.sql.DefaultParsingContext();
 	private List errorMessages = new LinkedList();
 
 	public void setParserContext(ParserContext context){
