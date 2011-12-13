@@ -276,10 +276,10 @@ statement
 updateStatement
 scope{
 	boolean generateVersionedField;
-}	:	udpate_key
+}	:	update_key
 		(versioned_key {$updateStatement::generateVersionedField = true;})? 
 			from_key? entityName aliasClause[true] setClause whereClause?
-		-> {	generateUpdateStatementTree($udpate_key.tree, $entityName.tree, $aliasClause.tree, $setClause.tree, $whereClause.tree )	}
+		-> {	generateUpdateStatementTree($update_key.tree, $entityName.tree, $aliasClause.tree, $setClause.tree, $whereClause.tree )	}
 	;
 
 //TODO: check what is necessary to generate at versioned field
@@ -1311,7 +1311,7 @@ versioned_key
 		->	VERSIONED[$id]
 	;
 
-udpate_key
+update_key
 	:	{(validateSoftKeyword("update"))}?=>  id=IDENTIFIER
 		->	UPDATE[$id]
 	;
