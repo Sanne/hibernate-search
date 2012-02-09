@@ -126,7 +126,7 @@ public class BatchCoordinator implements Runnable {
 	 * @throws InterruptedException if interrupted while waiting for endAllSignal.
 	 */
 	private void doBatchWork(BatchBackend backend) throws InterruptedException {
-		ExecutorService executor = Executors.newFixedThreadPool( rootEntities.length, "BatchIndexingWorkspace" );
+		ExecutorService executor = Executors.newFixedThreadPool( rootEntities.length, "BatchIndexingWorkspace", rootEntities.length );
 		for ( Class<?> type : rootEntities ) {
 			executor.execute(
 					new BatchIndexingWorkspace(

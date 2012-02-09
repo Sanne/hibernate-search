@@ -196,7 +196,7 @@ public class MutableFactoryTest {
 		for (int i = 0 ; i < nbrOfThread; i++) {
 			runnables.add( new DoAddClasses( sf, i, nbrOfClassesPerThread ) );
 		}
-		final ThreadPoolExecutor poolExecutor = Executors.newFixedThreadPool( nbrOfThread, "SFI classes addition" );
+		final ThreadPoolExecutor poolExecutor = Executors.newFixedThreadPool( nbrOfThread, "SFI classes addition", runnables.size() );
 		poolExecutor.prestartAllCoreThreads();
 		for (Runnable runnable : runnables) {
 			poolExecutor.execute( runnable );

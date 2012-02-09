@@ -111,7 +111,8 @@ final class LuceneBackendQueueTask implements Runnable {
 				submittedTasks[i] = executor.submit( task );
 			}
 			// now wait for all tasks being completed before releasing our lock
-			// (this thread waits even in async backend mode)
+			// (this thread waits even in async backend mode to guarantee sequential blocks of changes
+			// are applied in sequence)
 			for ( int i = 0; i < queueSize; i++ ) {
 				Future task = submittedTasks[i];
 				try {

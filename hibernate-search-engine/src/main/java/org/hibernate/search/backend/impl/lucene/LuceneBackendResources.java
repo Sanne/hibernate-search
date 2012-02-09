@@ -24,6 +24,7 @@
 package org.hibernate.search.backend.impl.lucene;
 
 import org.hibernate.search.batchindexing.impl.Executors;
+import org.hibernate.search.batchindexing.impl.FlushableExecutor;
 import org.hibernate.search.spi.WorkerBuildContext;
 import org.hibernate.search.backend.BackendFactory;
 import org.hibernate.search.backend.impl.lucene.works.LuceneWorkVisitor;
@@ -35,6 +36,7 @@ import org.hibernate.search.util.logging.impl.Log;
 
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -54,8 +56,8 @@ public final class LuceneBackendResources {
 	private final LuceneWorkVisitor visitor;
 	private final AbstractWorkspaceImpl workspace;
 	private final ErrorHandler errorHandler;
-	private final ExecutorService queueingExecutor;
-	private final ExecutorService workersExecutor;
+	private final ThreadPoolExecutor queueingExecutor;
+	private final FlushableExecutor workersExecutor;
 	private final int maxQueueLength;
 	private final String indexName;
 	private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
@@ -73,11 +75,11 @@ public final class LuceneBackendResources {
 		this.workersExecutor = BackendFactory.buildWorkersExecutor( props, indexName );
 	}
 
-	public ExecutorService getQueueingExecutor() {
+	public ThreadPoolExecutor getQueueingExecutor() {
 		return queueingExecutor;
 	}
 
-	public ExecutorService getWorkersExecutor() {
+	public FlushableExecutor getWorkersExecutor() {
 		return workersExecutor;
 	}
 
