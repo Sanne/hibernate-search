@@ -73,8 +73,9 @@ public interface BackendQueueProcessor {
 	 *
 	 * @param singleOperation single Lucene work instance to be applied to the index
 	 * @param monitor a {@link org.hibernate.search.backend.IndexingMonitor} object.
+	 * @param forceAsync 
 	 */
-	void applyStreamWork(LuceneWork singleOperation, IndexingMonitor monitor);
+	void applyStreamWork(LuceneWork singleOperation, IndexingMonitor monitor, boolean forceAsync);
 
 	/**
 	 * @return a Lock instance which will block index modifications when acquired

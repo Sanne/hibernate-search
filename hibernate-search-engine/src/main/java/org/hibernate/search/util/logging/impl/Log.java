@@ -675,4 +675,8 @@ public interface Log extends BasicLogger {
 			" The FieldBridge must be a TwoWayFieldBridge or you have to enable the ignoreFieldBridge option when defining a Query" )
 	SearchException fieldBridgeNotTwoWay(Class<? extends FieldBridge> bridgeClass, String fieldName, XClass beanXClass);
 
+	@LogMessage(level = ERROR)
+	@Message(id = 170, value = "Timed out while waiting for index update operation to be flushed")
+	void timeoutFlushingToIndex(@Cause InterruptedException e);
+
 }

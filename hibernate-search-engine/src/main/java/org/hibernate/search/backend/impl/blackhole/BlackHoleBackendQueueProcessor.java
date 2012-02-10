@@ -70,7 +70,7 @@ public class BlackHoleBackendQueueProcessor implements BackendQueueProcessor {
 	}
 
 	@Override
-	public void applyStreamWork(LuceneWork singleOperation, IndexingMonitor monitor) {
+	public void applyStreamWork(LuceneWork singleOperation, IndexingMonitor monitor, boolean forceAsync) {
 		// no-op
 		log.debug( "Discarding a single LuceneWork" );
 	}
