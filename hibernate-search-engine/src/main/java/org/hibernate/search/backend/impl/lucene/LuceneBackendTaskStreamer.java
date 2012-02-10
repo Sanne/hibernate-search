@@ -20,12 +20,16 @@
  */
 package org.hibernate.search.backend.impl.lucene;
 
+import java.util.Collections;
 import java.util.concurrent.locks.Lock;
 
 import org.apache.lucene.index.IndexWriter;
 import org.hibernate.search.backend.IndexingMonitor;
 import org.hibernate.search.backend.LuceneWork;
 import org.hibernate.search.backend.impl.lucene.works.LuceneWorkVisitor;
+import org.hibernate.search.batchindexing.impl.FlushableExecutor;
+import org.hibernate.search.exception.ErrorHandler;
+import org.hibernate.search.exception.impl.ErrorContextBuilder;
 import org.hibernate.search.util.logging.impl.Log;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
 
@@ -46,33 +50,62 @@ final class LuceneBackendTaskStreamer {
 	private final LuceneWorkVisitor workVisitor;
 	private final Lock modificationLock;
 	private final AbstractWorkspaceImpl workspace;
+	private final FlushableExecutor workersExecutor;
+	private final ErrorHandler errorHandler;
 
 	public LuceneBackendTaskStreamer(LuceneBackendResources resources) {
 		this.workVisitor = resources.getVisitor();
 		this.workspace = resources.getWorkspace();
 		this.modificationLock = resources.getParallelModificationLock();
+		this.workersExecutor = resources.getWorkersExecutor();
+		this.errorHandler = resources.getErrorHandler();
 	}
 
 	public void doWork(final LuceneWork work, final IndexingMonitor monitor) {
-		modificationLock.lock();
-		try {
-			IndexWriter indexWriter = workspace.getIndexWriter();
-			if ( indexWriter == null ) {
-				log.cannotOpenIndexWriterCausePreviousError();
-				return;
-			}
-			boolean errors = true;
+		workersExecutor.execute( new StreamingTaskRunnable( work, monitor ) );
+	}
+
+	private final class StreamingTaskRunnable implements Runnable {
+
+		private final LuceneWork work;
+		private final IndexingMonitor monitor;
+
+		StreamingTaskRunnable(final LuceneWork work, final IndexingMonitor monitor) {
+			this.work = work;
+			this.monitor = monitor;
+		}
+
+		@Override
+		public void run() {
+			modificationLock.lock();
 			try {
-				work.getWorkDelegate( workVisitor ).performWork( work, indexWriter, monitor );
-				errors = false;
+				IndexWriter indexWriter = workspace.getIndexWriter();
+				if ( indexWriter == null ) {
+					log.cannotOpenIndexWriterCausePreviousError();
+					return;
+				}
+				boolean errors = true;
+				try {
+					work.getWorkDelegate( workVisitor ).performWork( work, indexWriter, monitor );
+					errors = false;
+				}
+				catch (RuntimeException re) {
+					errorHandler.handle( new ErrorContextBuilder()
+						.allWorkToBeDone( Collections.singletonList( work ) )
+						.errorThatOccurred( re )
+						.addAllWorkThatFailed( Collections.singletonList( work ) )
+						.createErrorContext()
+					);
+				}
+				finally {
+					workspace.afterTransactionApplied( errors, true );
+				}
 			}
 			finally {
-				workspace.afterTransactionApplied( errors, true );
+				modificationLock.unlock();
 			}
 		}
-		finally {
-			modificationLock.unlock();
-		}
+
 	}
 
 }

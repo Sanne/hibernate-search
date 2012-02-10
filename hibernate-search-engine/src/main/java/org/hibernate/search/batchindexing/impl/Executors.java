@@ -47,18 +47,24 @@ public class Executors {
 	private static final Log log = LoggerFactory.make();
 	
 	/**
-	 * Creates a new fixed size ThreadPoolExecutor.
-	 * It's using a blockingqueue of maximum 1000 elements and the rejection
+	 * Creates a new fixed size FlushableExecutor.
+	 * It's using a blockingqueue of a defined maximum number of elements and the rejection
 	 * policy is set to CallerRunsPolicy for the case the queue is full.
 	 * These settings are required to cap the queue, to make sure the
 	 * timeouts are reasonable for most jobs.
-	 *
 	 * @param threads the number of threads
-	 * @param groupname a label to identify the threadpool; useful for profiling.
+	 * @param groupname a label to identify the threadpool; useful for profiling or monitoring.
+	 * @param queueSize the size of the queue to store Runnables when all threads are busy
 	 * @return the new ExecutorService
 	 */
-	public static ThreadPoolExecutor newFixedThreadPool(int threads, String groupname) {
-		return newFixedThreadPool( threads, groupname, QUEUE_MAX_LENGTH );
+	public static FlushableExecutor newFixedFlushableThreadPool(int threads, String groupname, int queueSize) {
+		return new FlushableExecutor(
+				threads,
+				threads,
+				0L, TimeUnit.MILLISECONDS,
+				new LinkedBlockingQueue<Runnable>( queueSize ),
+				new SearchThreadFactory( groupname ),
+				new BlockPolicy() );
 	}
 
 	/**
@@ -73,12 +79,12 @@ public class Executors {
 		return new ThreadPoolExecutor(
 				threads,
 				threads,
-	            0L, TimeUnit.MILLISECONDS,
-	            new LinkedBlockingQueue<Runnable>( queueSize ),
-	            new SearchThreadFactory( groupname ),
-	            new BlockPolicy() );
+				0L, TimeUnit.MILLISECONDS,
+				new LinkedBlockingQueue<Runnable>( queueSize ),
+				new SearchThreadFactory( groupname ),
+				new BlockPolicy() );
 	}
-	
+
 	/**
      * The thread factory, used to customize thread names
      */

@@ -21,7 +21,6 @@
 package org.hibernate.search.backend;
 
 import java.util.Properties;
-import java.util.concurrent.ExecutorService;
 
 import org.hibernate.annotations.common.util.StringHelper;
 import org.hibernate.search.Environment;
@@ -34,6 +33,7 @@ import org.hibernate.search.backend.impl.jms.JndiJMSBackendQueueProcessor;
 import org.hibernate.search.backend.impl.lucene.LuceneBackendQueueProcessor;
 import org.hibernate.search.backend.spi.BackendQueueProcessor;
 import org.hibernate.search.batchindexing.impl.Executors;
+import org.hibernate.search.batchindexing.impl.FlushableExecutor;
 import org.hibernate.search.indexes.impl.DirectoryBasedIndexManager;
 import org.hibernate.search.spi.WorkerBuildContext;
 import org.hibernate.search.util.configuration.impl.ConfigurationParseHelper;
@@ -99,11 +99,10 @@ public class BackendFactory {
 	 * @param indexManagerName The indexManager going to be linked to this ExecutorService
 	 * @return null if the work needs execution in sync
 	 */
-	public static ExecutorService buildWorkersExecutor(Properties properties, String indexManagerName) {
+	public static FlushableExecutor buildWorkersExecutor(Properties properties, String indexManagerName) {
 		int threadPoolSize = getWorkerThreadPoolSize( properties );
 		int queueSize = getWorkerQueueSize( properties );
-		return Executors.newFixedThreadPool(
-				threadPoolSize,
+		return Executors.newFixedFlushableThreadPool( threadPoolSize,
 				"IndexWriter worker executor for " + indexManagerName,
 				queueSize
 		);
