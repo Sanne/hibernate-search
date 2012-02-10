@@ -60,8 +60,9 @@ public class SlaveJGroupsBackendQueueProcessor extends JGroupsBackendQueueProces
 	}
 
 	@Override
-	public void applyStreamWork(LuceneWork singleOperation, IndexingMonitor monitor) {
+	public void applyStreamWork(LuceneWork singleOperation, IndexingMonitor monitor, boolean forceAsync) {
 		//TODO optimize for single operation?
+		//TODO implement async
 		jgroupsProcessor.sendLuceneWorkList( Collections.singletonList( singleOperation ) );
 	}
 

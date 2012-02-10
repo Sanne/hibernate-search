@@ -116,9 +116,8 @@ public class DirectoryBasedIndexManager implements IndexManager {
 	}
 
 	@Override
-	public void performStreamOperation(LuceneWork singleOperation, IndexingMonitor monitor,  boolean forceAsync) {
-		//TODO implement async
-		backend.applyStreamWork( singleOperation, monitor );
+	public void performStreamOperation(LuceneWork singleOperation, IndexingMonitor monitor, boolean forceAsync) {
+		backend.applyStreamWork( singleOperation, monitor, forceAsync );
 	}
 
 	@Override

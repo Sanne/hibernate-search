@@ -70,8 +70,9 @@ public interface BackendQueueProcessor {
 	 * even in parallel to a workList instance being processed by {@link #applyWork(List, IndexingMonitor)}
 	 *
 	 * @param singleOperation single Lucene work instance to be applied to the index
+	 * @param forceAsync 
 	 */
-	void applyStreamWork(LuceneWork singleOperation, IndexingMonitor monitor);
+	void applyStreamWork(LuceneWork singleOperation, IndexingMonitor monitor, boolean forceAsync);
 
 	/**
 	 * @return a Lock instance which will block index modifications when acquired

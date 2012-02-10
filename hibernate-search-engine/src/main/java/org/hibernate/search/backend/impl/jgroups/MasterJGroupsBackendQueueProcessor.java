@@ -92,8 +92,8 @@ public class MasterJGroupsBackendQueueProcessor extends JGroupsBackendQueueProce
 	}
 
 	@Override
-	public void applyStreamWork(LuceneWork singleOperation, IndexingMonitor monitor) {
-		luceneBackendQueueProcessor.applyStreamWork( singleOperation, monitor );
+	public void applyStreamWork(LuceneWork singleOperation, IndexingMonitor monitor, boolean forceAsync) {
+		luceneBackendQueueProcessor.applyStreamWork( singleOperation, monitor, forceAsync );
 	}
 
 	@Override

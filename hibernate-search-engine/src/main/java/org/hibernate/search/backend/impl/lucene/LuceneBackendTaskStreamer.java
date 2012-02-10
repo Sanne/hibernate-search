@@ -21,6 +21,7 @@
 package org.hibernate.search.backend.impl.lucene;
 
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
 import org.apache.lucene.index.IndexWriter;
@@ -61,8 +62,17 @@ final class LuceneBackendTaskStreamer {
 		this.errorHandler = resources.getErrorHandler();
 	}
 
-	public void doWork(final LuceneWork work, final IndexingMonitor monitor) {
+	public void doWork(final LuceneWork work, final IndexingMonitor monitor, boolean forceAsync) {
 		workersExecutor.execute( new StreamingTaskRunnable( work, monitor ) );
+		if ( ! forceAsync ) {
+			try {
+				workersExecutor.flush( 1, TimeUnit.HOURS );
+			}
+			catch ( InterruptedException e ) {
+				log.timeoutFlushingToIndex( e );
+				Thread.currentThread().interrupt();
+			}
+		}
 	}
 
 	private final class StreamingTaskRunnable implements Runnable {

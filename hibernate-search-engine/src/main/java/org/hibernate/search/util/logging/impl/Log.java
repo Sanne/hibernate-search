@@ -529,4 +529,8 @@ public interface Log extends BasicLogger {
 	@Message(id = 124, value = "The option 'threadsForIndexWriter' of the MassIndexer is deprecated and is being ignored! Control the size of worker.thread_pool.size for each index instead.")
 	void massIndexerIndexWriterThreadsIgnored();
 
+	@LogMessage(level = ERROR)
+	@Message(id = 125, value = "Timed out while waiting for index update operation to be flushed")
+	void timeoutFlushingToIndex(@Cause InterruptedException e);
+
 }

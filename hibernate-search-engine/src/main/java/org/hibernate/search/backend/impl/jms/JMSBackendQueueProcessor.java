@@ -135,7 +135,8 @@ public class JMSBackendQueueProcessor implements BackendQueueProcessor {
 	}
 
 	@Override
-	public void applyStreamWork(LuceneWork singleOperation, IndexingMonitor monitor) {
+	public void applyStreamWork(LuceneWork singleOperation, IndexingMonitor monitor, boolean forceAsync) {
+		//FIXME implement async
 		applyWork( Collections.singletonList( singleOperation ), monitor );
 	}
 

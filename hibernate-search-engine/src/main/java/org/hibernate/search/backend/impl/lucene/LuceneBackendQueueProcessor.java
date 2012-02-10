@@ -75,11 +75,11 @@ public class LuceneBackendQueueProcessor implements BackendQueueProcessor {
 	}
 
 	@Override
-	public void applyStreamWork(LuceneWork singleOperation, IndexingMonitor monitor) {
+	public void applyStreamWork(LuceneWork singleOperation, IndexingMonitor monitor, boolean forceAsync) {
 		if ( singleOperation == null ) {
 			throw new IllegalArgumentException( "singleOperation should not be null" );
 		}
-		streamWorker.doWork( singleOperation, monitor );
+		streamWorker.doWork( singleOperation, monitor, forceAsync );
 	}
 
 	@Override
