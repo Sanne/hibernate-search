@@ -23,6 +23,7 @@
  */
 package org.hibernate.search.batchindexing.impl;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
@@ -137,5 +138,9 @@ public class Executors {
 			}
         }
     }
+
+	public static ThreadPoolExecutor newFixedThreadPool(int length, String string) {
+		return newFixedThreadPool( length, string, QUEUE_MAX_LENGTH );
+	}
 	
 }
