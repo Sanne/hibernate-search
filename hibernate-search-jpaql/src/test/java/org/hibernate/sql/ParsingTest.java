@@ -44,6 +44,13 @@ public class ParsingTest {
 			"(QUERY (QUERY_SPEC (SELECT_FROM (from (PERSISTER_SPACE (ENTITY_PERSISTER_REF com.acme.EntityName e))) (SELECT (SELECT_LIST (SELECT_ITEM e))))))");
 	}
 
+	@Test
+	public void testOneCriteriaQuery() {
+		//generated alias:
+		assertTreeParsed( null, "from com.acme.EntityName e where e.name = 'same'",
+			"(QUERY (QUERY_SPEC (SELECT_FROM (from (PERSISTER_SPACE (ENTITY_PERSISTER_REF com.acme.EntityName e))) (SELECT (SELECT_LIST (SELECT_ITEM e)))) (where (= (PATH (. e name)) 'same'))))");
+	}
+
 	private void assertTreeParsed(ParserContext context, String input, String treeExpectation) {
 		HQLLexer lexed = new HQLLexer( new ANTLRStringStream( input ) );
 		CommonTokenStream tokens = new CommonTokenStream( lexed );
