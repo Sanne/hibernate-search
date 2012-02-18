@@ -32,7 +32,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>hibernate-search-hql</artifactId>
+    <artifactId>hibernate-search-jpaql</artifactId>
 
     <name>Hibernate Search HQL Parser</name>
     <description>Provides capabilities to parse HQL Queries and convert them to Lucene Queries</description>
