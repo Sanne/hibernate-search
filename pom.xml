@@ -145,7 +145,7 @@
         <jbossLoggingVersion>3.1.0.GA</jbossLoggingVersion>
         <jbossLoggingProcessorVersion>1.0.1.Final</jbossLoggingProcessorVersion>
         <jbossJTAVersion>4.16.4.Final</jbossJTAVersion>
-        <antlrVersion>3.3</antlrVersion>
+        <antlrVersion>3.4.1-SNAPSHOT</antlrVersion>
     </properties>
 
     <dependencyManagement>
