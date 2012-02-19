@@ -39,7 +39,7 @@ import org.antlr.runtime.RecognitionException;
  */
 public class GUnitRunner {
 
-	private static String[] guniTests = {
+	private static String[] GUniTests = {
 		"org/hibernate/sql/ast/origin/hql/parse/gUnitGeneratedAST.testsuite",
 		"org/hibernate/sql/ast/origin/hql/parse/gUnitHQLGrammar.testsuite",
 		"org/hibernate/sql/ast/origin/hql/parse/gUnitHQLTokens.testsuite",
@@ -47,7 +47,7 @@ public class GUnitRunner {
 		};
 
 	public static void main(String[] args) throws IOException, RecognitionException {
-		for (String resourceName : guniTests) {
+		for (String resourceName : GUniTests) {
 			executeGUnit( resourceName );
 		}
 	}
@@ -57,19 +57,25 @@ public class GUnitRunner {
 		URL resource = classLoader.getResource( resourceName );
 		InputStream resourceAsStream = classLoader.getResourceAsStream( resourceName );
 		try {
-			ANTLRInputStream antlrStream = new ANTLRInputStream( resourceAsStream );
-			GrammarInfo grammarInfo = Interp.parse( antlrStream );
-			gUnitExecutor executor = new gUnitExecutor(
-					grammarInfo,
-					classLoader,
-					new File( resource.getPath() ).getAbsolutePath()
-			);
-
-			String report = executor.execTest();
-			System.out.println( report );
+			if ( resourceAsStream != null ) {
+				ANTLRInputStream antlrStream = new ANTLRInputStream( resourceAsStream );
+				GrammarInfo grammarInfo = Interp.parse( antlrStream );
+				gUnitExecutor executor = new gUnitExecutor(
+						grammarInfo,
+						classLoader,
+						new File( resource.getPath() ).getAbsolutePath()
+				);
+				String report = executor.execTest();
+				System.out.println( report );
+			}
 		}
 		finally {
-			resourceAsStream.close();
+			if ( resourceAsStream != null) {
+				resourceAsStream.close();
+			}
+			else {
+				System.out.println( "Resource not found: " + resourceName );
+			}
 		}
 	}
 
