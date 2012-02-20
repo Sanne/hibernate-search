@@ -27,6 +27,8 @@ import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
+import org.hibernate.search.engine.spi.SearchFactoryImplementor;
+import org.hibernate.search.query.dsl.impl.ConnectedQueryContextBuilder;
 import org.hibernate.sql.ast.common.ParserContext;
 import org.hibernate.sql.ast.origin.hql.parse.HQLLexer;
 import org.hibernate.sql.ast.origin.hql.parse.HQLParser;
@@ -41,17 +43,13 @@ public class TreeWalkTest {
 
 	@Test
 	public void astWalkTest() {
-		
-	}
-
-	@Test
-	public void testOneCriteriaQuery() {
+		SearchFactoryMock searchFactory = new SearchFactoryMock();
 		//generated alias:
-		LuceneJPQLWalker walker = assertTreeParsed( null, "from com.acme.EntityName e where e.name = 'same'" );
+		LuceneJPQLWalker walker = assertTreeParsed( null, "from com.acme.EntityName e where e.name = 'same'" , searchFactory );
 		System.out.println( walker );
 	}
 
-	private LuceneJPQLWalker assertTreeParsed(ParserContext context, String input) {
+	private LuceneJPQLWalker assertTreeParsed(ParserContext context, String input, SearchFactoryImplementor searchFactory) {
 		HQLLexer lexed = new HQLLexer( new ANTLRStringStream( input ) );
 		CommonTokenStream tokens = new CommonTokenStream( lexed );
 		
@@ -76,7 +74,7 @@ public class TreeWalkTest {
 			treeStream.setTokenStream( tokens );
 			
 			// Finally create the treewalker:
-			LuceneJPQLWalker walker = new LuceneJPQLWalker( treeStream );
+			LuceneJPQLWalker walker = new LuceneJPQLWalker( treeStream, searchFactory );
 			try {
 				walker.statement();
 				return walker;
@@ -87,5 +85,10 @@ public class TreeWalkTest {
 		}
 		return null; // failed
 	}
+
+	private class SearchFactoryMock extends BaseSearchFactoryImplementor {
+		
+	}
+
 
 }

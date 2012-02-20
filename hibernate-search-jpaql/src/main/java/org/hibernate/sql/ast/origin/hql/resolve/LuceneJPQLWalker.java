@@ -23,9 +23,9 @@ package org.hibernate.sql.ast.origin.hql.resolve;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.antlr.runtime.RecognizerSharedState;
 import org.antlr.runtime.tree.Tree;
 import org.antlr.runtime.tree.TreeNodeStream;
+import org.hibernate.search.engine.spi.SearchFactoryImplementor;
 import org.hibernate.sql.ast.common.JoinType;
 import org.hibernate.sql.ast.origin.hql.resolve.path.PathedPropertyReference;
 import org.hibernate.sql.ast.origin.hql.resolve.path.PathedPropertyReferenceSource;
@@ -45,14 +45,19 @@ public class LuceneJPQLWalker extends GeneratedHQLResolver {
 	 */
 	private boolean definingSelectStrategy;
 
-	public LuceneJPQLWalker(TreeNodeStream input) {
+	/**
+	 * We refer to a SearchFactor to build queries
+	 */
+	private final SearchFactoryImplementor searchFactory;
+
+	public LuceneJPQLWalker(TreeNodeStream input, SearchFactoryImplementor searchFactory) {
 		super( input );
+		this.searchFactory = searchFactory;
 	}
 
-	public LuceneJPQLWalker(TreeNodeStream input, RecognizerSharedState state) {
-		super( input, state );
-	}
-
+	/**
+	 * See rule entityName
+	 */
 	protected void registerPersisterSpace(Tree entityName, Tree alias) {
 		String put = aliasToEntityType.put( alias.getText(), entityName.getText() );
 		if ( put != null && !put.equalsIgnoreCase( entityName.getText() ) ) {
