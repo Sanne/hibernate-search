@@ -107,7 +107,28 @@ import org.hibernate.sql.ast.origin.hql.resolve.path.PathedPropertyReferenceSour
 
 	protected void popStrategy(){
 		throw new UnsupportedOperationException( "must be overridden!" );
-	}	
+	}
+
+	protected void activateOR() {
+	  //no-op by default: Hibernate ORM doesn't care
+	}
+
+  protected void activateAND() {
+    //no-op by default: Hibernate ORM doesn't care
+  }
+
+  protected void activateNOT() {
+    //no-op by default: Hibernate ORM doesn't care
+  }
+
+  protected void deactivateBoolean() {
+    //no-op by default: Hibernate ORM doesn't care
+  }
+
+  protected void predicateEquals(String comparativePredicate) {
+    //no-op by default: Hibernate ORM doesn't care
+  }
+
 }
 
 filterStatement[String collectionRole]
@@ -255,14 +276,14 @@ sortSpecification
 	;
 
 searchCondition
-	:	^( OR searchCondition searchCondition )
-	|	^( AND searchCondition searchCondition )
-	|	^( NOT searchCondition )
+	:	{ activateOR(); } ^( OR searchCondition searchCondition ) { deactivateBoolean(); }
+	|	{ activateAND(); } ^( AND searchCondition searchCondition ) { deactivateBoolean(); }
+	|	{ activateNOT(); } ^( NOT searchCondition ) { deactivateBoolean(); }
 	|	predicate
 	;
 
 predicate
-	:	^( EQUALS rowValueConstructor comparativePredicateValue )
+	:	^( EQUALS rowValueConstructor comparativePredicateValue ) { predicateEquals( $comparativePredicateValue.text); }//{ predicateEquals( $rowValueConstructor, $comparativePredicateValue ); }
 	|	^( NOT_EQUAL rowValueConstructor comparativePredicateValue )
 	|	^( LESS rowValueConstructor comparativePredicateValue )
 	|	^( LESS_EQUAL rowValueConstructor comparativePredicateValue )

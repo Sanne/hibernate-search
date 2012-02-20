@@ -22,10 +22,20 @@ package org.hibernate.sql.ast.origin.hql.resolve;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 
 import org.antlr.runtime.tree.Tree;
 import org.antlr.runtime.tree.TreeNodeStream;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.BooleanClause.Occur;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.MatchAllDocsQuery;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.TermQuery;
 import org.hibernate.search.engine.spi.SearchFactoryImplementor;
+import org.hibernate.search.query.dsl.BooleanJunction;
+import org.hibernate.search.query.dsl.QueryBuilder;
+import org.hibernate.search.query.dsl.impl.ConnectedQueryContextBuilder;
 import org.hibernate.sql.ast.common.JoinType;
 import org.hibernate.sql.ast.origin.hql.resolve.path.PathedPropertyReference;
 import org.hibernate.sql.ast.origin.hql.resolve.path.PathedPropertyReferenceSource;
@@ -50,9 +60,30 @@ public class LuceneJPQLWalker extends GeneratedHQLResolver {
 	 */
 	private final SearchFactoryImplementor searchFactory;
 
-	public LuceneJPQLWalker(TreeNodeStream input, SearchFactoryImplementor searchFactory) {
+	/**
+	 * Map predicate and searchConditions to the root query context
+	 */
+	private final ConnectedQueryContextBuilder queryBuildContext;
+	private final HashMap<String, Class> entityNames;
+
+	private QueryBuilder queryBuilder = null;
+	private Class targetType = null;
+
+	private BooleanQuery booleanQuery;
+	private Stack<BooleanQuery> booleanQueryStack = new Stack<BooleanQuery>();
+	private Stack<Occur> booleanQueryModeStack = new Stack<Occur>();
+
+	private Occur booleanMode;
+
+	private String propertyName;
+
+	private Query rootQuery = new MatchAllDocsQuery();
+
+	public LuceneJPQLWalker(TreeNodeStream input, SearchFactoryImplementor searchFactory, HashMap<String, Class> entityNames) {
 		super( input );
 		this.searchFactory = searchFactory;
+		this.entityNames = entityNames;
+		this.queryBuildContext = new ConnectedQueryContextBuilder( searchFactory );
 	}
 
 	/**
@@ -65,15 +96,24 @@ public class LuceneJPQLWalker extends GeneratedHQLResolver {
 					"Alias reuse currently not supported: alias " + alias.getText()
 							+ " already assigned to type " + put );
 		}
+		Class targetedType = entityNames.get( entityName.getText() );
+		if ( targetedType == null ) {
+			throw new IllegalStateException( "Unknown entity name " + entityName.getText() );
+		}
+		if ( targetType != null ) {
+			throw new IllegalStateException( "Can't target multiple types: " + targetType + " already selected before " + targetedType );
+		}
+		targetType = targetedType;
+		queryBuilder = queryBuildContext.forEntity( targetedType ).get();
 	}
 
 	protected boolean isUnqualifiedPropertyReference() {
-		throw new UnsupportedOperationException( "must be overridden!" );
+		return true; // TODO - very likely always true for our supported use cases
 	}
 
 	protected PathedPropertyReferenceSource normalizeUnqualifiedPropertyReference(Tree property) {
-		//TODO
-		return null;
+		// TODO
+		return null;// return value is ignored anyway
 	}
 
 	protected boolean isPersisterReferenceAlias() {
@@ -114,7 +154,7 @@ public class LuceneJPQLWalker extends GeneratedHQLResolver {
 
 	protected Tree normalizePropertyPathTerminus(PathedPropertyReferenceSource source, Tree propertyNameNode) {
 		// receives the property name on a specific entity reference _source_
-		//TODO ?
+		this.propertyName = propertyNameNode.toString();
 		return null;
 	}
 
@@ -132,5 +172,57 @@ public class LuceneJPQLWalker extends GeneratedHQLResolver {
 
 	protected void popStrategy() {
 		definingSelectStrategy = false;
+	}
+
+	public Class getTargetEntity() {
+		return targetType;
+	}
+
+	protected void activateOR() {
+		activateBoolean();
+		booleanQuery = new BooleanQuery();
+		booleanMode = Occur.SHOULD;
+	}
+
+	protected void activateAND() {
+		activateBoolean();
+		booleanQuery = new BooleanQuery();
+		booleanMode = Occur.MUST;
+	}
+
+	protected void activateNOT() {
+		activateBoolean();
+		booleanQuery = new BooleanQuery();
+		booleanMode = Occur.MUST_NOT;
+	}
+
+	protected void predicateEquals(String comparativePredicate) {
+		//TODO apply appropriate bridge to comparativePredicate
+		booleanQuery.add( new TermQuery( new Term(propertyName, comparativePredicate)), booleanMode );
+	}
+
+	private void activateBoolean() {
+		booleanQueryStack.push( booleanQuery );
+		booleanQueryModeStack.push( booleanMode );
+	}
+
+	protected void deactivateBoolean() {
+		BooleanQuery currentBoolean = booleanQuery;
+		booleanQuery = booleanQueryStack.pop();
+		booleanMode = booleanQueryModeStack.pop();
+		if ( booleanQuery == null ) {
+			this.rootQuery = currentBoolean;
+		}
+		else {
+			booleanQuery.add( currentBoolean, booleanMode );
+		}
+	}
+
+	public String toString() {
+		return rootQuery.toString();
+	}
+
+	public Query getLuceneQuery() {
+		return rootQuery;
 	}
 }

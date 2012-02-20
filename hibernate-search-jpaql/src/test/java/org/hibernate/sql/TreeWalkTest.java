@@ -20,6 +20,8 @@
  */
 package org.hibernate.sql;
 
+import java.util.HashMap;
+
 import junit.framework.Assert;
 
 import org.antlr.runtime.ANTLRStringStream;
@@ -28,29 +30,79 @@ import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
 import org.hibernate.search.engine.spi.SearchFactoryImplementor;
-import org.hibernate.search.query.dsl.impl.ConnectedQueryContextBuilder;
 import org.hibernate.sql.ast.common.ParserContext;
 import org.hibernate.sql.ast.origin.hql.parse.HQLLexer;
 import org.hibernate.sql.ast.origin.hql.parse.HQLParser;
 import org.hibernate.sql.ast.origin.hql.resolve.LuceneJPQLWalker;
 import org.junit.Test;
 
-
 /**
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
  */
 public class TreeWalkTest {
 
+	private static boolean USE_STDOUT = true;
+
 	@Test
-	public void astWalkTest() {
-		SearchFactoryMock searchFactory = new SearchFactoryMock();
-		//generated alias:
-		LuceneJPQLWalker walker = assertTreeParsed( null, "from com.acme.EntityName e where e.name = 'same'" , searchFactory );
-		System.out.println( walker );
+	public void walkTest1() {
+		transformationAssert(
+				"from IndexedEntity" ,
+				"*:*" );
 	}
 
-	private LuceneJPQLWalker assertTreeParsed(ParserContext context, String input, SearchFactoryImplementor searchFactory) {
+	@Test
+	public void walkTest2() {
+		transformationAssert(
+				"from IndexedEntity e where e.name = 'same' or ( e.id = 4 and e.name = 'booh')" ,
+				"name:'same' (+id:4 +name:'booh')" );
+	}
+
+	@Test
+	public void walkTest3() {
+		transformationAssert(
+				"select e from IndexedEntity e where e.name = 'same' or ( e.id = 4 and e.name = 'booh')" ,
+				"name:'same' (+id:4 +name:'booh')" );
+	}
+
+	@Test
+	public void walkTest4() {
+		transformationAssert(
+				"select e from IndexedEntity e where e.name = 'same' and not e.id = 5" ,
+				"+name:'same' +(-id:5)" );
+	}
+
+	@Test
+	public void walkTest5() {
+		//TODO, we have several options:
+		// - Add explicit support for NOT_EQUAL like we did for EQUALS
+		// - Have the AST rewrite such cases into a unique form: [a != b] --> [NOT a = b]
+		// - Have ANTLR generate the Walker embedding Lucene Queries as return types for each predicate
+//		transformationAssert(
+//				"select e from IndexedEntity e where e.name = 'same' and e.id != 5" ,
+//				"+name:'same' +(-id:5)" );
+	}
+
+	private void transformationAssert(String jpaql, String expectedLuceneQuery) {
+		if ( USE_STDOUT ) {
+			System.out.println( jpaql );
+		}
+		SearchFactoryMock searchFactory = new SearchFactoryMock();
+		HashMap<String,Class> entityNames = new HashMap<String,Class>();
+		entityNames.put( "com.acme.IndexedEntity", IndexedEntity.class );
+		entityNames.put( "IndexedEntity", IndexedEntity.class );
+		//generated alias:
+		LuceneJPQLWalker walker = assertTreeParsed( null, jpaql , searchFactory, entityNames );
+		Assert.assertTrue( IndexedEntity.class.equals( walker.getTargetEntity() ) );
+		Assert.assertEquals( expectedLuceneQuery, walker.getLuceneQuery().toString() );
+		if ( USE_STDOUT ) {
+			System.out.println( expectedLuceneQuery );
+			System.out.println();
+		}
+	}
+
+	private LuceneJPQLWalker assertTreeParsed(ParserContext context, String input, SearchFactoryImplementor searchFactory, HashMap<String,Class> entityNames) {
 		HQLLexer lexed = new HQLLexer( new ANTLRStringStream( input ) );
+		Assert.assertEquals( 0, lexed.getNumberOfSyntaxErrors() );
 		CommonTokenStream tokens = new CommonTokenStream( lexed );
 		
 		CommonTree tree = null;
@@ -60,6 +112,7 @@ public class TreeWalkTest {
 		}
 		try {
 			HQLParser.statement_return r = parser.statement();
+			Assert.assertEquals( 0, parser.getNumberOfSyntaxErrors() );
 			tree = (CommonTree) r.getTree();
 		}
 		catch (RecognitionException e) {
@@ -67,6 +120,9 @@ public class TreeWalkTest {
 		}
 
 		if ( tree != null ) {
+			if ( USE_STDOUT ) {
+				System.out.println( tree.toStringTree() );
+			}
 			// To walk the resulting tree we need a treenode stream:
 			CommonTreeNodeStream treeStream = new CommonTreeNodeStream( tree );
 			
@@ -74,9 +130,10 @@ public class TreeWalkTest {
 			treeStream.setTokenStream( tokens );
 			
 			// Finally create the treewalker:
-			LuceneJPQLWalker walker = new LuceneJPQLWalker( treeStream, searchFactory );
+			LuceneJPQLWalker walker = new LuceneJPQLWalker( treeStream, searchFactory, entityNames );
 			try {
 				walker.statement();
+				Assert.assertEquals( 0, walker.getNumberOfSyntaxErrors() );
 				return walker;
 			}
 			catch (RecognitionException e) {
@@ -87,7 +144,9 @@ public class TreeWalkTest {
 	}
 
 	private class SearchFactoryMock extends BaseSearchFactoryImplementor {
-		
+		// For now keep it simple.
+		// We might want to add enough testing context to use the org.hibernate.search.query.dsl.QueryBuilder,
+		// and so take advantage of the well-known analyzers, fieldbridges and actual field names.
 	}
 
 
