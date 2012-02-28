@@ -27,17 +27,16 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.Criteria;
-import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 import org.hibernate.Transaction;
-import org.hibernate.criterion.Projections;
+import org.hibernate.search.batchindexing.IdentifierLoadingStrategy;
 import org.hibernate.search.batchindexing.MassIndexerProgressMonitor;
 import org.hibernate.search.exception.ErrorHandler;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
 import org.hibernate.search.util.logging.impl.Log;
+import org.hibernate.search.SearchException;
 
 /**
  * This Runnable is going to feed the indexing queue
@@ -58,35 +57,49 @@ public class IdentifierProducer implements StatelessSessionAwareRunnable {
 	private final ProducerConsumerQueue<List<Serializable>> destination;
 	private final SessionFactory sessionFactory;
 	private final int batchSize;
-	private final Class<?> indexedType;
 	private final MassIndexerProgressMonitor monitor;
 	private final long objectsLimit;
 	private final ErrorHandler errorHandler;
 	private final int idFetchSize;
+	private final IdentifierLoadingStrategy loaderStrategy;
 
 	/**
-	 * @param fromIdentifierListToEntities the target queue where the produced identifiers are sent to
-	 * @param sessionFactory the Hibernate SessionFactory to use to load entities
-	 * @param objectLoadingBatchSize affects mostly the next consumer: IdentifierConsumerEntityProducer
-	 * @param indexedType the entity type to be loaded
-	 * @param monitor to monitor indexing progress
-	 * @param objectsLimit if not zero
-	 * @param errorHandler how to handle unexpected errors
+	 * @param fromIdentifierListToEntities
+	 *            the target queue where the produced identifiers are sent to
+	 * @param sessionFactory
+	 *            the Hibernate SessionFactory to use to load entities
+	 * @param objectLoadingBatchSize
+	 *            affects mostly the next consumer: IdentifierConsumerEntityProducer
+	 * @param indexedType
+	 *            the entity type to be loaded
+	 * @param monitor
+	 *            to monitor indexing progress
+	 * @param objectsLimit
+	 *            if not zero
+	 * @param countHQL
+	 *            HQL query which performs the count of to be indexed entities. must return a single Number. when null,
+	 *            an appropriate Criteria is generated.
+	 * @param idLoadingHQL
+	 *            HQL query which selects all primary keys to be indexed for this entity type. when null, an Criteria
+	 *            scrolling on all primary keys is generated.
+	 * @param customQueriesParameters
+	 *            must contain the named parameters of queries countHQL and idLoadingHQL.
 	 */
 	public IdentifierProducer(
 			ProducerConsumerQueue<List<Serializable>> fromIdentifierListToEntities,
 			SessionFactory sessionFactory,
 			int objectLoadingBatchSize,
 			Class<?> indexedType, MassIndexerProgressMonitor monitor,
-			long objectsLimit, ErrorHandler errorHandler, int idFetchSize) {
+			long objectsLimit, ErrorHandler errorHandler, int idFetchSize,
+			IdentifierLoadingStrategy loaderStrategy) {
 				this.destination = fromIdentifierListToEntities;
 				this.sessionFactory = sessionFactory;
 				this.batchSize = objectLoadingBatchSize;
-				this.indexedType = indexedType;
 				this.monitor = monitor;
 				this.objectsLimit = objectsLimit;
 				this.errorHandler = errorHandler;
 				this.idFetchSize = idFetchSize;
+				this.loaderStrategy = loaderStrategy == null ? new CriteriaLoadingStrategy( indexedType ) : loaderStrategy;
 				log.trace( "created" );
 	}
 	
@@ -126,12 +139,11 @@ public class IdentifierProducer implements StatelessSessionAwareRunnable {
 	}
 
 	private void loadAllIdentifiers(final StatelessSession session) throws InterruptedException {
-		Number countAsNumber = (Number) session
-			.createCriteria( indexedType )
-			.setProjection( Projections.rowCount() )
-			.setCacheable( false )
-			.uniqueResult();
-		long totalCount = countAsNumber.longValue(); 
+		Number indexedEntitiesCount = loaderStrategy.countToBeIndexedEntities( session );
+		if ( indexedEntitiesCount == null ) {
+			throw new SearchException( "Selected loading strategy returned 'null' on method countToBeIndexedEntities(StatelessSession)" );
+		}
+		long totalCount = indexedEntitiesCount.longValue();
 		if ( objectsLimit != 0 && objectsLimit < totalCount ) {
 			totalCount = objectsLimit;
 		}
@@ -139,13 +151,15 @@ public class IdentifierProducer implements StatelessSessionAwareRunnable {
 			log.debugf( "going to fetch %d primary keys", totalCount);
 		monitor.addToTotalCount( totalCount );
 		
-		Criteria criteria = session
-			.createCriteria( indexedType )
-			.setProjection( Projections.id() )
-			.setCacheable( false )
-			.setFetchSize( idFetchSize );
-		
-		ScrollableResults results = criteria.scroll( ScrollMode.FORWARD_ONLY );
+//		Criteria criteria = session
+//			.createCriteria( indexedType )
+//			.setProjection( Projections.id() )
+//			.setCacheable( false )
+//			.setFetchSize( idFetchSize );
+//		ScrollableResults results = criteria.scroll( ScrollMode.FORWARD_ONLY );
+
+		ScrollableResults results = loaderStrategy.getToIndexIdentifiersScrollable( session );
+
 		ArrayList<Serializable> destinationList = new ArrayList<Serializable>( batchSize );
 		long counter = 0;
 		try {
@@ -158,7 +172,7 @@ public class IdentifierProducer implements StatelessSessionAwareRunnable {
 				}
 				counter++;
 				if ( counter == totalCount ) {
-					break;
+					break; // early exit if an objectsLimit was defined
 				}
 			}
 		}

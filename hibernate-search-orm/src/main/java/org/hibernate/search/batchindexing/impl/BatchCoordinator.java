@@ -35,6 +35,7 @@ import org.hibernate.CacheMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.search.backend.PurgeAllLuceneWork;
 import org.hibernate.search.backend.impl.batch.BatchBackend;
+import org.hibernate.search.batchindexing.IdentifierLoadingStrategy;
 import org.hibernate.search.batchindexing.MassIndexerProgressMonitor;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
 
@@ -64,6 +65,7 @@ public class BatchCoordinator implements Runnable {
 	private final long objectsLimit;
 	private final ErrorHandler errorHandler;
 	private final int idFetchSize;
+	private final IdentifierLoadingStrategy customIdLoadingStrategy;
 
 	public BatchCoordinator(Set<Class<?>> rootEntities,
 							SearchFactoryImplementor searchFactoryImplementor,
@@ -77,7 +79,8 @@ public class BatchCoordinator implements Runnable {
 							boolean purgeAtStart,
 							boolean optimizeAfterPurge,
 							MassIndexerProgressMonitor monitor,
-							int idFetchSize) {
+							int idFetchSize,
+							IdentifierLoadingStrategy customIdLoadingStrategy) {
 		this.idFetchSize = idFetchSize;
 		this.rootEntities = rootEntities.toArray( new Class<?>[rootEntities.size()] );
 		this.searchFactoryImplementor = searchFactoryImplementor;
@@ -91,6 +94,7 @@ public class BatchCoordinator implements Runnable {
 		this.optimizeAfterPurge = optimizeAfterPurge;
 		this.monitor = monitor;
 		this.objectsLimit = objectsLimit;
+		this.customIdLoadingStrategy = customIdLoadingStrategy;
 		this.endAllSignal = new CountDownLatch( rootEntities.size() );
 		this.errorHandler = searchFactoryImplementor.getErrorHandler();
 	}
@@ -133,7 +137,8 @@ public class BatchCoordinator implements Runnable {
 							searchFactoryImplementor, sessionFactory, type,
 							objectLoadingThreads, collectionLoadingThreads,
 							cacheMode, objectLoadingBatchSize, endAllSignal,
-							monitor, backend, objectsLimit, idFetchSize
+							monitor, backend, objectsLimit, idFetchSize,
+							customIdLoadingStrategy
 					)
 			);
 		}

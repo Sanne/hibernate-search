@@ -32,6 +32,7 @@ import org.hibernate.CacheMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.search.SearchException;
 import org.hibernate.search.backend.impl.batch.BatchBackend;
+import org.hibernate.search.batchindexing.IdentifierLoadingStrategy;
 import org.hibernate.search.batchindexing.MassIndexerProgressMonitor;
 import org.hibernate.search.engine.spi.SearchFactoryImplementor;
 import org.hibernate.search.exception.ErrorHandler;
@@ -80,6 +81,8 @@ public class BatchIndexingWorkspace implements Runnable {
 
 	private final int idFetchSize;
 
+	private final IdentifierLoadingStrategy customIdLoadingStrategy;
+
 	public BatchIndexingWorkspace(SearchFactoryImplementor searchFactoryImplementor,
 								  SessionFactory sessionFactory,
 								  Class<?> entityType,
@@ -91,8 +94,9 @@ public class BatchIndexingWorkspace implements Runnable {
 								  MassIndexerProgressMonitor monitor,
 								  BatchBackend backend,
 								  long objectsLimit,
-								  int idFetchSize) {
-
+								  int idFetchSize,
+								  IdentifierLoadingStrategy customIdLoadingStrategy) {
+		
 		this.indexedType = entityType;
 		this.idFetchSize = idFetchSize;
 		this.idNameOfIndexedType = searchFactoryImplementor.getIndexBindingForEntity( entityType )
@@ -109,6 +113,7 @@ public class BatchIndexingWorkspace implements Runnable {
 		this.cacheMode = cacheMode;
 		this.objectLoadingBatchSize = objectLoadingBatchSize;
 		this.backend = backend;
+		this.customIdLoadingStrategy = customIdLoadingStrategy;
 
 		//executors: (quite expensive constructor)
 		//execIdentifiersLoader has size 1 and is not configurable: ensures the list is consistent as produced by one transaction
@@ -154,7 +159,7 @@ public class BatchIndexingWorkspace implements Runnable {
 			final IdentifierProducer producer = new IdentifierProducer(
 					fromIdentifierListToEntities, sessionFactory,
 					objectLoadingBatchSize, indexedType, monitor,
-					objectsLimit, errorHandler, idFetchSize
+					objectsLimit, errorHandler, idFetchSize, customIdLoadingStrategy
 			);
 			execIdentifiersLoader.execute( new OptionallyWrapInJTATransaction( sessionFactory, errorHandler, producer ) );
 
