@@ -262,6 +262,29 @@ transaction.commit();</programlisting>
       useful to enable some other <literal>CacheMode</literal> depending on
       your data: it might increase performance if the main entity is relating
       to enum-like data included in the index.</para>
+      
+      <example>
+        <title>MassIndexer restricted on a specific range</title>
+        
+      <programlisting language="JAVA" role="JAVA">fullTextSession
+ .createIndexer( AncientBook.class )
+ .countQuery( "select count (*) from AncientBook a where a.id &lt;= :num" )
+ .primaryKeySelectingQuery( "select a.id from AncientBook a where a.id &lt;= :num" )
+ .queryParameter( "num", 20L )
+ .startAndWait();</programlisting>
+      </example>
+      
+      <para>This example will use the provided queries to restrict the entities
+      going to be added to the index. The <methodname>countQuery</methodname> and
+      <methodname>primaryKeySelectingQuery</methodname> must be both defined, or none,
+      and written in such a way that the first will count the number of elements
+      returned by the second one. <methodname>queryParameter</methodname> can be used
+      to pass parameters to the defined queries.</para>
+      
+      <para>As an alternative to writing custom <literal>HQL</literal> queries,
+      the method <classname>MassIndexer</classname>.<methodname>idLoadingStrategy</methodname>
+      makes it possible to use a custom implementation of <classname>IdentifierLoadingStrategy</classname>.
+      </para>
 
       <tip>
         <para>The "sweet spot" of number of threads to achieve best
