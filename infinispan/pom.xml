@@ -38,6 +38,12 @@
     <description>Hibernate Search Infinispan Backend</description>
 
     <dependencies>
+                <dependency>
+                    <groupId>mysql</groupId>
+                    <artifactId>mysql-connector-java</artifactId>
+                    <version>5.1.13</version>
+                    <scope>test</scope>
+                </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>hibernate-search-engine</artifactId>
@@ -52,7 +58,13 @@
         <dependency>
             <groupId>org.infinispan</groupId>
             <artifactId>infinispan-lucene-directory</artifactId>
-            <version>${infinispanVersion}</version>
+            <version>5.2.0-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>jgroups</artifactId>
+                    <groupId>org.jgroups</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

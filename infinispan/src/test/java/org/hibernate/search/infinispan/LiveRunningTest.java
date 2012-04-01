@@ -25,7 +25,6 @@ package org.hibernate.search.infinispan;
 
 import static junit.framework.Assert.assertEquals;
 import static org.hibernate.search.infinispan.ClusterTestHelper.clusterSize;
-import static org.hibernate.search.infinispan.ClusterTestHelper.createClusterNode;
 import static org.hibernate.search.infinispan.ClusterTestHelper.waitMembersCount;
 
 import java.util.HashSet;
@@ -58,9 +57,10 @@ public class LiveRunningTest {
 	private static final int TEST_RUNS = 17;
 	private static final int MAX_SLAVES = 5;
 
-	private static HashSet<Class<?>> entityTypes;
+	protected static HashSet<Class<?>> entityTypes;
 
 	private final FullTextSessionBuilder master = createClusterNode( entityTypes, true );
+
 	private final List<FullTextSessionBuilder> slaves = new LinkedList<FullTextSessionBuilder>();
 
 	private boolean growCluster = true;
@@ -159,6 +159,17 @@ public class LiveRunningTest {
 	@AfterClass
 	public static void shutdownConnectionPool() {
 		ClusterSharedConnectionProvider.realStop();
+	}
+
+	/**
+	 * Creates a new "node" in the cluster: an isolated instance of a new SessionFactory.
+	 * If the new nodes are able to interact, they are doing so via network and using the
+	 * discovery protocol configured on JGroups.
+	 *
+	 * @return a new {@link FullTextSessionBuilder}
+	 */
+	protected FullTextSessionBuilder createClusterNode() {
+		return ClusterTestHelper.createClusterNode( entityTypes );
 	}
 
 }

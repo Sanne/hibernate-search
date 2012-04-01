@@ -206,6 +206,16 @@ public class FullTextSessionBuilder {
 	}
 
 	/**
+	 * @return the Hibernate SessionFactory
+	 */
+	public SessionFactory getSessionFactory() {
+		if ( sessionFactory == null ) {
+			build();
+		}
+		return sessionFactory;
+	}
+
+	/**
 	 * Defines a programmatic configuration to be used by Search
 	 *
 	 * @return the enabled SearchMapping. change it to define the mapping programmatically.
