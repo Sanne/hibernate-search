@@ -97,30 +97,33 @@ public class TikaBridge implements FieldBridge {
 		if ( value == null ) {
 			throw new IllegalArgumentException( "null cannot be passed to Tika bridge" );
 		}
-		InputStream in = getInputStreamForData( value );
 		try {
-			Metadata metadata = metadataProcessor.prepareMetadata();
-			ParseContext parseContext = parseContextProvider.getParseContext( name, value );
+			final InputStream in = getInputStreamForData( value );
+			try {
+				Metadata metadata = metadataProcessor.prepareMetadata();
+				ParseContext parseContext = parseContextProvider.getParseContext( name, value );
 
-			StringWriter writer = new StringWriter();
-			WriteOutContentHandler contentHandler = new WriteOutContentHandler( writer );
+				StringWriter writer = new StringWriter();
+				WriteOutContentHandler contentHandler = new WriteOutContentHandler( writer );
 
-			Parser parser = new AutoDetectParser();
-			parser.parse( in, contentHandler, metadata, parseContext );
-			luceneOptions.addFieldToDocument( name, writer.toString(), document );
+				Parser parser = new AutoDetectParser();
+				parser.parse( in, contentHandler, metadata, parseContext );
+				luceneOptions.addFieldToDocument( name, writer.toString(), document );
 
-			// allow for optional indexing of metadata by the user
-			metadataProcessor.set( name, value, document, luceneOptions, metadata );
+				// allow for optional indexing of metadata by the user
+				metadataProcessor.set( name, value, document, luceneOptions, metadata );
+			}
+			finally {
+				closeQuietly( in );
+			}
 		}
 		catch (Exception e) {
 			throw log.unableToParseDocument( e );
 		}
-		finally {
-			closeQuietly( in );
-		}
 	}
 
-	private InputStream getInputStreamForData(Object object) {
+	private InputStream getInputStreamForData(Object object) throws Exception {
+		final InputStream in;
 		if ( object instanceof Blob ) {
 			try {
 				return ( (Blob) object ).getBinaryStream();
