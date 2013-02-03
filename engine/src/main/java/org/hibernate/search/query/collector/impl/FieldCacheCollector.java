@@ -54,8 +54,5 @@ public abstract class FieldCacheCollector extends Collector {
 	@Override
 	public abstract void collect(int doc) throws IOException;
 
-	@Override
-	public abstract void setNextReader(IndexReader reader, int docBase) throws IOException;
-
 	public abstract Object getValue(int docId);
 }
