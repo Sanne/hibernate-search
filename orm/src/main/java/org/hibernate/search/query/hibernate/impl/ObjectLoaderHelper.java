@@ -23,6 +23,7 @@
  */
 package org.hibernate.search.query.hibernate.impl;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -94,7 +95,7 @@ public class ObjectLoaderHelper {
 		Object maybeProxy;
 		if ( areDocIdAndEntityIdIdentical( entityInfo, session ) ) {
 			//be sure to get an initialized object but save from ONFE and ENFE
-			maybeProxy = session.load( entityInfo.getClazz(), entityInfo.getId() );
+			maybeProxy = session.load( entityInfo.getClazz(), (Serializable) entityInfo.getId() );
 		}
 		else {
 			Criteria criteria = session.createCriteria( entityInfo.getClazz() );

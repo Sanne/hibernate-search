@@ -23,7 +23,6 @@
  */
 package org.hibernate.search.store;
 
-import java.io.Serializable;
 import java.util.Properties;
 
 import org.apache.lucene.document.Document;
@@ -52,7 +51,7 @@ public interface IndexShardingStrategy {
 	/**
 	 * return the IndexManager where the given entity will be indexed
 	 */
-	IndexManager getIndexManagerForAddition(Class<?> entity, Serializable id, String idInString, Document document);
+	IndexManager getIndexManagerForAddition(Class<?> entity, Object id, String idInString, Document document);
 
 	/**
 	 * return the IndexManager(s) where the given entity is stored and where the deletion operation needs to be applied
@@ -61,7 +60,7 @@ public interface IndexShardingStrategy {
 	 * @param id the id in object form
 	 * @param idInString the id as transformed by the used TwoWayStringBridge
 	 */
-	IndexManager[] getIndexManagersForDeletion(Class<?> entity, Serializable id, String idInString);
+	IndexManager[] getIndexManagersForDeletion(Class<?> entity, Object id, String idInString);
 
 	/**
 	 * return the set of IndexManager(s) where the entities matching the filters are stored

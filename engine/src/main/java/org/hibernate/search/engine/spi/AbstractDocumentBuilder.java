@@ -181,7 +181,7 @@ public abstract class AbstractDocumentBuilder<T> {
 		}
 	}
 
-	public abstract void addWorkToQueue(Class<T> entityClass, T entity, Serializable id, boolean delete, boolean add, List<LuceneWork> queue, ConversionContext contextualBridge);
+	public abstract void addWorkToQueue(Class<T> entityClass, T entity, Object id, boolean delete, boolean add, List<LuceneWork> queue, ConversionContext contextualBridge);
 
 	protected abstract void documentBuilderSpecificChecks(XProperty member, PropertiesMetadata propertiesMetadata, boolean isRoot, String prefix, ConfigContext context, PathsContext pathsContext);
 

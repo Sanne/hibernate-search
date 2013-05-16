@@ -20,7 +20,6 @@
  */
 package org.hibernate.search.query.hibernate.impl;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -89,7 +88,7 @@ public class CriteriaObjectsInitializer implements ObjectsInitializer {
 			int max = index * MAX_IN_CLAUSE + MAX_IN_CLAUSE <= maxResults ?
 					index * MAX_IN_CLAUSE + MAX_IN_CLAUSE :
 					maxResults;
-			List<Serializable> ids = new ArrayList<Serializable>( max - index * MAX_IN_CLAUSE );
+			List<Object> ids = new ArrayList<Object>( max - index * MAX_IN_CLAUSE );
 			for ( int entityInfoIndex = index * MAX_IN_CLAUSE; entityInfoIndex < max; entityInfoIndex++ ) {
 				ids.add( entityInfos[entityInfoIndex].getId() );
 			}

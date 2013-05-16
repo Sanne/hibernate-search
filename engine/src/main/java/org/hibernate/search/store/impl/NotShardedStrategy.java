@@ -24,7 +24,6 @@
 package org.hibernate.search.store.impl;
 
 import java.util.Properties;
-import java.io.Serializable;
 
 import org.apache.lucene.document.Document;
 import org.hibernate.annotations.common.AssertionFailure;
@@ -50,11 +49,11 @@ public class NotShardedStrategy implements IndexShardingStrategy {
 		return directoryProvider;
 	}
 
-	public IndexManager getIndexManagerForAddition(Class<?> entity, Serializable id, String idInString, Document document) {
+	public IndexManager getIndexManagerForAddition(Class<?> entity, Object id, String idInString, Document document) {
 		return directoryProvider[0];
 	}
 
-	public IndexManager[] getIndexManagersForDeletion(Class<?> entity, Serializable id, String idInString) {
+	public IndexManager[] getIndexManagersForDeletion(Class<?> entity, Object id, String idInString) {
 		return directoryProvider;
 	}
 

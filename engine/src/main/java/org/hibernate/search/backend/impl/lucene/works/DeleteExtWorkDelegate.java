@@ -23,8 +23,6 @@
  */
 package org.hibernate.search.backend.impl.lucene.works;
 
-import java.io.Serializable;
-
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 import org.hibernate.annotations.common.AssertionFailure;
@@ -62,7 +60,7 @@ public final class DeleteExtWorkDelegate extends DeleteWorkDelegate {
 	@Override
 	public void performWork(LuceneWork work, IndexWriter writer, IndexingMonitor monitor) {
 		checkType( work );
-		Serializable id = work.getId();
+		Object id = work.getId();
 		log.tracef( "Removing %s#%s by id using an IndexWriter.", managedType, id );
 		try {
 			if ( idIsNumeric ) {

@@ -20,6 +20,7 @@
  */
 package org.hibernate.search.query.hibernate.impl;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,7 +71,7 @@ public class PersistenceContextObjectsInitializer implements ObjectsInitializer 
 		List<EntityInfo> remainingEntityInfos = new ArrayList<EntityInfo>( maxResults );
 		for ( EntityInfo entityInfo : entityInfos ) {
 			if ( ObjectLoaderHelper.areDocIdAndEntityIdIdentical( entityInfo, session ) ) {
-				EntityKey entityKey = new EntityKey( entityInfo.getId(), persister, session.getTenantIdentifier() );
+				EntityKey entityKey = new EntityKey( (Serializable) entityInfo.getId(), persister, session.getTenantIdentifier() );
 				final boolean isInitialized = persistenceContext.containsEntity( entityKey );
 				if ( !isInitialized ) {
 					remainingEntityInfos.add( entityInfo );

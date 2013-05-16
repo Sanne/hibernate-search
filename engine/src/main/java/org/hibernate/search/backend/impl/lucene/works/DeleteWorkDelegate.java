@@ -23,8 +23,6 @@
  */
 package org.hibernate.search.backend.impl.lucene.works;
 
-import java.io.Serializable;
-
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
@@ -66,7 +64,7 @@ class DeleteWorkDelegate implements LuceneWorkDelegate {
 
 	public void performWork(LuceneWork work, IndexWriter writer, IndexingMonitor monitor) {
 		final Class<?> entityType = work.getEntityClass();
-		final Serializable id = work.getId();
+		final Object id = work.getId();
 		log.tracef( "Removing %s#%s by query.", entityType, id );
 		DocumentBuilderIndexedEntity<?> builder = workspace.getDocumentBuilder( entityType );
 

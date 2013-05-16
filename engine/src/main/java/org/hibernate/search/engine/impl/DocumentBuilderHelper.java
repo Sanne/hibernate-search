@@ -24,7 +24,6 @@
 
 package org.hibernate.search.engine.impl;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.zip.DataFormatException;
 
@@ -68,7 +67,7 @@ public final class DocumentBuilderHelper {
 		}
 	}
 
-	public static Serializable getDocumentId(SearchFactoryImplementor searchFactoryImplementor, Class<?> clazz, Document document, ConversionContext conversionContext) {
+	public static Object getDocumentId(SearchFactoryImplementor searchFactoryImplementor, Class<?> clazz, Document document, ConversionContext conversionContext) {
 		final DocumentBuilderIndexedEntity<?> builderIndexedEntity = getDocumentBuilder(
 				searchFactoryImplementor,
 				clazz
@@ -76,7 +75,7 @@ public final class DocumentBuilderHelper {
 		final TwoWayFieldBridge fieldBridge = builderIndexedEntity.getIdBridge();
 		final String fieldName = builderIndexedEntity.getIdKeywordName();
 		try {
-			return (Serializable) conversionContext
+			return conversionContext
 					.setClass( clazz )
 					.pushIdentifierProperty()
 					.twoWayConversionContext( fieldBridge )

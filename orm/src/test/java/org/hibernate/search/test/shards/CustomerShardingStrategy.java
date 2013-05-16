@@ -23,7 +23,6 @@
  */
 package org.hibernate.search.test.shards;
 
-import java.io.Serializable;
 import java.util.Properties;
 
 import org.apache.lucene.document.Document;
@@ -57,13 +56,13 @@ public class CustomerShardingStrategy implements IndexShardingStrategy {
 	}
 
 	@Override
-	public IndexManager getIndexManagerForAddition(Class<?> entity, Serializable id, String idInString, Document document) {
+	public IndexManager getIndexManagerForAddition(Class<?> entity, Object id, String idInString, Document document) {
 		Integer customerID = Integer.parseInt( document.getFieldable( "customerID" ).stringValue() );
 		return indexManagers[customerID];
 	}
 
 	@Override
-	public IndexManager[] getIndexManagersForDeletion(Class<?> entity, Serializable id, String idInString) {
+	public IndexManager[] getIndexManagersForDeletion(Class<?> entity, Object id, String idInString) {
 		return getIndexManagersForAllShards();
 	}
 

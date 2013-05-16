@@ -24,7 +24,6 @@
 package org.hibernate.search.store.impl;
 
 import java.util.Properties;
-import java.io.Serializable;
 
 import org.apache.lucene.document.Document;
 
@@ -48,11 +47,11 @@ public class IdHashShardingStrategy implements IndexShardingStrategy {
 		return providers;
 	}
 
-	public IndexManager getIndexManagerForAddition(Class<?> entity, Serializable id, String idInString, Document document) {
+	public IndexManager getIndexManagerForAddition(Class<?> entity, Object id, String idInString, Document document) {
 		return providers[hashKey( idInString )];
 	}
 
-	public IndexManager[] getIndexManagersForDeletion(Class<?> entity, Serializable id, String idInString) {
+	public IndexManager[] getIndexManagersForDeletion(Class<?> entity, Object id, String idInString) {
 		if ( idInString == null ) {
 			return providers;
 		}

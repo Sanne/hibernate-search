@@ -177,7 +177,7 @@ public class WorkPlan {
 		 * is annotated with @ProvidedId, otherwise it uses the value pointed to by
 		 * {@link org.hibernate.search.annotations.DocumentId} or as last attempt {@link javax.persistence.Id}.
 		 */
-		private final HashMap<Serializable, PerEntityWork<T>> entityById = new HashMap<Serializable, PerEntityWork<T>>();
+		private final HashMap<Object, PerEntityWork<T>> entityById = new HashMap<Object, PerEntityWork<T>>();
 
 		/**
 		 * When a PurgeAll operation is send on the type, we can remove all previously scheduled work
@@ -221,7 +221,7 @@ public class WorkPlan {
 				purgeAll = true;
 			}
 			else {
-				Serializable id = extractProperId( work );
+				Object id = extractProperId( work );
 				PerEntityWork<T> entityWork = entityById.get( id );
 				if ( entityWork == null ) {
 					entityWork = new PerEntityWork<T>( work );
@@ -239,7 +239,7 @@ public class WorkPlan {
 		 *
 		 * @return the appropriate id to use for this work
 		 */
-		private Serializable extractProperId(Work<T> work) {
+		private Object extractProperId(Work<T> work) {
 			// see HSEARCH-662
 			if ( containedInOnly ) {
 				return work.getId();
@@ -266,13 +266,13 @@ public class WorkPlan {
 		 * @param luceneQueue work will be appended to this list
 		 */
 		public void enqueueLuceneWork(List<LuceneWork> luceneQueue) {
-			final Set<Entry<Serializable, PerEntityWork<T>>> entityInstances = entityById.entrySet();
+			final Set<Entry<Object, PerEntityWork<T>>> entityInstances = entityById.entrySet();
 			ConversionContext conversionContext = new ContextualExceptionBridgeHelper();
 			if ( purgeAll ) {
 				luceneQueue.add( new PurgeAllLuceneWork( entityClass ) );
 			}
-			for ( Entry<Serializable, PerEntityWork<T>> entry : entityInstances ) {
-				Serializable indexingId = entry.getKey();
+			for ( Entry<Object, PerEntityWork<T>> entry : entityInstances ) {
+				Object indexingId = entry.getKey();
 				PerEntityWork<T> perEntityWork = entry.getValue();
 				perEntityWork.enqueueLuceneWork( entityClass, indexingId, documentBuilder, luceneQueue, conversionContext );
 			}
@@ -500,7 +500,7 @@ public class WorkPlan {
 		 * @param entityBuilder the DocumentBuilder for this type
 		 * @param luceneQueue the queue collecting all changes
 		 */
-		public void enqueueLuceneWork(Class<T> entityClass, Serializable indexingId, AbstractDocumentBuilder<T> entityBuilder,
+		public void enqueueLuceneWork(Class<T> entityClass, Object indexingId, AbstractDocumentBuilder<T> entityBuilder,
 				List<LuceneWork> luceneQueue, ConversionContext conversionContext) {
 			if ( add || delete ) {
 				entityBuilder.addWorkToQueue( entityClass, entity, indexingId, delete, add, luceneQueue, conversionContext );

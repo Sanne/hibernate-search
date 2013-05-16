@@ -23,7 +23,6 @@
  */
 package org.hibernate.search.test.embedded.depth;
 
-import java.io.Serializable;
 import java.util.List;
 
 import junit.framework.Assert;
@@ -294,7 +293,7 @@ public class WorkDoneOnEntitiesTest extends SearchTestCase {
 		List<LuceneWork> processedQueue = LeakingLuceneBackend.getLastProcessedQueue();
 		int count = 0;
 		for ( LuceneWork luceneWork : processedQueue ) {
-			Serializable id = luceneWork.getId();
+			Object id = luceneWork.getId();
 			if ( pk.equals( id ) ) {
 				count++;
 			}

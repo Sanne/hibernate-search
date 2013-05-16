@@ -20,7 +20,6 @@
  */
 package org.hibernate.search.query.engine.spi;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -31,7 +30,7 @@ import java.util.List;
 public interface EntityInfo {
 	Class<?> getClazz();
 
-	Serializable getId();
+	Object getId();
 
 	String getIdName();
 

@@ -20,6 +20,7 @@
  */
 package org.hibernate.search.query.hibernate.impl;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,11 +65,11 @@ public class SecondLevelCacheObjectsInitializer implements ObjectsInitializer {
 		List<EntityInfo> remainingEntityInfos = new ArrayList<EntityInfo>( entityInfos.length );
 		for ( EntityInfo entityInfo : entityInfos ) {
 			if ( ObjectLoaderHelper.areDocIdAndEntityIdIdentical( entityInfo, session ) ) {
-				final boolean isIn2LCache = session.getSessionFactory().getCache().containsEntity( entityInfo.getClazz(), entityInfo.getId() );
+				final boolean isIn2LCache = session.getSessionFactory().getCache().containsEntity( entityInfo.getClazz(), (Serializable)entityInfo.getId() );
 				if ( isIn2LCache ) {
 					try {
 						//load the object from the second level cache
-						session.get( entityInfo.getClazz(), entityInfo.getId() );
+						session.get( entityInfo.getClazz(), (Serializable) entityInfo.getId() );
 					}
 					catch (ObjectNotFoundException onfe) {
 						// Unlikely but needed: an index might be out of sync, and the cache might be as well

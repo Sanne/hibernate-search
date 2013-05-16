@@ -364,7 +364,7 @@ public class DocumentBuilderIndexedEntity<T> extends AbstractDocumentBuilder<T> 
 		return id;
 	}
 
-	public void addWorkToQueue(Class<T> entityClass, T entity, Serializable id, boolean delete, boolean add, List<LuceneWork> queue, ConversionContext contextualBridge) {
+	public void addWorkToQueue(Class<T> entityClass, T entity, Object id, boolean delete, boolean add, List<LuceneWork> queue, ConversionContext contextualBridge) {
 		String idInString = objectToString( idBridge, idKeywordName, id, contextualBridge );
 		if ( delete && !add ) {
 			queue.add( new DeleteLuceneWork( id, idInString, entityClass ) );
@@ -407,7 +407,7 @@ public class DocumentBuilderIndexedEntity<T> extends AbstractDocumentBuilder<T> 
 		return stringValue;
 	}
 
-	public AddLuceneWork createAddWork(Class<T> entityClass, T entity, Serializable id, String idInString, InstanceInitializer sessionInitializer, ConversionContext conversionContext) {
+	public AddLuceneWork createAddWork(Class<T> entityClass, T entity, Object id, String idInString, InstanceInitializer sessionInitializer, ConversionContext conversionContext) {
 		Map<String, String> fieldToAnalyzerMap = new HashMap<String, String>();
 		Document doc = getDocument( entity, id, fieldToAnalyzerMap, sessionInitializer, conversionContext );
 		final AddLuceneWork addWork;
@@ -420,7 +420,7 @@ public class DocumentBuilderIndexedEntity<T> extends AbstractDocumentBuilder<T> 
 		return addWork;
 	}
 
-	public UpdateLuceneWork createUpdateWork(Class<T> entityClass, T entity, Serializable id, String idInString, InstanceInitializer sessionInitializer, ConversionContext contextualBridge) {
+	public UpdateLuceneWork createUpdateWork(Class<T> entityClass, T entity, Object id, String idInString, InstanceInitializer sessionInitializer, ConversionContext contextualBridge) {
 		Map<String, String> fieldToAnalyzerMap = new HashMap<String, String>();
 		Document doc = getDocument( entity, id, fieldToAnalyzerMap, sessionInitializer, contextualBridge );
 		final UpdateLuceneWork addWork;
@@ -444,7 +444,7 @@ public class DocumentBuilderIndexedEntity<T> extends AbstractDocumentBuilder<T> 
 	 * @param conversionContext a {@link org.hibernate.search.bridge.spi.ConversionContext} object.
 	 * @return The Lucene <code>Document</code> for the specified entity.
 	 */
-	public Document getDocument(T instance, Serializable id, Map<String, String> fieldToAnalyzerMap, InstanceInitializer objectInitializer, ConversionContext conversionContext) {
+	public Document getDocument(T instance, Object id, Map<String, String> fieldToAnalyzerMap, InstanceInitializer objectInitializer, ConversionContext conversionContext) {
 		if ( fieldToAnalyzerMap == null ) {
 			throw new IllegalArgumentException( "fieldToAnalyzerMap cannot be null" );
 		}

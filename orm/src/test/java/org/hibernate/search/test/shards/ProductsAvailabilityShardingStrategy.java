@@ -20,7 +20,6 @@
  */
 package org.hibernate.search.test.shards;
 
-import java.io.Serializable;
 import java.util.Properties;
 
 import org.apache.lucene.document.Document;
@@ -50,7 +49,7 @@ public class ProductsAvailabilityShardingStrategy implements IndexShardingStrate
 	}
 
 	@Override
-	public IndexManager getIndexManagerForAddition(Class<?> entity, Serializable id, String idInString, Document document) {
+	public IndexManager getIndexManagerForAddition(Class<?> entity, Object id, String idInString, Document document) {
 		String isAvailable = document.get( "available" );
 		if ( "true".equals( isAvailable ) ) {
 			return availableProductsIndex;
@@ -61,7 +60,7 @@ public class ProductsAvailabilityShardingStrategy implements IndexShardingStrate
 	}
 
 	@Override
-	public IndexManager[] getIndexManagersForDeletion(Class<?> entity, Serializable id, String idInString) {
+	public IndexManager[] getIndexManagersForDeletion(Class<?> entity, Object id, String idInString) {
 		return both;
 	}
 

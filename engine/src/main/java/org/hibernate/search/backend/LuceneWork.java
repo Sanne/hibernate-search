@@ -48,14 +48,14 @@ public abstract class LuceneWork implements Serializable {
 
 	private final Document document;
 	private final Class<?> entityClass;
-	private final Serializable id;
+	private final Object id;
 	private final String idInString;
 
-	public LuceneWork(Serializable id, String idInString, Class<?> entity) {
+	public LuceneWork(Object id, String idInString, Class<?> entity) {
 		this( id, idInString, entity, null );
 	}
 
-	public LuceneWork(Serializable id, String idInString, Class<?> entity, Document document) {
+	public LuceneWork(Object id, String idInString, Class<?> entity, Document document) {
 		this.id = id;
 		this.idInString = idInString;
 		this.entityClass = entity;
@@ -70,7 +70,7 @@ public abstract class LuceneWork implements Serializable {
 		return entityClass;
 	}
 
-	public Serializable getId() {
+	public Object getId() {
 		return id;
 	}
 

@@ -21,7 +21,6 @@
 package org.hibernate.search.query.engine.impl;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -187,7 +186,7 @@ public class DocumentExtractorImpl implements DocumentExtractor {
 	private EntityInfo extractEntityInfo(int docId, Document document, int scoreDocIndex, ConversionContext exceptionWrap) throws IOException {
 		Class clazz = extractClass( docId, document, scoreDocIndex );
 		String idName = DocumentBuilderHelper.getDocumentIdName( searchFactoryImplementor, clazz );
-		Serializable id = extractId( docId, document, clazz );
+		Object id = extractId( docId, document, clazz );
 		Object[] projected = null;
 		if ( projection != null && projection.length > 0 ) {
 			projected = DocumentBuilderHelper.getDocumentFields(
@@ -197,12 +196,12 @@ public class DocumentExtractorImpl implements DocumentExtractor {
 		return new EntityInfoImpl( clazz, idName, id, projected );
 	}
 
-	private Serializable extractId(int docId, Document document, Class clazz) {
+	private Object extractId(int docId, Document document, Class clazz) {
 		if ( !needId ) {
 			return null;
 		}
 		else if ( this.idsCollector != null ) {
-			return (Serializable) this.idsCollector.getValue( docId );
+			return this.idsCollector.getValue( docId );
 		}
 		else {
 			return DocumentBuilderHelper.getDocumentId( searchFactoryImplementor, clazz, document, exceptionWrap );

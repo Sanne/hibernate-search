@@ -23,7 +23,6 @@
  */
 package org.hibernate.search.test.embedded.depth;
 
-import java.io.Serializable;
 import java.util.List;
 
 import org.apache.lucene.index.Term;
@@ -177,7 +176,7 @@ public class RecursiveGraphTest extends SearchTestCase {
 		List<LuceneWork> processedQueue = LeakingLuceneBackend.getLastProcessedQueue();
 		int count = 0;
 		for ( LuceneWork luceneWork : processedQueue ) {
-			Serializable id = luceneWork.getId();
+			Object id = luceneWork.getId();
 			if ( pk.equals( id ) ) {
 				count++;
 			}

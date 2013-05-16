@@ -20,7 +20,6 @@
  */
 package org.hibernate.search.query.engine.impl;
 
-import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -41,7 +40,7 @@ public class EntityInfoImpl implements EntityInfo {
 	/**
 	 * The document id.
 	 */
-	private final Serializable id;
+	private final Object id;
 
 	/**
 	 * The name of the document id property.
@@ -59,7 +58,7 @@ public class EntityInfoImpl implements EntityInfo {
 		return clazz;
 	}
 
-	public Serializable getId() {
+	public Object getId() {
 		return id;
 	}
 
@@ -85,7 +84,7 @@ public class EntityInfoImpl implements EntityInfo {
 		}
 	}
 
-	public EntityInfoImpl(Class clazz,  String idName,  Serializable id, Object[] projection) {
+	public EntityInfoImpl(Class clazz,  String idName,  Object id, Object[] projection) {
 		this.clazz = clazz;
 		this.idName = idName;
 		this.id = id;

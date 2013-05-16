@@ -24,7 +24,6 @@
 
 package org.hibernate.search.backend.impl.lucene.works;
 
-import java.io.Serializable;
 import java.util.Map;
 
 import org.apache.lucene.index.IndexWriter;
@@ -70,7 +69,7 @@ public final class UpdateExtWorkDelegate extends UpdateWorkDelegate {
 
 	public void performWork(LuceneWork work, IndexWriter writer, IndexingMonitor monitor) {
 		checkType( work );
-		final Serializable id = work.getId();
+		final Object id = work.getId();
 		try {
 			if ( idIsNumeric ) {
 				log.tracef( "Deleting %s#%s by query using an IndexWriter#updateDocument as id is Numeric", managedType, id );

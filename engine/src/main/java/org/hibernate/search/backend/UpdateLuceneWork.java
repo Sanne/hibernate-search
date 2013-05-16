@@ -40,11 +40,11 @@ public class UpdateLuceneWork extends LuceneWork implements Serializable {
 
 	private final Map<String, String> fieldToAnalyzerMap;
 
-	public UpdateLuceneWork(Serializable id, String idInString, Class<?> entity, Document document) {
+	public UpdateLuceneWork(Object id, String idInString, Class<?> entity, Document document) {
 		this( id, idInString, entity, document, null );
 	}
 
-	public UpdateLuceneWork(Serializable id, String idInString, Class<?> entity, Document document, Map<String, String> fieldToAnalyzerMap) {
+	public UpdateLuceneWork(Object id, String idInString, Class<?> entity, Document document, Map<String, String> fieldToAnalyzerMap) {
 		super( id, idInString, entity, document );
 		this.fieldToAnalyzerMap = fieldToAnalyzerMap;
 	}

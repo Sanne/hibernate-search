@@ -23,7 +23,6 @@
  */
 package org.hibernate.search.test.configuration;
 
-import java.io.Serializable;
 import java.util.Properties;
 import java.util.Enumeration;
 
@@ -38,7 +37,7 @@ import org.hibernate.search.indexes.spi.IndexManager;
  */
 public class UselessShardingStrategy implements IndexShardingStrategy {
 
-	public IndexManager getIndexManagerForAddition(Class<?> entity, Serializable id, String idInString, Document document) {
+	public IndexManager getIndexManagerForAddition(Class<?> entity, Object id, String idInString, Document document) {
 		return null;
 	}
 
@@ -46,7 +45,7 @@ public class UselessShardingStrategy implements IndexShardingStrategy {
 		return null;
 	}
 
-	public IndexManager[] getIndexManagersForDeletion(Class<?> entity, Serializable id, String idInString) {
+	public IndexManager[] getIndexManagersForDeletion(Class<?> entity, Object id, String idInString) {
 		return null;
 	}
 
