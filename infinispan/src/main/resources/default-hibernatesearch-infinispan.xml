@@ -79,7 +79,7 @@
             useLockStriping="false" />
 
         <invocationBatching
-            enabled="false" />
+            enabled="true" />
 
         <!-- This element specifies that the cache is clustered. modes supported: distribution
             (d), replication (r) or invalidation (i). Don't use invalidation to store Lucene indexes (as
@@ -140,6 +140,8 @@
     <!-- **************************** -->
     <namedCache
         name="LuceneIndexesData">
+        <invocationBatching
+            enabled="false" />
         <clustering
             mode="replication">
             <stateTransfer
