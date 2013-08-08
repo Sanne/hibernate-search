@@ -110,4 +110,16 @@ public class ConnectedTermMatchingContext implements TermMatchingContext, FieldB
 		}
 		return this;
 	}
+
+	public TermMatchingContext withAllTerms() {
+		for ( FieldContext fieldContext : getCurrentFieldContexts() ) {
+			fieldContext.setWithAllTerms( true );
+		}
+		return this;
+	}
+
+	private List<FieldContext> getCurrentFieldContexts() {
+		return fieldContexts.subList( firstOfContext, fieldContexts.size() );
+	}
+
 }

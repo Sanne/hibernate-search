@@ -37,6 +37,7 @@ public class FieldContext {
 	private final QueryCustomizer fieldCustomizer;
 	private boolean ignoreFieldBridge;
 	private FieldBridge fieldBridge;
+	private boolean withAllTerms;
 
 	public FieldContext(String field) {
 		this.field = field;
@@ -86,4 +87,13 @@ public class FieldContext {
 			return documentBuilder.objectToString( field, value, conversionContext );
 		}
 	}
+
+	public boolean isWithAllTerms() {
+		return withAllTerms;
+	}
+
+	public void setWithAllTerms(boolean withAllTerms) {
+		this.withAllTerms = withAllTerms;
+	}
+
 }
