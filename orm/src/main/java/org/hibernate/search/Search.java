@@ -23,8 +23,10 @@
  */
 package org.hibernate.search;
 
+import java.lang.reflect.Proxy;
+
 import org.hibernate.Session;
-import org.hibernate.search.impl.FullTextSessionImpl;
+import org.hibernate.search.impl.FullTextSessionProxyHandler;
 
 /**
  * Helper class to get a FullTextSession out of a regular session.
@@ -42,7 +44,10 @@ public final class Search {
 			return (FullTextSession) session;
 		}
 		else {
-			return new FullTextSessionImpl( session );
+			return (FullTextSession) Proxy.newProxyInstance(
+					Search.class.getClassLoader(),
+					new Class[]{ FullTextSession.class, org.hibernate.engine.spi.SessionImplementor.class },
+					new FullTextSessionProxyHandler( session ) );
 		}
 	}
 

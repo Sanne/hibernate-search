@@ -23,9 +23,11 @@
  */
 package org.hibernate.search.jpa;
 
+import java.lang.reflect.Proxy;
+
 import javax.persistence.EntityManager;
 
-import org.hibernate.search.jpa.impl.FullTextEntityManagerImpl;
+import org.hibernate.search.jpa.impl.FullTextEntityManagerProxyHandler;
 
 /**
  * Helper class that should be used when building a FullTextEntityManager
@@ -47,7 +49,11 @@ public final class Search {
 			return (FullTextEntityManager) em;
 		}
 		else {
-			return new FullTextEntityManagerImpl( em );
+			return (FullTextEntityManager) Proxy.newProxyInstance(
+					Search.class.getClassLoader(),
+					new Class[]{ FullTextEntityManager.class },
+					new FullTextEntityManagerProxyHandler( em ) );
+
 		}
 	}
 
