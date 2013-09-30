@@ -138,6 +138,11 @@ public class FullTextEntityManagerImpl implements FullTextEntityManager, Seriali
 	}
 
 	@Override
+	public void clearIndexingQueue() {
+		getFullTextSession().clearIndexingQueue();
+	}
+
+	@Override
 	public void persist(Object entity) {
 		em.persist( entity );
 	}
@@ -224,6 +229,7 @@ public class FullTextEntityManagerImpl implements FullTextEntityManager, Seriali
 
 	@Override
 	public void clear() {
+		//FIXME should session clear work with the lucene queue: see HSEARCH-1270
 		em.clear();
 	}
 
