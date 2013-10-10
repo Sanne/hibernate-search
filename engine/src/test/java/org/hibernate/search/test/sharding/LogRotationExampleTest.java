@@ -33,6 +33,7 @@ import junit.framework.Assert;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.Query;
+import org.hibernate.search.SearchFactory;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FullTextFilterDef;
@@ -80,14 +81,14 @@ import org.junit.Test;
 @TestForIssue(jiraKey = "HSEARCH-1429")
 public class LogRotationExampleTest {
 
+	//Make a SearchFactory using the test entity "LogMessage" and enabling the custom sharding strategy.
 	@Rule
 	public SearchFactoryHolder sfHolder = new SearchFactoryHolder( LogMessage.class )
 		.withProperty( "hibernate.search.logs.sharding_strategy", LogMessageShardingStrategy.class.getName() );
 
 	@Test
 	public void filtersTest() {
-		SearchFactoryImplementor searchFactory = sfHolder.getSearchFactory();
-		Assert.assertNotNull( searchFactory.getIndexManagerHolder() );
+		SearchFactory searchFactory = sfHolder.getSearchFactory();
 
 		storeLog( makeTimestamp( 2013, 10, 7, 21, 33 ), "implementing method makeTimestamp" );
 		storeLog( makeTimestamp( 2013, 10, 7, 21, 35 ), "implementing method storeLog" );
@@ -114,12 +115,12 @@ public class LogRotationExampleTest {
 
 		deleteLog( makeTimestamp( 2013, 10, 7, 9, 00 ) );
 		Assert.assertEquals( 10, queryAndFilter( allLogs, 0, 24 ) );
-
-		Assert.assertEquals( 24, searchFactory.getIndexManagerHolder().getIndexManagers().size() );
 	}
 
 	private int queryAndFilter(Query luceneQuery, int fromHour, int toHour) {
 		SearchFactoryImplementor searchFactory = sfHolder.getSearchFactory();
+		//In this specific test we use the internal HSQuery API, while
+		//you would normally use a FullTextSession:
 		HSQuery hsQuery = searchFactory.createHSQuery()
 			.luceneQuery( luceneQuery )
 			.targetedEntities( Arrays.asList( new Class<?>[]{ LogMessage.class } ) );
@@ -136,6 +137,8 @@ public class LogRotationExampleTest {
 		log.timestamp = timestamp;
 		log.message = message;
 
+		//You would normally just save the LogMessage through a Session / EntityManager
+		//this emulates the same using the internal API:
 		SearchFactoryImplementor searchFactory = sfHolder.getSearchFactory();
 		Work work = new Work( log, log.timestamp, WorkType.ADD, false );
 		ManualTransactionContext tc = new ManualTransactionContext();
@@ -144,11 +147,11 @@ public class LogRotationExampleTest {
 	}
 
 	private void deleteLog(long timestamp) {
-		LogMessage log = new LogMessage();
-		log.timestamp = timestamp;
 
+		//Again just emulating a delete operation with the internal API,
+		//don't worry too much about these details:
 		SearchFactoryImplementor searchFactory = sfHolder.getSearchFactory();
-		Work work = new Work( LogMessage.class, log.timestamp, WorkType.DELETE );
+		Work work = new Work( LogMessage.class, timestamp, WorkType.DELETE );
 		ManualTransactionContext tc = new ManualTransactionContext();
 		searchFactory.getWorker().performWork( work, tc );
 		tc.end();
@@ -158,7 +161,7 @@ public class LogRotationExampleTest {
 	 * A ShardIdentifierProvider suitable for the rotating - logs design
 	 * as described in this test.
 	 * Sharding isn't actually dynamic as we know all hours in advance, but
-	 * both addition and deletion can target a specific index, and a range
+	 * both addition operations target a specific index, and a range
 	 * filter can make queries need to search only a subset of all indexes.
 	 */
 	public static final class LogMessageShardingStrategy implements ShardIdentifierProvider {
@@ -203,6 +206,9 @@ public class LogRotationExampleTest {
 	}
 
 	@Indexed( index = "logs" )
+	//Note: ShardSensitiveOnlyFilter is a special marker filter which just serves
+	//as a transport for the parameters to ShardIdentifierProvider
+	//See details on http://docs.jboss.org/hibernate/search/4.4/reference/en-US/html_single/#query-filter-shard
 	@FullTextFilterDef( name = "timeRange", impl = ShardSensitiveOnlyFilter.class )
 	public static final class LogMessage {
 
