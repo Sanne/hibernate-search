@@ -38,13 +38,8 @@ public class ContextHelper {
 	}
 
 	public static SearchFactoryImplementor getSearchFactoryBySFI(SessionFactoryImplementor sfi) {
-		final SearchFactoryReference factoryReference = sfi.getServiceRegistry()
-			.getService( SearchFactoryReference.class );
-		if ( factoryReference != null ) {
-			return factoryReference.getSearchFactory();
-		}
-		else {
-			throw LoggerFactory.make().searchFactoryReferenceServiceNotFound();
-		}
+		return sfi.getServiceRegistry()
+			.getService( SearchFactoryReference.class )
+			.getSearchFactory();
 	}
 }
