@@ -37,7 +37,7 @@ public interface SearchFactoryIntegrator extends SearchFactory {
 	 * @return the entity to index binding for the given type. {@code null} is returned for types which are unindexed or
 	 *         unknown.
 	 */
-	EntityIndexBinding getIndexBinding(Class<?> entityType);
+	EntityIndexBinding getIndexBinding(IndexedEntityTypeIdentifier entityType);
 
 	/**
 	 * Add the following classes to the SearchFactory. If these classes are new to the SearchFactory this

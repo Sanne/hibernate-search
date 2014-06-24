@@ -24,6 +24,7 @@ import org.hibernate.search.exception.ErrorHandler;
 import org.hibernate.search.filter.FilterCachingStrategy;
 import org.hibernate.search.indexes.impl.IndexManagerHolder;
 import org.hibernate.search.query.engine.spi.TimeoutExceptionFactory;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.spi.InstanceInitializer;
 import org.hibernate.search.spi.impl.PolymorphicIndexHierarchy;
 import org.hibernate.search.spi.impl.SearchFactoryImplementorWithShareableState;
@@ -37,7 +38,7 @@ import org.hibernate.search.spi.impl.SearchFactoryState;
 public class MutableSearchFactoryState implements SearchFactoryState {
 
 	private Map<Class<?>, DocumentBuilderContainedEntity<?>> documentBuildersContainedEntities;
-	private Map<Class<?>, EntityIndexBinding> indexBindingsPerEntity;
+	private Map<IndexedEntityTypeIdentifier, EntityIndexBinding> indexBindingsPerEntity;
 	private String indexingStrategy;
 	private Worker worker;
 	private BackendQueueProcessor backendQueueProcessor;
@@ -98,7 +99,7 @@ public class MutableSearchFactoryState implements SearchFactoryState {
 	}
 
 	@Override
-	public Map<Class<?>, EntityIndexBinding> getIndexBindings() {
+	public Map<IndexedEntityTypeIdentifier, EntityIndexBinding> getIndexBindings() {
 		return indexBindingsPerEntity;
 	}
 
@@ -150,7 +151,7 @@ public class MutableSearchFactoryState implements SearchFactoryState {
 		this.documentBuildersContainedEntities = documentBuildersContainedEntities;
 	}
 
-	public void setDocumentBuildersIndexedEntities(Map<Class<?>, EntityIndexBinding> documentBuildersIndexedEntities) {
+	public void setDocumentBuildersIndexedEntities(Map<IndexedEntityTypeIdentifier, EntityIndexBinding> documentBuildersIndexedEntities) {
 		this.indexBindingsPerEntity = documentBuildersIndexedEntities;
 	}
 

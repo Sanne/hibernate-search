@@ -27,6 +27,7 @@ import org.hibernate.search.engine.metadata.impl.EmbeddedTypeMetadata;
 import org.hibernate.search.engine.metadata.impl.PropertyMetadata;
 import org.hibernate.search.engine.metadata.impl.TypeMetadata;
 import org.hibernate.search.exception.AssertionFailure;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.spi.InstanceInitializer;
 import org.hibernate.search.util.impl.ReflectionHelper;
 import org.hibernate.search.util.impl.ScopedAnalyzer;
@@ -131,16 +132,16 @@ public abstract class AbstractDocumentBuilder<T> {
 		return mappedSubclasses;
 	}
 
-	public void postInitialize(Set<Class<?>> indexedClasses) {
+	public void postInitialize(Set<IndexedEntityTypeIdentifier> indexedClasses) {
 		//we initialize only once because we no longer have a reference to the reflectionManager
 		//in theory
 		Class<?> plainClass = beanClass;
 		if ( entityState == EntityState.NON_INDEXABLE ) {
 			throw new AssertionFailure( "A non indexed entity is post processed" );
 		}
-		Set<Class<?>> tempMappedSubclasses = new HashSet<Class<?>>();
+		Set<IndexedEntityTypeIdentifier> tempMappedSubclasses = new HashSet<>();
 		//together with the caller this creates a o(2), but I think it's still faster than create the up hierarchy for each class
-		for ( Class<?> currentClass : indexedClasses ) {
+		for ( IndexedEntityTypeIdentifier currentClass : indexedClasses ) {
 			if ( plainClass != currentClass && plainClass.isAssignableFrom( currentClass ) ) {
 				tempMappedSubclasses.add( currentClass );
 			}

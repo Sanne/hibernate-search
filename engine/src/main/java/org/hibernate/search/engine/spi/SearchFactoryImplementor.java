@@ -18,6 +18,7 @@ import org.hibernate.search.filter.FilterCachingStrategy;
 import org.hibernate.search.indexes.impl.IndexManagerHolder;
 import org.hibernate.search.query.DatabaseRetrievalMethod;
 import org.hibernate.search.query.ObjectLookupMethod;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.spi.InstanceInitializer;
 import org.hibernate.search.spi.SearchFactoryIntegrator;
 import org.hibernate.search.stat.spi.StatisticsImplementor;
@@ -36,7 +37,7 @@ public interface SearchFactoryImplementor extends SearchFactoryIntegrator {
 	 * @return a map of all known entity index binding (indexed entities) keyed against the indexed type. The empty
 	 * map is returned if there are no indexed types.
 	 */
-	Map<Class<?>, EntityIndexBinding> getIndexBindings();
+	Map<IndexedEntityTypeIdentifier, EntityIndexBinding> getIndexBindings();
 
 	<T> DocumentBuilderContainedEntity<T> getDocumentBuilderContainedEntity(Class<T> entityType);
 

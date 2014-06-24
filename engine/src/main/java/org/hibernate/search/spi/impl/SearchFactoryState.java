@@ -23,6 +23,7 @@ import org.hibernate.search.exception.ErrorHandler;
 import org.hibernate.search.filter.FilterCachingStrategy;
 import org.hibernate.search.indexes.impl.IndexManagerHolder;
 import org.hibernate.search.query.engine.spi.TimeoutExceptionFactory;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.spi.InstanceInitializer;
 
 /**
@@ -33,7 +34,7 @@ import org.hibernate.search.spi.InstanceInitializer;
 public interface SearchFactoryState {
 	Map<Class<?>, DocumentBuilderContainedEntity<?>> getDocumentBuildersContainedEntities();
 
-	Map<Class<?>, EntityIndexBinding> getIndexBindings();
+	Map<IndexedEntityTypeIdentifier, EntityIndexBinding> getIndexBindings();
 
 	String getIndexingStrategy();
 

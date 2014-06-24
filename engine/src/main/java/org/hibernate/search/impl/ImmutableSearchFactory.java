@@ -49,6 +49,7 @@ import org.hibernate.search.query.dsl.impl.ConnectedQueryContextBuilder;
 import org.hibernate.search.query.engine.impl.HSQueryImpl;
 import org.hibernate.search.query.engine.spi.HSQuery;
 import org.hibernate.search.query.engine.spi.TimeoutExceptionFactory;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.spi.InstanceInitializer;
 import org.hibernate.search.spi.SearchFactoryIntegrator;
 import org.hibernate.search.spi.WorkerBuildContext;
@@ -75,7 +76,7 @@ public class ImmutableSearchFactory implements SearchFactoryImplementorWithShare
 
 	private static final Log log = LoggerFactory.make();
 
-	private final Map<Class<?>, EntityIndexBinding> indexBindingForEntities;
+	private final Map<IndexedEntityTypeIdentifier, EntityIndexBinding> indexBindingForEntities;
 	private final Map<Class<?>, DocumentBuilderContainedEntity<?>> documentBuildersContainedEntities;
 	/**
 	 * Lazily populated map of type descriptors
@@ -237,7 +238,7 @@ public class ImmutableSearchFactory implements SearchFactoryImplementorWithShare
 	}
 
 	@Override
-	public Map<Class<?>, EntityIndexBinding> getIndexBindings() {
+	public Map<IndexedEntityTypeIdentifier, EntityIndexBinding> getIndexBindings() {
 		return indexBindingForEntities;
 	}
 
@@ -466,7 +467,7 @@ public class ImmutableSearchFactory implements SearchFactoryImplementorWithShare
 	}
 
 	@Override
-	public Set<Class<?>> getIndexedTypes() {
+	public Set<IndexedEntityTypeIdentifier> getIndexedTypes() {
 		return indexBindingForEntities.keySet();
 	}
 

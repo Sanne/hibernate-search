@@ -34,6 +34,7 @@ import org.hibernate.search.query.ObjectLookupMethod;
 import org.hibernate.search.query.dsl.QueryContextBuilder;
 import org.hibernate.search.query.engine.spi.HSQuery;
 import org.hibernate.search.query.engine.spi.TimeoutExceptionFactory;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.spi.InstanceInitializer;
 import org.hibernate.search.spi.SearchFactoryBuilder;
 import org.hibernate.search.spi.SearchFactoryIntegrator;
@@ -72,12 +73,12 @@ public class MutableSearchFactory
 	}
 
 	@Override
-	public Map<Class<?>, EntityIndexBinding> getIndexBindings() {
+	public Map<IndexedEntityTypeIdentifier, EntityIndexBinding> getIndexBindings() {
 		return delegate.getIndexBindings();
 	}
 
 	@Override
-	public EntityIndexBinding getIndexBinding(Class<?> entityType) {
+	public EntityIndexBinding getIndexBinding(IndexedEntityTypeIdentifier entityType) {
 		return delegate.getIndexBinding( entityType );
 	}
 
@@ -270,7 +271,7 @@ public class MutableSearchFactory
 	}
 
 	@Override
-	public Set<Class<?>> getIndexedTypes() {
+	public Set<IndexedEntityTypeIdentifier> getIndexedTypes() {
 		return delegate.getIndexedTypes();
 	}
 

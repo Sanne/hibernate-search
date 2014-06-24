@@ -24,12 +24,12 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
-
 import org.hibernate.search.engine.ProjectionConstants;
 import org.hibernate.search.exception.SearchException;
 import org.hibernate.search.engine.Version;
 import org.hibernate.search.engine.service.classloading.spi.ClassLoadingException;
 import org.hibernate.search.engine.spi.SearchFactoryImplementor;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.stat.Statistics;
 import org.hibernate.search.stat.spi.StatisticsImplementor;
 import org.hibernate.search.util.impl.ClassLoaderHelper;
@@ -198,7 +198,7 @@ public class StatisticsImpl implements Statistics, StatisticsImplementor {
 	@Override
 	public Set<String> getIndexedClassNames() {
 		Set<String> indexedClasses = new HashSet<String>();
-		for ( Class clazz : searchFactoryImplementor.getIndexBindings().keySet() ) {
+		for ( IndexedEntityTypeIdentifier clazz : searchFactoryImplementor.getIndexBindings().keySet() ) {
 			indexedClasses.add( clazz.getName() );
 		}
 		return indexedClasses;

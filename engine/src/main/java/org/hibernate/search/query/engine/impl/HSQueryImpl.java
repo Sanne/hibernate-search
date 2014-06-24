@@ -51,6 +51,7 @@ import org.hibernate.search.query.engine.spi.TimeoutExceptionFactory;
 import org.hibernate.search.query.engine.spi.TimeoutManager;
 import org.hibernate.search.reader.impl.MultiReaderFactory;
 import org.hibernate.search.spatial.Coordinates;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.store.IndexShardingStrategy;
 import org.hibernate.search.util.impl.ClassLoaderHelper;
 import org.hibernate.search.util.logging.impl.Log;
@@ -94,7 +95,7 @@ public class HSQueryImpl implements HSQuery, Serializable {
 	private int firstResult;
 	private int maxResults;
 	private boolean definedMaxResults = false;
-	private transient Set<Class<?>> classesAndSubclasses;
+	private transient Set<IndexedEntityTypeIdentifier> classesAndSubclasses;
 	//optimization: if we can avoid the filter clause (we can most of the time) do it as it has a significant perf impact
 	private boolean needClassFilterClause;
 	private Set<String> idFieldNames;
@@ -527,7 +528,7 @@ public class HSQueryImpl implements HSQuery, Serializable {
 	 *         TODO change classesAndSubclasses by side effect, which is a mismatch with the Searcher return, fix that.
 	 */
 	private LazyQueryState buildSearcher(SearchFactoryImplementor searchFactoryImplementor, Boolean forceScoring) {
-		Map<Class<?>, EntityIndexBinding> builders = searchFactoryImplementor.getIndexBindings();
+		Map<IndexedEntityTypeIdentifier, EntityIndexBinding> builders = searchFactoryImplementor.getIndexBindings();
 		List<IndexManager> targetedIndexes = new ArrayList<IndexManager>();
 		Set<String> idFieldNames = new HashSet<String>();
 
@@ -883,7 +884,7 @@ public class HSQueryImpl implements HSQuery, Serializable {
 			BooleanQuery classFilter = new BooleanQuery();
 			//annihilate the scoring impact of DocumentBuilderIndexedEntity.CLASS_FIELDNAME
 			classFilter.setBoost( 0 );
-			for ( Class clazz : classesAndSubclasses ) {
+			for ( IndexedEntityTypeIdentifier clazz : classesAndSubclasses ) {
 				Term t = new Term( ProjectionConstants.OBJECT_CLASS, clazz.getName() );
 				TermQuery termQuery = new TermQuery( t );
 				classFilter.add( termQuery, BooleanClause.Occur.SHOULD );
@@ -923,11 +924,11 @@ public class HSQueryImpl implements HSQuery, Serializable {
 	 * @return The FieldCacheCollectorFactory to use for this query, or null to not use FieldCaches
 	 */
 	private FieldCacheCollectorFactory getAppropriateIdFieldCollectorFactory() {
-		Map<Class<?>, EntityIndexBinding> builders = searchFactoryImplementor.getIndexBindings();
+		Map<IndexedEntityTypeIdentifier, EntityIndexBinding> builders = searchFactoryImplementor.getIndexBindings();
 		Set<FieldCacheCollectorFactory> allCollectors = new HashSet<FieldCacheCollectorFactory>();
 		// we need all documentBuilder to agree on type, fieldName, and enabling the option:
 		FieldCacheCollectorFactory anyImplementation = null;
-		for ( Class<?> clazz : classesAndSubclasses ) {
+		for ( IndexedEntityTypeIdentifier clazz : classesAndSubclasses ) {
 			EntityIndexBinding docBuilder = builders.get( clazz );
 			FieldCacheCollectorFactory fieldCacheCollectionFactory = docBuilder.getIdFieldCacheCollectionFactory();
 			if ( fieldCacheCollectionFactory == null ) {

@@ -207,8 +207,8 @@ public class SearchFactoryBuilder {
 		factoryState.setIndexingStrategy( defineIndexingStrategy( cfg ) );//need to be done before the document builds
 		initDocumentBuilders( cfg, buildContext, mapping );
 
-		final Map<Class<?>, EntityIndexBinding> documentBuildersIndexedEntities = factoryState.getIndexBindings();
-		Set<Class<?>> indexedClasses = documentBuildersIndexedEntities.keySet();
+		final Map<IndexedEntityTypeIdentifier, EntityIndexBinding> documentBuildersIndexedEntities = factoryState.getIndexBindings();
+		Set<IndexedEntityTypeIdentifier> indexedClasses = documentBuildersIndexedEntities.keySet();
 		for ( EntityIndexBinding entityIndexBinding : documentBuildersIndexedEntities.values() ) {
 			entityIndexBinding.postInitialize( indexedClasses );
 		}
@@ -282,7 +282,7 @@ public class SearchFactoryBuilder {
 		if ( rootFactory == null ) {
 			//set the mutable structure of factory state
 			rootFactory = new MutableSearchFactory();
-			factoryState.setDocumentBuildersIndexedEntities( new ConcurrentHashMap<Class<?>, EntityIndexBinding>() );
+			factoryState.setDocumentBuildersIndexedEntities( new ConcurrentHashMap<IndexedEntityTypeIdentifier, EntityIndexBinding>() );
 			factoryState.setDocumentBuildersContainedEntities( new ConcurrentHashMap<Class<?>, DocumentBuilderContainedEntity<?>>() );
 			factoryState.setFilterDefinitions( new ConcurrentHashMap<String, FilterDef>() );
 			factoryState.setIndexHierarchy( new PolymorphicIndexHierarchy() );
@@ -314,7 +314,7 @@ public class SearchFactoryBuilder {
 		initProgrammaticAnalyzers( configContext, searchConfiguration.getReflectionManager() );
 		initProgrammaticallyDefinedFilterDef( searchConfiguration.getReflectionManager() );
 		final PolymorphicIndexHierarchy indexingHierarchy = factoryState.getIndexHierarchy();
-		final Map<Class<?>, EntityIndexBinding> documentBuildersIndexedEntities = factoryState.getIndexBindings();
+		final Map<IndexedEntityTypeIdentifier, EntityIndexBinding> documentBuildersIndexedEntities = factoryState.getIndexBindings();
 		final Map<Class<?>, DocumentBuilderContainedEntity<?>> documentBuildersContainedEntities = factoryState.getDocumentBuildersContainedEntities();
 		final Set<XClass> optimizationBlackListedTypes = new HashSet<XClass>();
 		final Map<XClass, Class<?>> classMappings = initializeClassMappings(

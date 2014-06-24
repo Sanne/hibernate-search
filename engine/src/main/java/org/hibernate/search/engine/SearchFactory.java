@@ -12,6 +12,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.hibernate.search.indexes.IndexReaderAccessor;
 import org.hibernate.search.metadata.IndexedTypeDescriptor;
 import org.hibernate.search.query.dsl.QueryContextBuilder;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.stat.Statistics;
 
 /**
@@ -94,7 +95,7 @@ public interface SearchFactory {
 	 *
 	 * @return the set of currently indexed types. If no types are indexed the empty set is returned.
 	 */
-	Set<Class<?>> getIndexedTypes();
+	Set<IndexedEntityTypeIdentifier> getIndexedTypes();
 
 	<T> T unwrap(Class<T> cls);
 
