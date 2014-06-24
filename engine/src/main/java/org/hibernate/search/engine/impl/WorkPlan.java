@@ -29,6 +29,7 @@ import org.hibernate.search.engine.spi.EntityIndexBinding;
 import org.hibernate.search.engine.spi.SearchFactoryImplementor;
 import org.hibernate.search.indexes.interceptor.EntityIndexingInterceptor;
 import org.hibernate.search.indexes.interceptor.IndexingOverride;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.spi.InstanceInitializer;
 import org.hibernate.search.util.logging.impl.Log;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
@@ -47,7 +48,7 @@ public class WorkPlan {
 
 	private static final Log log = LoggerFactory.make();
 
-	private final HashMap<Class<?>, PerClassWork<?>> byClass = new HashMap<Class<?>, PerClassWork<?>>();
+	private final HashMap<IndexedEntityTypeIdentifier, PerClassWork<?>> byClass = new HashMap<IndexedEntityTypeIdentifier, PerClassWork<?>>();
 
 	private final SearchFactoryImplementor searchFactoryImplementor;
 
@@ -72,7 +73,7 @@ public class WorkPlan {
 	 */
 	public <T> void addWork(Work<T> work) {
 		approximateWorkQueueSize++;
-		Class<T> entityClass = instanceInitializer.getClassFromWork( work );
+		IndexedEntityTypeIdentifier entityClass = instanceInitializer.getClassFromWork( work );
 		PerClassWork classWork = getClassWork( entityClass );
 		classWork.addWork( work );
 	}
@@ -101,7 +102,7 @@ public class WorkPlan {
 	 *
 	 * @return returns (and creates if needed) the {@code PerClassWork} from the {@link #byClass} map.
 	 */
-	private <T> PerClassWork getClassWork(Class<T> entityClass) {
+	private PerClassWork getClassWork(IndexedEntityTypeIdentifier entityClass) {
 		PerClassWork classWork = byClass.get( entityClass );
 		if ( classWork == null ) {
 			classWork = new PerClassWork( entityClass );
@@ -134,7 +135,7 @@ public class WorkPlan {
 	 * @param value the entity to be processed
 	 */
 	public <T> void recurseContainedIn(T value, DepthValidator depth) {
-		Class<T> entityClass = instanceInitializer.getClass( value );
+		IndexedEntityTypeIdentifier entityClass = instanceInitializer.getClass( value );
 		PerClassWork classWork = getClassWork( entityClass );
 		classWork.recurseContainedIn( value, depth );
 	}
@@ -173,12 +174,12 @@ public class WorkPlan {
 		/**
 		 * The type of all classes being managed
 		 */
-		private final Class<T> entityClass;
+		private final IndexedEntityTypeIdentifier entityClass;
 
 		/**
 		 * The DocumentBuilder relative to the type being managed
 		 */
-		private final AbstractDocumentBuilder<T> documentBuilder;
+		private final AbstractDocumentBuilder documentBuilder;
 
 		/**
 		 * The entity {@link #entityClass} does not have its own index, but is only used in contained scenarios
@@ -188,7 +189,7 @@ public class WorkPlan {
 		/**
 		 * @param clazz The type of entities being managed by this instance
 		 */
-		PerClassWork(Class<T> clazz) {
+		PerClassWork(IndexedEntityTypeIdentifier clazz) {
 			this.entityClass = clazz;
 			this.documentBuilder = getEntityBuilder( searchFactoryImplementor, clazz );
 			this.containedInOnly = documentBuilder instanceof DocumentBuilderContainedEntity;
@@ -294,7 +295,7 @@ public class WorkPlan {
 				if ( extractedId != null ) {
 					PerEntityWork<T> entityWork = entityById.get( extractedId );
 					if ( entityWork == null ) {
-						EntityIndexingInterceptor<? super T> entityInterceptor = getEntityInterceptor();
+						EntityIndexingInterceptor entityInterceptor = getEntityInterceptor();
 						IndexingOverride operation;
 						if ( entityInterceptor != null ) {
 							operation = entityInterceptor.onUpdate( value );
@@ -336,13 +337,11 @@ public class WorkPlan {
 			}
 		}
 
-		private EntityIndexingInterceptor<? super T> getEntityInterceptor() {
+		private EntityIndexingInterceptor getEntityInterceptor() {
 			EntityIndexBinding indexBindingForEntity = searchFactoryImplementor.getIndexBinding(
 					entityClass
 			);
-			return indexBindingForEntity != null ?
-					(EntityIndexingInterceptor<? super T>) indexBindingForEntity.getEntityIndexingInterceptor() :
-					null;
+			return indexBindingForEntity != null ?  indexBindingForEntity.getEntityIndexingInterceptor() : null;
 		}
 	}
 
@@ -483,7 +482,7 @@ public class WorkPlan {
 		 * @param entityBuilder the DocumentBuilder for this type
 		 * @param luceneQueue the queue collecting all changes
 		 */
-		public void enqueueLuceneWork(Class<T> entityClass, Serializable indexingId, AbstractDocumentBuilder<T> entityBuilder,
+		public void enqueueLuceneWork(IndexedEntityTypeIdentifier entityClass, Serializable indexingId, AbstractDocumentBuilder entityBuilder,
 				List<LuceneWork> luceneQueue, ConversionContext conversionContext) {
 			if ( add || delete ) {
 				entityBuilder.addWorkToQueue( entityClass, entity, indexingId, delete, add, luceneQueue, conversionContext );
@@ -499,7 +498,7 @@ public class WorkPlan {
 		 *
 		 * @see org.hibernate.search.annotations.ContainedIn
 		 */
-		public void processContainedIn(AbstractDocumentBuilder<T> entityBuilder, WorkPlan workplan) {
+		public void processContainedIn(AbstractDocumentBuilder entityBuilder, WorkPlan workplan) {
 			if ( entity != null && !containedInProcessed ) {
 				containedInProcessed = true;
 				if ( add || delete ) {
@@ -518,7 +517,7 @@ public class WorkPlan {
 	 *
 	 * @return the DocumentBuilder for this type
 	 */
-	private static <T> AbstractDocumentBuilder<T> getEntityBuilder(SearchFactoryImplementor searchFactoryImplementor, Class<?> entityClass) {
+	private static AbstractDocumentBuilder getEntityBuilder(SearchFactoryImplementor searchFactoryImplementor, IndexedEntityTypeIdentifier entityClass) {
 		EntityIndexBinding entityIndexBinding = searchFactoryImplementor.getIndexBinding( entityClass );
 		if ( entityIndexBinding == null ) {
 			DocumentBuilderContainedEntity entityBuilder = searchFactoryImplementor.getDocumentBuilderContainedEntity(
@@ -535,7 +534,7 @@ public class WorkPlan {
 			}
 		}
 		else {
-			return (AbstractDocumentBuilder<T>) entityIndexBinding.getDocumentBuilder();
+			return (AbstractDocumentBuilder) entityIndexBinding.getDocumentBuilder();
 		}
 	}
 }

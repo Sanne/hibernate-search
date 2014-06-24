@@ -11,11 +11,11 @@ import java.util.Map;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexWriter;
-
 import org.hibernate.search.exception.SearchException;
 import org.hibernate.search.backend.IndexingMonitor;
 import org.hibernate.search.backend.LuceneWork;
 import org.hibernate.search.engine.spi.DocumentBuilderIndexedEntity;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.store.Workspace;
 import org.hibernate.search.util.impl.ScopedAnalyzer;
 import org.hibernate.search.util.logging.impl.Log;
@@ -42,8 +42,8 @@ class AddWorkDelegate implements LuceneWorkDelegate {
 
 	@Override
 	public void performWork(LuceneWork work, IndexWriter writer, IndexingMonitor monitor) {
-		final Class<?> entityType = work.getEntityClass();
-		DocumentBuilderIndexedEntity<?> documentBuilder = workspace.getDocumentBuilder( entityType );
+		final IndexedEntityTypeIdentifier entityType = work.getEntityClass();
+		DocumentBuilderIndexedEntity documentBuilder = workspace.getDocumentBuilder( entityType );
 		Map<String, String> fieldToAnalyzerMap = work.getFieldToAnalyzerMap();
 		ScopedAnalyzer analyzer = documentBuilder.getAnalyzer();
 		analyzer = updateAnalyzerMappings( workspace, analyzer, fieldToAnalyzerMap );

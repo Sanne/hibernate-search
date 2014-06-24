@@ -12,6 +12,7 @@ import org.apache.lucene.search.similarities.Similarity;
 import org.hibernate.search.indexes.interceptor.EntityIndexingInterceptor;
 import org.hibernate.search.indexes.spi.IndexManager;
 import org.hibernate.search.query.collector.impl.FieldCacheCollectorFactory;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.store.IndexShardingStrategy;
 import org.hibernate.search.store.ShardIdentifierProvider;
 
@@ -41,7 +42,7 @@ public interface EntityIndexBinding {
 	/**
 	 * @return the document builder for this binding
 	 */
-	DocumentBuilderIndexedEntity<?> getDocumentBuilder();
+	DocumentBuilderIndexedEntity getDocumentBuilder();
 
 	/**
 	 * @return factory for the field caches
@@ -53,7 +54,7 @@ public interface EntityIndexBinding {
 	 *
 	 * @param indexedClasses set of indexed classes
 	 */
-	void postInitialize(Set<Class<?>> indexedClasses);
+	void postInitialize(Set<IndexedEntityTypeIdentifier> indexedClasses);
 
 	/**
 	 * @return the array of index managers
@@ -63,5 +64,5 @@ public interface EntityIndexBinding {
 	/**
 	 * @return the interceptor for indexing operations. Can be {@code null}
 	 */
-	EntityIndexingInterceptor<?> getEntityIndexingInterceptor();
+	EntityIndexingInterceptor getEntityIndexingInterceptor();
 }

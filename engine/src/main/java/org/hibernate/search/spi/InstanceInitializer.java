@@ -22,13 +22,13 @@ import org.hibernate.search.backend.spi.Work;
  */
 public interface InstanceInitializer {
 
-	<T> Class<T> getClassFromWork(Work<T> work);
+	IndexedEntityTypeIdentifier getClassFromWork(Work work);
 
 	/**
 	 * @param entity an instance or proxy of T
 	 * @return the class from the instance, or the underlying class from a proxy.
 	 */
-	<T> Class<T> getClass(T entity);
+	IndexedEntityTypeIdentifier getClass(Object entity);
 
 	/**
 	 * @param value the object to unproxy

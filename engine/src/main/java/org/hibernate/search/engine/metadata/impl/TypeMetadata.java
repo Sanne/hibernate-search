@@ -27,6 +27,7 @@ import org.hibernate.search.engine.BoostStrategy;
 import org.hibernate.search.engine.impl.LuceneOptionsImpl;
 import org.hibernate.search.exception.SearchException;
 import org.hibernate.search.impl.ConfigContext;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.util.impl.PassThroughAnalyzer;
 import org.hibernate.search.util.impl.ScopedAnalyzer;
 import org.hibernate.search.util.logging.impl.Log;
@@ -136,7 +137,7 @@ public class TypeMetadata {
 	 * disabled.
 	 */
 	// TODO - would be nice to not need this in TypeMetadata (HF)
-	private final Set<XClass> optimizationBlackList;
+	private final Set<IndexedEntityTypeIdentifier> optimizationBlackList;
 
 	protected TypeMetadata(Builder builder) {
 		this.indexedType = builder.indexedType;
@@ -224,7 +225,7 @@ public class TypeMetadata {
 		return containedInMetadata;
 	}
 
-	public Collection<XClass> getOptimizationBlackList() {
+	public Collection<IndexedEntityTypeIdentifier> getOptimizationBlackList() {
 		return optimizationBlackList;
 	}
 
@@ -397,7 +398,7 @@ public class TypeMetadata {
 		private Set<DocumentFieldMetadata> classBridgeFields = new HashSet<DocumentFieldMetadata>();
 		private Set<EmbeddedTypeMetadata> embeddedTypeMetadata = new HashSet<EmbeddedTypeMetadata>();
 		private Set<ContainedInMetadata> containedInMetadata = new HashSet<ContainedInMetadata>();
-		private Set<XClass> optimizationClassList = new HashSet<XClass>();
+		private Set<IndexedEntityTypeIdentifier> optimizationClassList = new HashSet<IndexedEntityTypeIdentifier>();
 		private Set<String> collectionRoles = new TreeSet<String>();
 		private PropertyMetadata idPropertyMetadata;
 		private XProperty jpaProperty;
@@ -492,7 +493,7 @@ public class TypeMetadata {
 			return analyzer;
 		}
 
-		public void blacklistForOptimization(XClass blackListClass) {
+		public void blacklistForOptimization(IndexedEntityTypeIdentifier blackListClass) {
 			this.optimizationClassList.add( blackListClass );
 		}
 

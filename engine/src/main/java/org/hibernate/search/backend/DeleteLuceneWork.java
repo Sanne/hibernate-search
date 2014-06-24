@@ -9,6 +9,7 @@ package org.hibernate.search.backend;
 import java.io.Serializable;
 
 import org.hibernate.search.backend.impl.WorkVisitor;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 
 /**
  * @author Emmanuel Bernard
@@ -17,7 +18,7 @@ public class DeleteLuceneWork extends LuceneWork implements Serializable {
 
 	private static final long serialVersionUID = -854604138119230246L;
 
-	public DeleteLuceneWork(Serializable id, String idInString, Class<?> entity) {
+	public DeleteLuceneWork(Serializable id, String idInString, IndexedEntityTypeIdentifier entity) {
 		super( id, idInString, entity );
 	}
 

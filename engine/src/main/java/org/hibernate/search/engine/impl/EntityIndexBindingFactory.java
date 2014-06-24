@@ -12,6 +12,7 @@ import org.apache.lucene.search.similarities.Similarity;
 import org.hibernate.search.indexes.impl.IndexManagerHolder;
 import org.hibernate.search.indexes.interceptor.EntityIndexingInterceptor;
 import org.hibernate.search.indexes.spi.IndexManager;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.spi.WorkerBuildContext;
 import org.hibernate.search.store.IndexShardingStrategy;
 import org.hibernate.search.store.ShardIdentifierProvider;
@@ -31,12 +32,11 @@ public final class EntityIndexBindingFactory {
 		// not allowed
 	}
 
-	@SuppressWarnings( "unchecked" )
-	public static <T, U> MutableEntityIndexBinding<T> buildEntityIndexBinding(Class<T> type, IndexManager[] providers,
+	public static MutableEntityIndexBinding buildEntityIndexBinding(IndexedEntityTypeIdentifier type, IndexManager[] providers,
 			IndexShardingStrategy shardingStrategy,
 			ShardIdentifierProvider shardIdentifierProvider,
 			Similarity similarity,
-			EntityIndexingInterceptor<U> interceptor,
+			EntityIndexingInterceptor interceptor,
 			boolean isDynamicSharding,
 			Properties properties,
 			String rootDirectoryProviderName,
@@ -45,18 +45,17 @@ public final class EntityIndexBindingFactory {
 		if ( !isDynamicSharding && providers.length == 0 ) {
 			throw log.entityWithNoShard( type );
 		}
-		EntityIndexingInterceptor<? super T> safeInterceptor = (EntityIndexingInterceptor<? super T>) interceptor;
 		if ( isDynamicSharding ) {
-			return new DynamicShardingEntityIndexBinding<T>( shardIdentifierProvider,
+			return new DynamicShardingEntityIndexBinding( shardIdentifierProvider,
 					similarity,
-					safeInterceptor,
+					interceptor,
 					properties,
 					context.getUninitializedSearchFactory(),
 					indexManagerHolder,
 					rootDirectoryProviderName );
 		}
 		else {
-			return new DefaultMutableEntityIndexBinding<T>( shardingStrategy, similarity, providers, safeInterceptor );
+			return new DefaultMutableEntityIndexBinding( shardingStrategy, similarity, providers, interceptor );
 		}
 	}
 }

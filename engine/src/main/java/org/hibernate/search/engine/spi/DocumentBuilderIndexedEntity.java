@@ -19,7 +19,6 @@ import java.util.Set;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexableField;
-
 import org.hibernate.search.exception.AssertionFailure;
 import org.hibernate.annotations.common.reflection.ReflectionManager;
 import org.hibernate.annotations.common.reflection.XClass;
@@ -51,6 +50,7 @@ import org.hibernate.search.impl.ConfigContext;
 import org.hibernate.search.query.collector.impl.FieldCacheCollectorFactory;
 import org.hibernate.search.query.fieldcache.impl.ClassLoadingStrategySelector;
 import org.hibernate.search.query.fieldcache.impl.FieldCacheLoadingType;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.spi.InstanceInitializer;
 import org.hibernate.search.util.impl.ReflectionHelper;
 import org.hibernate.search.util.logging.impl.Log;
@@ -65,7 +65,7 @@ import org.hibernate.search.util.logging.impl.LoggerFactory;
  * @author Richard Hallier
  * @author Hardy Ferentschik
  */
-public class DocumentBuilderIndexedEntity<T> extends AbstractDocumentBuilder<T> {
+public class DocumentBuilderIndexedEntity extends AbstractDocumentBuilder {
 	private static final Log log = LoggerFactory.make();
 
 	private static final LuceneOptions NULL_EMBEDDED_MARKER_OPTIONS;
@@ -127,8 +127,8 @@ public class DocumentBuilderIndexedEntity<T> extends AbstractDocumentBuilder<T> 
 	 * @param optimizationBlackList mutable register, keeps track of types on which we need to disable collection events optimizations
 	 * @param instanceInitializer helper class for class object graph navigation
 	 */
-	public DocumentBuilderIndexedEntity(XClass clazz, TypeMetadata typeMetadata, ConfigContext context,
-			ReflectionManager reflectionManager, Set<XClass> optimizationBlackList, InstanceInitializer instanceInitializer) {
+	public DocumentBuilderIndexedEntity(IndexedEntityTypeIdentifier clazz, TypeMetadata typeMetadata, ConfigContext context,
+			ReflectionManager reflectionManager, Set<IndexedEntityTypeIdentifier> optimizationBlackList, InstanceInitializer instanceInitializer) {
 		super( clazz, typeMetadata, reflectionManager, optimizationBlackList, instanceInitializer );
 
 		ProvidedId providedIdAnnotation = findProvidedId( clazz, reflectionManager );
@@ -197,7 +197,7 @@ public class DocumentBuilderIndexedEntity<T> extends AbstractDocumentBuilder<T> 
 		return idFieldCacheCollectorFactory;
 	}
 
-	private ProvidedId findProvidedId(XClass clazz, ReflectionManager reflectionManager) {
+	private ProvidedId findProvidedId(IndexedEntityTypeIdentifier clazz, ReflectionManager reflectionManager) {
 		ProvidedId id = null;
 		XClass currentClass = clazz;
 		while ( id == null && ( !reflectionManager.equals( currentClass, Object.class ) ) ) {
@@ -208,7 +208,7 @@ public class DocumentBuilderIndexedEntity<T> extends AbstractDocumentBuilder<T> 
 	}
 
 	@Override
-	public void addWorkToQueue(Class<T> entityClass, T entity, Serializable id, boolean delete, boolean add, List<LuceneWork> queue, ConversionContext contextualBridge) {
+	public void addWorkToQueue(IndexedEntityTypeIdentifier entityClass, Object entity, Serializable id, boolean delete, boolean add, List<LuceneWork> queue, ConversionContext contextualBridge) {
 		DocumentFieldMetadata idFieldMetadata = idPropertyMetadata.getFieldMetadata( idFieldName );
 		String idInString = objectToString( getIdBridge(), idFieldMetadata.getName(), id, contextualBridge );
 		if ( delete && !add ) {
@@ -270,7 +270,7 @@ public class DocumentBuilderIndexedEntity<T> extends AbstractDocumentBuilder<T> 
 		return stringValue;
 	}
 
-	public AddLuceneWork createAddWork(Class<T> entityClass, T entity, Serializable id, String idInString, InstanceInitializer sessionInitializer, ConversionContext conversionContext) {
+	public AddLuceneWork createAddWork(IndexedEntityTypeIdentifier entityClass, Object entity, Serializable id, String idInString, InstanceInitializer sessionInitializer, ConversionContext conversionContext) {
 		Map<String, String> fieldToAnalyzerMap = new HashMap<String, String>();
 		Document doc = getDocument( entity, id, fieldToAnalyzerMap, sessionInitializer, conversionContext, null );
 		final AddLuceneWork addWork;
@@ -283,7 +283,7 @@ public class DocumentBuilderIndexedEntity<T> extends AbstractDocumentBuilder<T> 
 		return addWork;
 	}
 
-	public UpdateLuceneWork createUpdateWork(Class<T> entityClass, T entity, Serializable id, String idInString, InstanceInitializer sessionInitializer, ConversionContext contextualBridge) {
+	public UpdateLuceneWork createUpdateWork(IndexedEntityTypeIdentifier entityClass, Object entity, Serializable id, String idInString, InstanceInitializer sessionInitializer, ConversionContext contextualBridge) {
 		Map<String, String> fieldToAnalyzerMap = new HashMap<String, String>();
 		Document doc = getDocument( entity, id, fieldToAnalyzerMap, sessionInitializer, contextualBridge, null );
 		final UpdateLuceneWork addWork;
@@ -309,7 +309,7 @@ public class DocumentBuilderIndexedEntity<T> extends AbstractDocumentBuilder<T> 
 	 *
 	 * @return The Lucene <code>Document</code> for the specified entity.
 	 */
-	public Document getDocument(T instance, Serializable id, Map<String, String> fieldToAnalyzerMap, InstanceInitializer objectInitializer, ConversionContext conversionContext, String[] includedFieldNames) {
+	public Document getDocument(Object instance, Serializable id, Map<String, String> fieldToAnalyzerMap, InstanceInitializer objectInitializer, ConversionContext conversionContext, String[] includedFieldNames) {
 		// TODO as it is, includedFieldNames is not generally useful as we don't know if a fieldbridge creates specific fields or not
 		// TODO only used at the moment to filter the id field and the class field
 
@@ -322,7 +322,7 @@ public class DocumentBuilderIndexedEntity<T> extends AbstractDocumentBuilder<T> 
 		}
 
 		Document doc = new Document();
-		final Class<?> entityType = objectInitializer.getClass( instance );
+		final IndexedEntityTypeIdentifier entityType = objectInitializer.getClass( instance );
 		final float documentLevelBoost = getMetadata().getClassBoost( instance );
 
 		// add the class name of the entity to the document

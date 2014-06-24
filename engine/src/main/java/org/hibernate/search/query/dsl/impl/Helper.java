@@ -16,12 +16,12 @@ import java.util.List;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-
 import org.hibernate.search.exception.AssertionFailure;
 import org.hibernate.search.exception.SearchException;
 import org.hibernate.search.engine.spi.DocumentBuilderIndexedEntity;
 import org.hibernate.search.engine.spi.EntityIndexBinding;
 import org.hibernate.search.engine.spi.SearchFactoryImplementor;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 
 /**
  * @author Emmanuel Bernard
@@ -90,9 +90,9 @@ final class Helper {
 		return terms;
 	}
 
-	static DocumentBuilderIndexedEntity<?> getDocumentBuilder(QueryBuildingContext queryContext) {
+	static DocumentBuilderIndexedEntity getDocumentBuilder(QueryBuildingContext queryContext) {
 		final SearchFactoryImplementor factory = queryContext.getFactory();
-		final Class<?> type = queryContext.getEntityType();
+		final IndexedEntityTypeIdentifier type = queryContext.getEntityType();
 		EntityIndexBinding indexBinding = factory.getIndexBinding( type );
 		if ( indexBinding == null ) {
 			throw new AssertionFailure( "Class is not indexed: " + type );

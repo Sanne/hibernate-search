@@ -14,11 +14,11 @@ import java.util.List;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.Query;
-
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.engine.metadata.impl.DocumentFieldMetadata;
 import org.hibernate.search.engine.spi.DocumentBuilderIndexedEntity;
 import org.hibernate.search.engine.spi.SearchFactoryImplementor;
+import org.hibernate.search.indexes.spi.EntityIndexReaderAccessor;
 import org.hibernate.search.query.dsl.MoreLikeThisTermination;
 import org.hibernate.search.query.dsl.MoreLikeThisToEntityContentAndTermination;
 import org.hibernate.search.util.logging.impl.Log;
@@ -67,8 +67,9 @@ public abstract class ConnectedMoreLikeThisQueryBuilder {
 	public Query createQuery() {
 		Query query;
 		final SearchFactoryImplementor searchFactory = queryContext.getFactory();
-		final DocumentBuilderIndexedEntity<?> documentBuilder = Helper.getDocumentBuilder( queryContext );
-		IndexReader indexReader = searchFactory.getIndexReaderAccessor().open( queryContext.getEntityType() );
+		final DocumentBuilderIndexedEntity documentBuilder = Helper.getDocumentBuilder( queryContext );
+		final EntityIndexReaderAccessor indexReaderAccessor = searchFactory.getEntityIndexReaderAccessor();
+		IndexReader indexReader = indexReaderAccessor.open( queryContext.getEntityType() );
 		// retrieving the docId and building the more like this query form the term vectors must be using the same index reader
 		try {
 			String[] fieldNames = getAllCompatibleFieldNames( documentBuilder );
@@ -87,14 +88,14 @@ public abstract class ConnectedMoreLikeThisQueryBuilder {
 					.createQuery();
 		}
 		finally {
-			searchFactory.getIndexReaderAccessor().close( indexReader );
+			indexReaderAccessor.close( indexReader );
 		}
 		//TODO implement INPUT.READER
 		//TODO implement INOUT.STRING
 		return queryCustomizer.setWrappedQuery( query ).createQuery();
 	}
 
-	private String[] getAllCompatibleFieldNames(DocumentBuilderIndexedEntity<?> documentBuilder) {
+	private String[] getAllCompatibleFieldNames(DocumentBuilderIndexedEntity documentBuilder) {
 		Collection<DocumentFieldMetadata> allFieldMetadata = documentBuilder.getTypeMetadata().getAllDocumentFieldMetadata();
 		List<String> fieldNames = new ArrayList<String>( allFieldMetadata.size() );
 		for ( DocumentFieldMetadata fieldMetadata : allFieldMetadata ) {

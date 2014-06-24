@@ -15,7 +15,6 @@ import org.apache.lucene.document.CompressionTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.util.BytesRef;
-
 import org.hibernate.search.exception.SearchException;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.FieldBridge;
@@ -25,12 +24,10 @@ import org.hibernate.search.engine.metadata.impl.DocumentFieldMetadata;
 import org.hibernate.search.engine.metadata.impl.EmbeddedTypeMetadata;
 import org.hibernate.search.engine.metadata.impl.PropertyMetadata;
 import org.hibernate.search.engine.metadata.impl.TypeMetadata;
-import org.hibernate.search.engine.service.classloading.spi.ClassLoadingException;
-import org.hibernate.search.engine.service.spi.ServiceManager;
 import org.hibernate.search.engine.spi.DocumentBuilderIndexedEntity;
 import org.hibernate.search.engine.spi.EntityIndexBinding;
 import org.hibernate.search.engine.spi.SearchFactoryImplementor;
-import org.hibernate.search.util.impl.ClassLoaderHelper;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.util.logging.impl.Log;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
 
@@ -46,17 +43,8 @@ public final class DocumentBuilderHelper {
 	private DocumentBuilderHelper() {
 	}
 
-	public static Class getDocumentClass(String className, ServiceManager serviceManager) {
-		try {
-			return ClassLoaderHelper.classForName( className, serviceManager );
-		}
-		catch (ClassLoadingException e) {
-			throw new SearchException( "Unable to load indexed class: " + className, e );
-		}
-	}
-
-	public static Serializable getDocumentId(SearchFactoryImplementor searchFactoryImplementor, Class<?> clazz, Document document, ConversionContext conversionContext) {
-		final DocumentBuilderIndexedEntity<?> builderIndexedEntity = getDocumentBuilder(
+	public static Serializable getDocumentId(SearchFactoryImplementor searchFactoryImplementor, IndexedEntityTypeIdentifier clazz, Document document, ConversionContext conversionContext) {
+		final DocumentBuilderIndexedEntity builderIndexedEntity = getDocumentBuilder(
 				searchFactoryImplementor,
 				clazz
 		);
@@ -74,13 +62,13 @@ public final class DocumentBuilderHelper {
 		}
 	}
 
-	public static String getDocumentIdName(SearchFactoryImplementor searchFactoryImplementor, Class<?> clazz) {
-		DocumentBuilderIndexedEntity<?> documentBuilder = getDocumentBuilder( searchFactoryImplementor, clazz );
+	public static String getDocumentIdName(SearchFactoryImplementor searchFactoryImplementor, IndexedEntityTypeIdentifier clazz) {
+		DocumentBuilderIndexedEntity documentBuilder = getDocumentBuilder( searchFactoryImplementor, clazz );
 		return documentBuilder.getIdentifierName();
 	}
 
-	public static Object[] getDocumentFields(SearchFactoryImplementor searchFactoryImplementor, Class<?> clazz, Document document, String[] fields, ConversionContext conversionContext) {
-		DocumentBuilderIndexedEntity<?> builderIndexedEntity = getDocumentBuilder( searchFactoryImplementor, clazz );
+	public static Object[] getDocumentFields(SearchFactoryImplementor searchFactoryImplementor, IndexedEntityTypeIdentifier clazz, Document document, String[] fields, ConversionContext conversionContext) {
+		DocumentBuilderIndexedEntity builderIndexedEntity = getDocumentBuilder( searchFactoryImplementor, clazz );
 		final int fieldNbr = fields.length;
 		Object[] result = new Object[fieldNbr];
 		Arrays.fill( result, NOT_SET );
@@ -255,7 +243,7 @@ public final class DocumentBuilderHelper {
 		return -1;
 	}
 
-	private static DocumentBuilderIndexedEntity<?> getDocumentBuilder(SearchFactoryImplementor searchFactoryImplementor, Class<?> clazz) {
+	private static DocumentBuilderIndexedEntity getDocumentBuilder(SearchFactoryImplementor searchFactoryImplementor, IndexedEntityTypeIdentifier clazz) {
 		EntityIndexBinding entityIndexBinding = searchFactoryImplementor.getIndexBinding(
 				clazz
 		);

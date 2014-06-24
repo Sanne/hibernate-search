@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.annotations.common.reflection.ReflectionManager;
-import org.hibernate.annotations.common.reflection.XClass;
 import org.hibernate.annotations.common.reflection.XMember;
 import org.hibernate.search.backend.LuceneWork;
 import org.hibernate.search.bridge.spi.ConversionContext;
@@ -27,6 +26,7 @@ import org.hibernate.search.engine.metadata.impl.EmbeddedTypeMetadata;
 import org.hibernate.search.engine.metadata.impl.PropertyMetadata;
 import org.hibernate.search.engine.metadata.impl.TypeMetadata;
 import org.hibernate.search.exception.AssertionFailure;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.spi.InstanceInitializer;
 import org.hibernate.search.util.impl.ReflectionHelper;
 import org.hibernate.search.util.impl.ScopedAnalyzer;
@@ -40,16 +40,16 @@ import org.hibernate.search.util.logging.impl.LoggerFactory;
  * @author Davide D'Alto
  * @author Sanne Grinovero
  */
-public abstract class AbstractDocumentBuilder<T> {
+public abstract class AbstractDocumentBuilder{
 	private static final Log log = LoggerFactory.make();
 
-	private final XClass beanXClass;
-	private final Class<?> beanClass;
+	private final IndexedEntityTypeIdentifier beanXClass;
+	private final IndexedEntityTypeIdentifier beanClass;
 	private final TypeMetadata typeMetadata;
 	private final InstanceInitializer instanceInitializer;
 
 	private boolean isRoot;
-	private Set<Class<?>> mappedSubclasses = new HashSet<Class<?>>();
+	private Set<IndexedEntityTypeIdentifier> mappedSubclasses = new HashSet<IndexedEntityTypeIdentifier>();
 
 	protected EntityState entityState;
 
@@ -62,10 +62,10 @@ public abstract class AbstractDocumentBuilder<T> {
 	 * @param optimizationBlackList keeps track of types on which we need to disable collection events optimizations
 	 * @param instanceInitializer a {@link org.hibernate.search.spi.InstanceInitializer} object.
 	 */
-	public AbstractDocumentBuilder(XClass xClass,
+	public AbstractDocumentBuilder(IndexedEntityTypeIdentifier xClass,
 			TypeMetadata typeMetadata,
 			ReflectionManager reflectionManager,
-			Set<XClass> optimizationBlackList,
+			Set<IndexedEntityTypeIdentifier> optimizationBlackList,
 			InstanceInitializer instanceInitializer) {
 		if ( xClass == null ) {
 			throw new AssertionFailure( "Unable to build a DocumentBuilderContainedEntity with a null class" );
@@ -74,14 +74,15 @@ public abstract class AbstractDocumentBuilder<T> {
 		this.instanceInitializer = instanceInitializer;
 		this.entityState = EntityState.CONTAINED_IN_ONLY;
 		this.beanXClass = xClass;
-		this.beanClass = reflectionManager.toClass( xClass );
+//		this.beanClass = reflectionManager.toClass( xClass );
+		this.beanClass = xClass;
 		this.typeMetadata = typeMetadata;
 
 		optimizationBlackList.addAll( typeMetadata.getOptimizationBlackList() );
 	}
 
-	public abstract void addWorkToQueue(Class<T> entityClass,
-			T entity, Serializable id,
+	public abstract void addWorkToQueue(IndexedEntityTypeIdentifier entityClass,
+			Object entity, Serializable id,
 			boolean delete,
 			boolean add,
 			List<LuceneWork> queue,
@@ -107,11 +108,11 @@ public abstract class AbstractDocumentBuilder<T> {
 		return isRoot;
 	}
 
-	public Class<?> getBeanClass() {
+	public IndexedEntityTypeIdentifier getBeanClass() {
 		return beanClass;
 	}
 
-	public XClass getBeanXClass() {
+	public IndexedEntityTypeIdentifier getBeanXClass() {
 		return beanXClass;
 	}
 
@@ -127,26 +128,26 @@ public abstract class AbstractDocumentBuilder<T> {
 		return entityState;
 	}
 
-	public Set<Class<?>> getMappedSubclasses() {
+	public Set<IndexedEntityTypeIdentifier> getMappedSubclasses() {
 		return mappedSubclasses;
 	}
 
-	public void postInitialize(Set<Class<?>> indexedClasses) {
+	public void postInitialize(Set<IndexedEntityTypeIdentifier> indexedClasses) {
 		//we initialize only once because we no longer have a reference to the reflectionManager
 		//in theory
-		Class<?> plainClass = beanClass;
+		IndexedEntityTypeIdentifier plainClass = beanClass;
 		if ( entityState == EntityState.NON_INDEXABLE ) {
 			throw new AssertionFailure( "A non indexed entity is post processed" );
 		}
-		Set<Class<?>> tempMappedSubclasses = new HashSet<Class<?>>();
+		Set<IndexedEntityTypeIdentifier> tempMappedSubclasses = new HashSet<>();
 		//together with the caller this creates a o(2), but I think it's still faster than create the up hierarchy for each class
-		for ( Class<?> currentClass : indexedClasses ) {
+		for ( IndexedEntityTypeIdentifier currentClass : indexedClasses ) {
 			if ( plainClass != currentClass && plainClass.isAssignableFrom( currentClass ) ) {
 				tempMappedSubclasses.add( currentClass );
 			}
 		}
 		this.mappedSubclasses = Collections.unmodifiableSet( tempMappedSubclasses );
-		Class<?> superClass = plainClass.getSuperclass();
+		IndexedEntityTypeIdentifier superClass = plainClass.getSuperclass();
 		this.isRoot = true;
 		while ( superClass != null ) {
 			if ( indexedClasses.contains( superClass ) ) {
@@ -184,13 +185,13 @@ public abstract class AbstractDocumentBuilder<T> {
 
 			if ( member.isArray() ) {
 				@SuppressWarnings("unchecked")
-				T[] array = (T[]) value;
-				for ( T arrayValue : array ) {
+				Object[] array = (Object[]) value;
+				for ( Object arrayValue : array ) {
 					processSingleContainedInInstance( workPlan, arrayValue, depth );
 				}
 			}
 			else if ( member.isCollection() ) {
-				Collection<T> collection = null;
+				Collection<?> collection = null;
 				try {
 					collection = getActualCollection( member, value );
 					collection.size(); //load it
@@ -207,7 +208,7 @@ public abstract class AbstractDocumentBuilder<T> {
 					}
 				}
 				if ( collection != null ) {
-					for ( T collectionValue : collection ) {
+					for ( Object collectionValue : collection ) {
 						processSingleContainedInInstance( workPlan, collectionValue, depth );
 					}
 				}

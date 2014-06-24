@@ -41,7 +41,6 @@ import org.apache.lucene.util.CharsRef;
 import org.apache.lucene.util.IOUtils;
 import org.apache.lucene.util.PriorityQueue;
 import org.apache.lucene.util.UnicodeUtil;
-
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.bridge.builtin.NumericFieldBridge;
@@ -53,6 +52,7 @@ import org.hibernate.search.engine.spi.SearchFactoryImplementor;
 import org.hibernate.search.exception.AssertionFailure;
 import org.hibernate.search.query.engine.spi.EntityInfo;
 import org.hibernate.search.query.engine.spi.HSQuery;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.util.impl.PassThroughAnalyzer;
 import org.hibernate.search.util.logging.impl.Log;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
@@ -75,7 +75,7 @@ public class MoreLikeThisBuilder<T> {
 	private int maxNumTokensParsed = MoreLikeThis.DEFAULT_MAX_NUM_TOKENS_PARSED;
 	private int maxWordLen = MoreLikeThis.DEFAULT_MAX_WORD_LENGTH;
 	private Set<?> stopWords = MoreLikeThis.DEFAULT_STOP_WORDS;
-	private DocumentBuilderIndexedEntity<T> documentBuilder;
+	private DocumentBuilderIndexedEntity documentBuilder;
 	// We lower the min defaults to 1 because we don't merge the freq of *all* fields unlike the original MoreLikeThis
 	// TODO: is that hurting performance? Could we guess "small fields" and ony lower these?
 	private int minTermFreq = 1; //MoreLikeThis.DEFAULT_MIN_TERM_FREQ;
@@ -95,7 +95,7 @@ public class MoreLikeThisBuilder<T> {
 	private ConnectedMoreLikeThisQueryBuilder.INPUT_TYPE inputType;
 	private TermQuery findById;
 
-	public MoreLikeThisBuilder( DocumentBuilderIndexedEntity<T> documentBuilder, SearchFactoryImplementor searchFactory ) {
+	public MoreLikeThisBuilder( DocumentBuilderIndexedEntity documentBuilder, SearchFactoryImplementor searchFactory ) {
 		this.documentBuilder = documentBuilder;
 		Similarity configuredSimilarity = searchFactory.getIndexBindings().get( documentBuilder.getBeanClass() ).getSimilarity();
 		if ( configuredSimilarity instanceof TFIDFSimilarity ) {
@@ -139,7 +139,7 @@ public class MoreLikeThisBuilder<T> {
 	/**
 	 * Try and retrieve the document id from the input. If failing and a backup approach exists, returns null.
 	 */
-	private Integer getLuceneDocumentIdFromIdAsTermOrNull(DocumentBuilderIndexedEntity<?> documentBuilder) {
+	private Integer getLuceneDocumentIdFromIdAsTermOrNull(DocumentBuilderIndexedEntity documentBuilder) {
 		String id;
 		if ( inputType == ID ) {
 			id = documentBuilder.getIdBridge().objectToString( input );
@@ -163,7 +163,7 @@ public class MoreLikeThisBuilder<T> {
 		findById = new TermQuery( new Term( documentBuilder.getIdKeywordName(), id ) );
 		HSQuery query = queryContext.getFactory().createHSQuery();
 		//can't use Arrays.asList for some obscure capture reason
-		List<Class<?>> classes = new ArrayList<Class<?>>(1);
+		List<IndexedEntityTypeIdentifier> classes = new ArrayList<IndexedEntityTypeIdentifier>(1);
 		classes.add( queryContext.getEntityType() );
 		List<EntityInfo> entityInfos = query
 				.luceneQuery( findById )

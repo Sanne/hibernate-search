@@ -14,15 +14,14 @@ import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
-
 import org.hibernate.search.engine.ProjectionConstants;
 import org.hibernate.search.bridge.TwoWayFieldBridge;
 import org.hibernate.search.bridge.builtin.NumericFieldBridge;
 import org.hibernate.search.bridge.util.impl.NumericFieldUtils;
 import org.hibernate.search.engine.spi.DocumentBuilderIndexedEntity;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.store.Workspace;
 import org.hibernate.search.util.logging.impl.Log;
-
 import org.hibernate.search.exception.SearchException;
 import org.hibernate.search.backend.IndexingMonitor;
 import org.hibernate.search.backend.LuceneWork;
@@ -49,10 +48,10 @@ class DeleteWorkDelegate implements LuceneWorkDelegate {
 
 	@Override
 	public void performWork(LuceneWork work, IndexWriter writer, IndexingMonitor monitor) {
-		final Class<?> entityType = work.getEntityClass();
+		final IndexedEntityTypeIdentifier entityType = work.getEntityClass();
 		final Serializable id = work.getId();
 		log.tracef( "Removing %s#%s by query.", entityType, id );
-		DocumentBuilderIndexedEntity<?> builder = workspace.getDocumentBuilder( entityType );
+		DocumentBuilderIndexedEntity builder = workspace.getDocumentBuilder( entityType );
 
 		BooleanQuery entityDeletionQuery = new BooleanQuery();
 
@@ -80,7 +79,7 @@ class DeleteWorkDelegate implements LuceneWorkDelegate {
 		workspace.notifyWorkApplied( work );
 	}
 
-	protected static boolean isIdNumeric(DocumentBuilderIndexedEntity<?> documentBuilder) {
+	protected static boolean isIdNumeric(DocumentBuilderIndexedEntity documentBuilder) {
 		TwoWayFieldBridge idBridge = documentBuilder.getIdBridge();
 		return idBridge instanceof NumericFieldBridge;
 	}

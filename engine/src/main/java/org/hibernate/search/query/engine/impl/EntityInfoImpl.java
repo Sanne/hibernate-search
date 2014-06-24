@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.hibernate.search.query.engine.spi.EntityInfo;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 
 /**
  * Wrapper class describing the loading of an element.
@@ -22,7 +23,7 @@ public class EntityInfoImpl implements EntityInfo {
 	/**
 	 * The entity class.
 	 */
-	private final Class<?> clazz;
+	private final IndexedEntityTypeIdentifier clazz;
 
 	/**
 	 * The document id.
@@ -42,7 +43,7 @@ public class EntityInfoImpl implements EntityInfo {
 	private final List<Integer> indexesOfThis = new LinkedList<Integer>();
 
 	@Override
-	public Class<?> getClazz() {
+	public IndexedEntityTypeIdentifier getClazz() {
 		return clazz;
 	}
 
@@ -78,7 +79,7 @@ public class EntityInfoImpl implements EntityInfo {
 		}
 	}
 
-	public EntityInfoImpl(Class clazz, String idName, Serializable id, Object[] projection) {
+	public EntityInfoImpl(IndexedEntityTypeIdentifier clazz, String idName, Serializable id, Object[] projection) {
 		this.clazz = clazz;
 		this.idName = idName;
 		this.id = id;

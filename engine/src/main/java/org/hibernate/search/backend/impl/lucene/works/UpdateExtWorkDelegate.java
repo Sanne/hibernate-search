@@ -18,6 +18,7 @@ import org.hibernate.search.backend.IndexingMonitor;
 import org.hibernate.search.backend.LuceneWork;
 import org.hibernate.search.bridge.util.impl.NumericFieldUtils;
 import org.hibernate.search.engine.spi.DocumentBuilderIndexedEntity;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.store.Workspace;
 import org.hibernate.search.util.impl.ScopedAnalyzer;
 import org.hibernate.search.util.logging.impl.Log;
@@ -37,8 +38,8 @@ public final class UpdateExtWorkDelegate extends UpdateWorkDelegate {
 	private static final Log log = LoggerFactory.make();
 
 	private final AddWorkDelegate addDelegate;
-	private final Class<?> managedType;
-	private final DocumentBuilderIndexedEntity<?> builder;
+	private final IndexedEntityTypeIdentifier managedType;
+	private final DocumentBuilderIndexedEntity builder;
 	private final boolean idIsNumeric;
 	private final Workspace workspace;
 
