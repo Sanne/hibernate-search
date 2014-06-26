@@ -40,6 +40,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.*;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.features;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.logLevel;
+import static org.ops4j.pax.exam.CoreOptions.vmOption;
 
 /**
  * A basic integration test that executes Hibernate Search in Apache Karaf using
@@ -90,6 +96,7 @@ public class HibernateSearchWithKarafIT {
 		File ariesLogDir = new File( examDir, "/aries/log" );
 		return new Option[] {
 				DEBUG ? debugConfiguration( "5005", true ) : null,
+				vmOption("-Dfile.encoding=UTF-8"),
 				logLevel( LogLevelOption.LogLevel.WARN ),
 				karafDistributionConfiguration()
 						.frameworkUrl( karafUrl )
