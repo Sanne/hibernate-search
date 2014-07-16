@@ -15,7 +15,6 @@ import org.apache.lucene.document.CompressionTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.util.BytesRef;
-
 import org.hibernate.search.exception.SearchException;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.FieldBridge;
@@ -26,11 +25,10 @@ import org.hibernate.search.engine.metadata.impl.DocumentFieldMetadata;
 import org.hibernate.search.engine.metadata.impl.EmbeddedTypeMetadata;
 import org.hibernate.search.engine.metadata.impl.PropertyMetadata;
 import org.hibernate.search.engine.metadata.impl.TypeMetadata;
-import org.hibernate.search.engine.service.classloading.spi.ClassLoadingException;
-import org.hibernate.search.engine.service.spi.ServiceManager;
 import org.hibernate.search.engine.spi.DocumentBuilderIndexedEntity;
 import org.hibernate.search.engine.spi.EntityIndexBinding;
 import org.hibernate.search.util.impl.ClassLoaderHelper;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.util.logging.impl.Log;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
 
@@ -46,16 +44,8 @@ public final class DocumentBuilderHelper {
 	private DocumentBuilderHelper() {
 	}
 
-	public static Class<?> getDocumentClass(String className, ServiceManager serviceManager) {
-		try {
-			return ClassLoaderHelper.classForName( className, serviceManager );
-		}
-		catch (ClassLoadingException e) {
-			throw new SearchException( "Unable to load indexed class: " + className, e );
-		}
-	}
 
-	public static Serializable getDocumentId(ExtendedSearchIntegrator extendedIntegrator, Class<?> clazz, Document document, ConversionContext conversionContext) {
+	public static Serializable getDocumentId(ExtendedSearchIntegrator extendedIntegrator, IndexedEntityTypeIdentifier clazz, Document document, ConversionContext conversionContext) {
 		final DocumentBuilderIndexedEntity builderIndexedEntity = getDocumentBuilder(
 				extendedIntegrator,
 				clazz
@@ -74,12 +64,12 @@ public final class DocumentBuilderHelper {
 		}
 	}
 
-	public static String getDocumentIdName(ExtendedSearchIntegrator extendedIntegrator, Class<?> clazz) {
+	public static String getDocumentIdName(ExtendedSearchIntegrator extendedIntegrator, IndexedEntityTypeIdentifier clazz) {
 		DocumentBuilderIndexedEntity documentBuilder = getDocumentBuilder( extendedIntegrator, clazz );
 		return documentBuilder.getIdentifierName();
 	}
 
-	public static Object[] getDocumentFields(ExtendedSearchIntegrator extendedIntegrator, Class<?> clazz, Document document, String[] fields, ConversionContext conversionContext) {
+	public static Object[] getDocumentFields(ExtendedSearchIntegrator extendedIntegrator, IndexedEntityTypeIdentifier clazz, Document document, String[] fields, ConversionContext conversionContext) {
 		DocumentBuilderIndexedEntity builderIndexedEntity = getDocumentBuilder( extendedIntegrator, clazz );
 		final int fieldNbr = fields.length;
 		Object[] result = new Object[fieldNbr];
@@ -255,10 +245,8 @@ public final class DocumentBuilderHelper {
 		return -1;
 	}
 
-	private static DocumentBuilderIndexedEntity getDocumentBuilder(ExtendedSearchIntegrator extendedIntegrator, Class<?> clazz) {
-		EntityIndexBinding entityIndexBinding = extendedIntegrator.getIndexBinding(
-				clazz
-		);
+	private static DocumentBuilderIndexedEntity getDocumentBuilder(ExtendedSearchIntegrator extendedIntegrator, IndexedEntityTypeIdentifier clazz) {
+		EntityIndexBinding entityIndexBinding = extendedIntegrator.getIndexBinding( clazz );
 		if ( entityIndexBinding == null ) {
 			throw new SearchException( "No Lucene configuration set up for: " + clazz );
 		}

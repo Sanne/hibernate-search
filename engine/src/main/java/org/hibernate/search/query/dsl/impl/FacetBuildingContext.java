@@ -17,6 +17,7 @@ import org.hibernate.search.engine.spi.EntityIndexBinding;
 import org.hibernate.search.exception.SearchException;
 import org.hibernate.search.query.facet.FacetSortOrder;
 import org.hibernate.search.query.facet.FacetingRequest;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 
 import static org.hibernate.search.util.impl.CollectionHelper.newArrayList;
 
@@ -37,7 +38,7 @@ class FacetBuildingContext<T> {
 		);
 
 	private final ExtendedSearchIntegrator factory;
-	private final Class<?> entityType;
+	private final IndexedEntityTypeIdentifier entityType;
 
 	private String name;
 	private String fieldName;
@@ -52,7 +53,7 @@ class FacetBuildingContext<T> {
 	private int maxFacetCount = -1;
 	private DocumentBuilderIndexedEntity documentBuilder;
 
-	public FacetBuildingContext(ExtendedSearchIntegrator factory, Class<?> entityType) {
+	public FacetBuildingContext(ExtendedSearchIntegrator factory, IndexedEntityTypeIdentifier entityType) {
 		this.factory = factory;
 		this.entityType = entityType;
 	}

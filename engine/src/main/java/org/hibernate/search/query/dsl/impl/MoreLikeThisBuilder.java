@@ -52,6 +52,7 @@ import org.hibernate.search.engine.spi.DocumentBuilderIndexedEntity;
 import org.hibernate.search.exception.AssertionFailure;
 import org.hibernate.search.query.engine.spi.EntityInfo;
 import org.hibernate.search.query.engine.spi.HSQuery;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.util.impl.PassThroughAnalyzer;
 import org.hibernate.search.util.logging.impl.Log;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
@@ -162,7 +163,7 @@ public class MoreLikeThisBuilder<T> {
 		findById = new TermQuery( new Term( documentBuilder.getIdKeywordName(), id ) );
 		HSQuery query = queryContext.getFactory().createHSQuery();
 		//can't use Arrays.asList for some obscure capture reason
-		List<Class<?>> classes = new ArrayList<Class<?>>(1);
+		List<IndexedEntityTypeIdentifier> classes = new ArrayList<IndexedEntityTypeIdentifier>(1);
 		classes.add( queryContext.getEntityType() );
 		List<EntityInfo> entityInfos = query
 				.luceneQuery( findById )

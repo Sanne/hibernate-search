@@ -22,6 +22,7 @@ import org.hibernate.search.engine.integration.impl.ExtendedSearchIntegrator;
 import org.hibernate.search.engine.service.spi.ServiceManager;
 import org.hibernate.search.engine.spi.DocumentBuilderContainedEntity;
 import org.hibernate.search.engine.spi.EntityIndexBinding;
+import org.hibernate.search.engine.spi.IdentifierConverter;
 import org.hibernate.search.engine.spi.TimingSource;
 import org.hibernate.search.exception.ErrorHandler;
 import org.hibernate.search.filter.FilterCachingStrategy;
@@ -34,8 +35,8 @@ import org.hibernate.search.query.ObjectLookupMethod;
 import org.hibernate.search.query.dsl.QueryContextBuilder;
 import org.hibernate.search.query.engine.spi.HSQuery;
 import org.hibernate.search.query.engine.spi.TimeoutExceptionFactory;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.spi.InstanceInitializer;
-import org.hibernate.search.spi.SearchIntegratorBuilder;
 import org.hibernate.search.spi.SearchIntegrator;
 import org.hibernate.search.spi.WorkerBuildContext;
 import org.hibernate.search.spi.impl.PolymorphicIndexHierarchy;
@@ -71,17 +72,17 @@ public class MutableSearchFactory implements ExtendedSearchIntegratorWithShareab
 	}
 
 	@Override
-	public Map<Class<?>, EntityIndexBinding> getIndexBindings() {
+	public Map<IndexedEntityTypeIdentifier, EntityIndexBinding> getIndexBindings() {
 		return delegate.getIndexBindings();
 	}
 
 	@Override
-	public EntityIndexBinding getIndexBinding(Class<?> entityType) {
+	public EntityIndexBinding getIndexBinding(IndexedEntityTypeIdentifier entityType) {
 		return delegate.getIndexBinding( entityType );
 	}
 
 	@Override
-	public DocumentBuilderContainedEntity getDocumentBuilderContainedEntity(Class<?> entityType) {
+	public DocumentBuilderContainedEntity getDocumentBuilderContainedEntity(IndexedEntityTypeIdentifier entityType) {
 		return delegate.getDocumentBuilderContainedEntity( entityType );
 	}
 
@@ -139,7 +140,7 @@ public class MutableSearchFactory implements ExtendedSearchIntegratorWithShareab
 	}
 
 	@Override
-	public Set<Class<?>> getIndexedTypesPolymorphic(Class<?>[] classes) {
+	public Set<IndexedEntityTypeIdentifier> getIndexedTypesPolymorphic(IndexedEntityTypeIdentifier[] classes) {
 		return delegate.getIndexedTypesPolymorphic( classes );
 	}
 
@@ -194,11 +195,6 @@ public class MutableSearchFactory implements ExtendedSearchIntegratorWithShareab
 	}
 
 	@Override
-	public Analyzer getAnalyzer(Class<?> clazz) {
-		return delegate.getAnalyzer( clazz );
-	}
-
-	@Override
 	public QueryContextBuilder buildQueryBuilder() {
 		return delegate.buildQueryBuilder();
 	}
@@ -209,14 +205,14 @@ public class MutableSearchFactory implements ExtendedSearchIntegratorWithShareab
 	}
 
 	@Override
-	public Map<Class<?>, DocumentBuilderContainedEntity> getDocumentBuildersContainedEntities() {
+	public Map<IndexedEntityTypeIdentifier, DocumentBuilderContainedEntity> getDocumentBuildersContainedEntities() {
 		return delegate.getDocumentBuildersContainedEntities();
 	}
-
+/*
 	@Override
-	public void addClasses(Class<?>... classes) {
+	public void addClasses(IndexedEntityTypeIdentifier... classes) {
 		final SearchIntegratorBuilder builder = new SearchIntegratorBuilder().currentSearchIntegrator( this );
-		for ( Class<?> type : classes ) {
+		for ( IndexedEntityTypeIdentifier type : classes ) {
 			builder.addClass( type );
 		}
 		try {
@@ -227,7 +223,7 @@ public class MutableSearchFactory implements ExtendedSearchIntegratorWithShareab
 			mutating.unlock();
 		}
 	}
-
+*/
 	@Override
 	public boolean isDirtyChecksEnabled() {
 		return delegate.isDirtyChecksEnabled();
@@ -266,11 +262,6 @@ public class MutableSearchFactory implements ExtendedSearchIntegratorWithShareab
 	@Override
 	public IndexedTypeDescriptor getIndexedTypeDescriptor(Class<?> entityType) {
 		return delegate.getIndexedTypeDescriptor( entityType );
-	}
-
-	@Override
-	public Set<Class<?>> getIndexedTypes() {
-		return delegate.getIndexedTypes();
 	}
 
 	@Override
@@ -326,6 +317,39 @@ public class MutableSearchFactory implements ExtendedSearchIntegratorWithShareab
 		else {
 			return delegate.unwrap( cls );
 		}
+	}
+
+	@Override
+	public IdentifierConverter getIdentifierConverter() {
+		return delegate.getIdentifierConverter();
+	}
+
+	@Override
+	public Set<IndexedEntityTypeIdentifier> getIndexedTypeIdentifiers() {
+		return delegate.getIndexedTypeIdentifiers();
+	}
+
+	@Override
+	public Analyzer getAnalyzer(IndexedEntityTypeIdentifier indexBoundType) {
+		return delegate.getAnalyzer( indexBoundType );
+	}
+
+	@Override
+	public IdentifierConverter<Class<?>> getPojoIdentifierConverter() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void addClasses(IndexedEntityTypeIdentifier... classes) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Set<IndexedEntityTypeIdentifier> getIndexedTypes() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

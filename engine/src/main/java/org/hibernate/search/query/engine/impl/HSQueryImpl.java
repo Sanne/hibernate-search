@@ -53,6 +53,7 @@ import org.hibernate.search.query.engine.spi.TimeoutManager;
 import org.hibernate.search.reader.impl.MultiReaderFactory;
 import org.hibernate.search.spatial.Coordinates;
 import org.hibernate.search.spi.SearchIntegrator;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.store.IndexShardingStrategy;
 import org.hibernate.search.util.StringHelper;
 import org.hibernate.search.util.impl.ClassLoaderHelper;
@@ -73,9 +74,9 @@ public class HSQueryImpl implements HSQuery, Serializable {
 
 	private transient ExtendedSearchIntegrator extendedIntegrator;
 	private Query luceneQuery;
-	private List<Class<?>> targetedEntities;
+	private List<IndexedEntityTypeIdentifier> targetedEntities;
 	private transient TimeoutManagerImpl timeoutManager;
-	private Set<Class<?>> indexedTargetedEntities;
+	private Set<IndexedEntityTypeIdentifier> indexedTargetedEntities;
 	private boolean allowFieldSelectionInProjection = true;
 
 	/**
@@ -97,7 +98,7 @@ public class HSQueryImpl implements HSQuery, Serializable {
 	private int firstResult;
 	private int maxResults;
 	private boolean definedMaxResults = false;
-	private transient Set<Class<?>> classesAndSubclasses;
+	private transient Set<IndexedEntityTypeIdentifier> classesAndSubclasses;
 	//optimization: if we can avoid the filter clause (we can most of the time) do it as it has a significant perf impact
 	private boolean needClassFilterClause;
 	private Set<String> idFieldNames;
@@ -139,10 +140,10 @@ public class HSQueryImpl implements HSQuery, Serializable {
 	}
 
 	@Override
-	public HSQuery targetedEntities(List<Class<?>> classes) {
+	public HSQuery targetedEntities(List<IndexedEntityTypeIdentifier> classes) {
 		clearCachedResults();
-		this.targetedEntities = classes == null ? new ArrayList<Class<?>>( 0 ) : new ArrayList<Class<?>>( classes );
-		final Class<?>[] classesAsArray = targetedEntities.toArray( new Class[targetedEntities.size()] );
+		this.targetedEntities = classes == null ? new ArrayList<IndexedEntityTypeIdentifier>( 0 ) : new ArrayList<IndexedEntityTypeIdentifier>( classes );
+		final IndexedEntityTypeIdentifier[] classesAsArray = targetedEntities.toArray( new IndexedEntityTypeIdentifier[targetedEntities.size()] );
 		this.indexedTargetedEntities = extendedIntegrator.getIndexedTypesPolymorphic( classesAsArray );
 		if ( targetedEntities.size() > 0 && indexedTargetedEntities.size() == 0 ) {
 			throw log.targetedEntityTypesNotIndexed( StringHelper.join( targetedEntities, "," ));
@@ -203,7 +204,7 @@ public class HSQueryImpl implements HSQuery, Serializable {
 	 * List of targeted entities as described by the user
 	 */
 	@Override
-	public List<Class<?>> getTargetedEntities() {
+	public List<IndexedEntityTypeIdentifier> getTargetedEntities() {
 		return targetedEntities;
 	}
 
@@ -211,7 +212,7 @@ public class HSQueryImpl implements HSQuery, Serializable {
 	 * Set of indexed entities corresponding to the class hierarchy of the targeted entities
 	 */
 	@Override
-	public Set<Class<?>> getIndexedTargetedEntities() {
+	public Set<IndexedEntityTypeIdentifier> getIndexedTargetedEntities() {
 		return indexedTargetedEntities;
 	}
 
@@ -529,7 +530,7 @@ public class HSQueryImpl implements HSQuery, Serializable {
 	 *         TODO change classesAndSubclasses by side effect, which is a mismatch with the Searcher return, fix that.
 	 */
 	private LazyQueryState buildSearcher(ExtendedSearchIntegrator extendedIntegrator, Boolean forceScoring) {
-		Map<Class<?>, EntityIndexBinding> indexBindings = extendedIntegrator.getIndexBindings();
+		Map<IndexedEntityTypeIdentifier, EntityIndexBinding> indexBindings = extendedIntegrator.getIndexBindings();
 		List<IndexManager> targetedIndexes = new ArrayList<IndexManager>();
 		Set<String> idFieldNames = new HashSet<String>();
 		Similarity searcherSimilarity = null;
@@ -558,9 +559,9 @@ public class HSQueryImpl implements HSQuery, Serializable {
 			classesAndSubclasses = null;
 		}
 		else {
-			Set<Class<?>> involvedClasses = new HashSet<Class<?>>( indexedTargetedEntities.size() );
+			Set<IndexedEntityTypeIdentifier> involvedClasses = new HashSet<IndexedEntityTypeIdentifier>( indexedTargetedEntities.size() );
 			involvedClasses.addAll( indexedTargetedEntities );
-			for ( Class<?> clazz : indexedTargetedEntities ) {
+			for ( IndexedEntityTypeIdentifier clazz : indexedTargetedEntities ) {
 				EntityIndexBinding indexBinder = indexBindings.get( clazz );
 				if ( indexBinder != null ) {
 					DocumentBuilderIndexedEntity builder = indexBinder.getDocumentBuilder();
@@ -568,7 +569,7 @@ public class HSQueryImpl implements HSQuery, Serializable {
 				}
 			}
 
-			for ( Class clazz : involvedClasses ) {
+			for ( IndexedEntityTypeIdentifier clazz : involvedClasses ) {
 				EntityIndexBinding entityIndexBinding = indexBindings.get( clazz );
 				//TODO should we rather choose a polymorphic path and allow non mapped entities
 				if ( entityIndexBinding == null ) {
@@ -592,11 +593,11 @@ public class HSQueryImpl implements HSQuery, Serializable {
 		//if at least one DP contains one class that is not part of the targeted classesAndSubclasses we can't optimize
 		if ( classesAndSubclasses != null ) {
 			for ( IndexManager indexManager : targetedIndexes ) {
-				final Set<Class<?>> classesInIndexManager = indexManager.getContainedTypes();
+				final Set<IndexedEntityTypeIdentifier> classesInIndexManager = indexManager.getContainedTypes();
 				// if an IndexManager contains only one class, we know for sure it's part of classesAndSubclasses
 				if ( classesInIndexManager.size() > 1 ) {
 					//risk of needClassFilterClause
-					for ( Class clazz : classesInIndexManager ) {
+					for ( IndexedEntityTypeIdentifier clazz : classesInIndexManager ) {
 						if ( !classesAndSubclasses.contains( clazz ) ) {
 							this.needClassFilterClause = true;
 							break;
@@ -609,7 +610,7 @@ public class HSQueryImpl implements HSQuery, Serializable {
 			}
 		}
 		else {
-			this.classesAndSubclasses = extendedIntegrator.getIndexedTypes();
+			this.classesAndSubclasses = extendedIntegrator.getIndexedTypeIdentifiers();
 		}
 
 		//set up the searcher
@@ -897,7 +898,7 @@ public class HSQueryImpl implements HSQuery, Serializable {
 			BooleanQuery classFilter = new BooleanQuery();
 			//annihilate the scoring impact of DocumentBuilderIndexedEntity.CLASS_FIELDNAME
 			classFilter.setBoost( 0 );
-			for ( Class clazz : classesAndSubclasses ) {
+			for ( IndexedEntityTypeIdentifier clazz : classesAndSubclasses ) {
 				Term t = new Term( ProjectionConstants.OBJECT_CLASS, clazz.getName() );
 				TermQuery termQuery = new TermQuery( t );
 				classFilter.add( termQuery, BooleanClause.Occur.SHOULD );
@@ -937,11 +938,11 @@ public class HSQueryImpl implements HSQuery, Serializable {
 	 * @return The FieldCacheCollectorFactory to use for this query, or null to not use FieldCaches
 	 */
 	private FieldCacheCollectorFactory getAppropriateIdFieldCollectorFactory() {
-		Map<Class<?>, EntityIndexBinding> builders = extendedIntegrator.getIndexBindings();
+		Map<IndexedEntityTypeIdentifier, EntityIndexBinding> builders = extendedIntegrator.getIndexBindings();
 		Set<FieldCacheCollectorFactory> allCollectors = new HashSet<FieldCacheCollectorFactory>();
 		// we need all documentBuilder to agree on type, fieldName, and enabling the option:
 		FieldCacheCollectorFactory anyImplementation = null;
-		for ( Class<?> clazz : classesAndSubclasses ) {
+		for ( IndexedEntityTypeIdentifier clazz : classesAndSubclasses ) {
 			EntityIndexBinding docBuilder = builders.get( clazz );
 			FieldCacheCollectorFactory fieldCacheCollectionFactory = docBuilder.getIdFieldCacheCollectionFactory();
 			if ( fieldCacheCollectionFactory == null ) {

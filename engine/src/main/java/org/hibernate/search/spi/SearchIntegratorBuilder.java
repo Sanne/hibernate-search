@@ -145,8 +145,8 @@ public class SearchIntegratorBuilder {
 
 		//FIXME The current initDocumentBuilders
 		initDocumentBuilders( searchConfiguration, buildContext, searchConfiguration.getProgrammaticMapping() );
-		final Map<Class<?>, EntityIndexBinding> documentBuildersIndexedEntities = factoryState.getIndexBindings();
-		Set<Class<?>> indexedClasses = documentBuildersIndexedEntities.keySet();
+		final Map<IndexedEntityTypeIdentifier, EntityIndexBinding> documentBuildersIndexedEntities = factoryState.getIndexBindings();
+		Set<IndexedEntityTypeIdentifier> indexedClasses = documentBuildersIndexedEntities.keySet();
 		for ( EntityIndexBinding entityIndexBinding : documentBuildersIndexedEntities.values() ) {
 			//FIXME improve this algorithm to deal with adding new classes to the class hierarchy.
 			//Today it seems only safe when a class outside the hierarchy is incrementally added.
@@ -154,7 +154,7 @@ public class SearchIntegratorBuilder {
 		}
 
 		//not really necessary today
-		final Map<Class<?>, DocumentBuilderContainedEntity> documentBuildersContainedEntities = factoryState.getDocumentBuildersContainedEntities();
+		final Map<IndexedEntityTypeIdentifier, DocumentBuilderContainedEntity> documentBuildersContainedEntities = factoryState.getDocumentBuildersContainedEntities();
 		for ( DocumentBuilderContainedEntity builder : documentBuildersContainedEntities.values() ) {
 			builder.postInitialize( indexedClasses );
 		}
@@ -169,8 +169,8 @@ public class SearchIntegratorBuilder {
 
 	private void removeClassesAlreadyManaged() {
 		Set<Class<?>> remove = new HashSet<Class<?>>();
-		final Map<Class<?>, DocumentBuilderContainedEntity> containedEntities = rootFactory.getDocumentBuildersContainedEntities();
-		final Map<Class<?>, EntityIndexBinding> indexedEntities = rootFactory.getIndexBindings();
+		final Map<IndexedEntityTypeIdentifier, DocumentBuilderContainedEntity> containedEntities = rootFactory.getDocumentBuildersContainedEntities();
+		final Map<IndexedEntityTypeIdentifier, EntityIndexBinding> indexedEntities = rootFactory.getIndexBindings();
 		for ( Class<?> entity : classes ) {
 			if ( indexedEntities.containsKey( entity ) || containedEntities.containsKey( entity ) ) {
 				remove.add( entity );
@@ -198,14 +198,14 @@ public class SearchIntegratorBuilder {
 		factoryState.setIndexingStrategy( defineIndexingStrategy( cfg ) );//need to be done before the document builds
 		initDocumentBuilders( cfg, buildContext, mapping );
 
-		final Map<Class<?>, EntityIndexBinding> documentBuildersIndexedEntities = factoryState.getIndexBindings();
-		Set<Class<?>> indexedClasses = documentBuildersIndexedEntities.keySet();
+		final Map<IndexedEntityTypeIdentifier, EntityIndexBinding> documentBuildersIndexedEntities = factoryState.getIndexBindings();
+		Set<IndexedEntityTypeIdentifier> indexedClasses = documentBuildersIndexedEntities.keySet();
 		for ( EntityIndexBinding entityIndexBinding : documentBuildersIndexedEntities.values() ) {
 			entityIndexBinding.postInitialize( indexedClasses );
 		}
 
 		// not really necessary today
-		final Map<Class<?>, DocumentBuilderContainedEntity> documentBuildersContainedEntities = factoryState.getDocumentBuildersContainedEntities();
+		final Map<IndexedEntityTypeIdentifier, DocumentBuilderContainedEntity> documentBuildersContainedEntities = factoryState.getDocumentBuildersContainedEntities();
 		for ( DocumentBuilderContainedEntity builder : documentBuildersContainedEntities.values() ) {
 			builder.postInitialize( indexedClasses );
 		}
@@ -273,8 +273,8 @@ public class SearchIntegratorBuilder {
 		if ( rootFactory == null ) {
 			//set the mutable structure of factory state
 			rootFactory = new MutableSearchFactory();
-			factoryState.setDocumentBuildersIndexedEntities( new ConcurrentHashMap<Class<?>, EntityIndexBinding>() );
-			factoryState.setDocumentBuildersContainedEntities( new ConcurrentHashMap<Class<?>, DocumentBuilderContainedEntity>() );
+			factoryState.setDocumentBuildersIndexedEntities( new ConcurrentHashMap<IndexedEntityTypeIdentifier, EntityIndexBinding>() );
+			factoryState.setDocumentBuildersContainedEntities( new ConcurrentHashMap<IndexedEntityTypeIdentifier, DocumentBuilderContainedEntity>() );
 			factoryState.setFilterDefinitions( new ConcurrentHashMap<String, FilterDef>() );
 			factoryState.setIndexHierarchy( new PolymorphicIndexHierarchy() );
 			factoryState.setConfigurationProperties( cfg.getProperties() );
@@ -306,8 +306,8 @@ public class SearchIntegratorBuilder {
 		initProgrammaticAnalyzers( configContext, searchConfiguration.getReflectionManager() );
 		initProgrammaticallyDefinedFilterDef( configContext, searchConfiguration.getReflectionManager() );
 		final PolymorphicIndexHierarchy indexingHierarchy = factoryState.getIndexHierarchy();
-		final Map<Class<?>, EntityIndexBinding> documentBuildersIndexedEntities = factoryState.getIndexBindings();
-		final Map<Class<?>, DocumentBuilderContainedEntity> documentBuildersContainedEntities = factoryState.getDocumentBuildersContainedEntities();
+		final Map<IndexedEntityTypeIdentifier, EntityIndexBinding> documentBuildersIndexedEntities = factoryState.getIndexBindings();
+		final Map<IndexedEntityTypeIdentifier, DocumentBuilderContainedEntity> documentBuildersContainedEntities = factoryState.getDocumentBuildersContainedEntities();
 		final Set<XClass> optimizationBlackListedTypes = new HashSet<XClass>();
 		final Map<XClass, Class<?>> classMappings = initializeClassMappings(
 				searchConfiguration,

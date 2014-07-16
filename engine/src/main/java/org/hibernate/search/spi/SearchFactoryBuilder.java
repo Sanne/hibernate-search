@@ -21,6 +21,7 @@ public class SearchFactoryBuilder extends SearchIntegratorBuilder {
 		return this;
 	}
 
+	//FIXME: Why does this method exist?
 	public SearchFactoryBuilder currentFactory(SearchIntegrator factory) {
 		super.currentSearchIntegrator( factory );
 		return this;

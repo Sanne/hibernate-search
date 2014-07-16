@@ -18,6 +18,7 @@ import org.hibernate.search.engine.integration.impl.ExtendedSearchIntegrator;
 import org.hibernate.search.filter.FullTextFilter;
 import org.hibernate.search.spatial.Coordinates;
 import org.hibernate.search.spi.SearchIntegrator;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 
 /**
  * Defines and executes an Hibernate Search query (wrapping a Lucene query).
@@ -66,7 +67,7 @@ public interface HSQuery extends ProjectionConstants {
 	 * @param classes the list of classes (indexes) targeted by this query
 	 * @return {@code this} to allow for method chaining
 	 */
-	HSQuery targetedEntities(List<Class<?>> classes);
+	HSQuery targetedEntities(List<IndexedEntityTypeIdentifier> classes);
 
 	/**
 	 * Lets Lucene sort the results. This is useful when you have
@@ -134,12 +135,12 @@ public interface HSQuery extends ProjectionConstants {
 	/**
 	 * @return the targeted entity types
 	 */
-	List<Class<?>> getTargetedEntities();
+	List<IndexedEntityTypeIdentifier> getTargetedEntities();
 
 	/**
 	 * WTF does that do exactly
 	 */
-	Set<Class<?>> getIndexedTargetedEntities();
+	Set<IndexedEntityTypeIdentifier> getIndexedTargetedEntities();
 
 	/**
 	 * @return the projected field names

@@ -9,6 +9,7 @@ package org.hibernate.search.backend;
 import java.io.Serializable;
 
 import org.hibernate.search.backend.impl.WorkVisitor;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 
 /**
  * A unit of work triggering an optimize operation.
@@ -26,7 +27,7 @@ public class OptimizeLuceneWork extends LuceneWork implements Serializable {
 	 * Optimizes the index(es) of a specific entity
 	 * @param entity
 	 */
-	public OptimizeLuceneWork(Class<?> entity) {
+	public OptimizeLuceneWork(IndexedEntityTypeIdentifier entity) {
 		super( null, null, entity );
 	}
 
@@ -44,7 +45,7 @@ public class OptimizeLuceneWork extends LuceneWork implements Serializable {
 
 	@Override
 	public String toString() {
-		Class entityClass = this.getEntityClass();
+		IndexedEntityTypeIdentifier entityClass = this.getEntityClass();
 		if ( entityClass == null ) {
 			return "OptimizeLuceneWork: global";
 		}

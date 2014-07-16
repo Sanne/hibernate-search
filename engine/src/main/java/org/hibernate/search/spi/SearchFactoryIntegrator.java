@@ -6,7 +6,6 @@
  */
 package org.hibernate.search.spi;
 
-
 /**
  * This interface is a temporary placeholder and will be removed at the next micro release!
  * @deprecated Do not use, and immediately migrate all code to use org.hibernate.search.spi.SearchIntegrator.

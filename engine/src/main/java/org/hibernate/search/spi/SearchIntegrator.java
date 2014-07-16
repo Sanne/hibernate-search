@@ -43,13 +43,13 @@ public interface SearchIntegrator extends AutoCloseable {
 	 * @return the entity to index binding for the given type. {@code null} is returned for types which are unindexed or
 	 *         unknown.
 	 */
-	EntityIndexBinding getIndexBinding(Class<?> entityType);
+	EntityIndexBinding getIndexBinding(IndexedEntityTypeIdentifier entityType);
 
 	/**
 	 * Add the following classes to the SearchIntegrator. If these classes are new to the SearchIntegrator this
 	 * will trigger a reconfiguration.
 	 */
-	void addClasses(Class<?>... classes);
+	void addClasses(IndexedEntityTypeIdentifier... classes);
 
 	/**
 	 * Return an Hibernate Search query object.
@@ -114,7 +114,7 @@ public interface SearchIntegrator extends AutoCloseable {
 	 * @throws java.lang.IllegalArgumentException in case {@code clazz == null} or the specified
 	 * class is not an indexed entity.
 	 */
-	Analyzer getAnalyzer(Class<?> clazz);
+	Analyzer getAnalyzer(IndexedEntityTypeIdentifier clazz);
 
 	/**
 	 * @return return a query builder providing a fluent API to create Lucene queries
@@ -145,14 +145,14 @@ public interface SearchIntegrator extends AutoCloseable {
 	 *
 	 * @throws IllegalArgumentException in case {@code entityType} is {@code null}
 	 */
-	IndexedTypeDescriptor getIndexedTypeDescriptor(Class<?> entityType);
+	IndexedTypeDescriptor getIndexedTypeDescriptor(IndexedEntityTypeIdentifier entityType);
 
 	/**
 	 * Returns the set of currently indexed types.
 	 *
 	 * @return the set of currently indexed types. If no types are indexed the empty set is returned.
 	 */
-	Set<Class<?>> getIndexedTypes();
+	Set<IndexedEntityTypeIdentifier> getIndexedTypes();
 
 	/**
 	 * Unwraps some internal Hibernate Search types.

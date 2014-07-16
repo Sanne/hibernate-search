@@ -18,7 +18,6 @@ import org.hibernate.LockMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-
 import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.engine.spi.SessionImplementor;
@@ -36,6 +35,7 @@ import org.hibernate.search.exception.ErrorHandler;
 import org.hibernate.search.hcore.util.impl.HibernateHelper;
 import org.hibernate.search.indexes.interceptor.EntityIndexingInterceptor;
 import org.hibernate.search.indexes.interceptor.IndexingOverride;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.spi.InstanceInitializer;
 import org.hibernate.search.util.logging.impl.Log;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
@@ -58,7 +58,7 @@ public class IdentifierConsumerDocumentProducer implements SessionAwareRunnable 
 	private final CacheMode cacheMode;
 	private final Class<?> type;
 	private final MassIndexerProgressMonitor monitor;
-	private final Map<Class<?>, EntityIndexBinding> entityIndexBindings;
+	private final Map<IndexedEntityTypeIdentifier, EntityIndexBinding> entityIndexBindings;
 	private final String idName;
 	private final ErrorHandler errorHandler;
 	private final BatchBackend backend;

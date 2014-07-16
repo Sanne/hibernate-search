@@ -14,6 +14,7 @@ import org.hibernate.search.engine.integration.impl.ExtendedSearchIntegrator;
 import org.hibernate.search.query.dsl.EntityContext;
 import org.hibernate.search.query.dsl.QueryBuilder;
 import org.hibernate.search.query.dsl.QueryContextBuilder;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.util.impl.ScopedAnalyzer;
 
 /**
@@ -30,23 +31,24 @@ public class ConnectedQueryContextBuilder implements QueryContextBuilder {
 
 	@Override
 	public EntityContext forEntity(Class<?> entityType) {
-		return new HSearchEntityContext(entityType, factory );
+		IndexedEntityTypeIdentifier entityIdentifier = factory.getIdentifierConverter().convertEntityIdentifier( entityType );
+		return new HSearchEntityContext( entityIdentifier, factory );
 	}
 
 	public final class HSearchEntityContext implements EntityContext {
 		private final ScopedAnalyzer queryAnalyzer;
 		private final QueryBuildingContext context;
 
-		public HSearchEntityContext(Class<?> entityType, ExtendedSearchIntegrator factory) {
+		public HSearchEntityContext(IndexedEntityTypeIdentifier entityType, ExtendedSearchIntegrator factory) {
 			// get a type for meta-data retrieval; if the given type itself is not indexed, one indexed sub-type will
 			// be used; note that this allows to e.g. query for fields not present on the given type but on one of its
 			// sub-types, but we accept this for now
-			Class<?> indexBoundType = getIndexBoundType( entityType, factory );
+			IndexedEntityTypeIdentifier indexBoundType = getIndexBoundType( entityType, factory );
 
 			if ( indexBoundType == null ) {
 				throw new SearchException( String.format( "Can't build query for type %s which is"
 						+ " neither indexed nor has any indexed sub-types.",
-						entityType.getCanonicalName() ) );
+						entityType.getName() ) );
 			}
 
 			queryAnalyzer = new ScopedAnalyzer( factory.getAnalyzer( indexBoundType ) );
@@ -61,12 +63,12 @@ public class ConnectedQueryContextBuilder implements QueryContextBuilder {
 		 * @return the given type itself if it is indexed, otherwise the first found indexed sub-type or {@code null} if
 		 * neither the given type nor any of its sub-types are indexed
 		 */
-		private Class<?> getIndexBoundType(Class<?> entityType, ExtendedSearchIntegrator factory) {
+		private IndexedEntityTypeIdentifier getIndexBoundType(IndexedEntityTypeIdentifier entityType, ExtendedSearchIntegrator factory) {
 			if ( factory.getIndexBinding( entityType ) != null ) {
 				return entityType;
 			}
 
-			Set<Class<?>> indexedSubTypes = factory.getIndexedTypesPolymorphic( new Class<?>[] { entityType } );
+			Set<IndexedEntityTypeIdentifier> indexedSubTypes = factory.getIndexedTypesPolymorphic( new IndexedEntityTypeIdentifier[] { entityType } );
 
 			if ( !indexedSubTypes.isEmpty() ) {
 				return indexedSubTypes.iterator().next();

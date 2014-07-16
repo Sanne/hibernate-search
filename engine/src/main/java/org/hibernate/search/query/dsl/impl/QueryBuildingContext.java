@@ -9,6 +9,7 @@ package org.hibernate.search.query.dsl.impl;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.hibernate.search.engine.integration.impl.ExtendedSearchIntegrator;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 
 /**
  * Keep the query builder contextual information
@@ -18,9 +19,9 @@ import org.hibernate.search.engine.integration.impl.ExtendedSearchIntegrator;
 public class QueryBuildingContext {
 	private final ExtendedSearchIntegrator factory;
 	private final Analyzer queryAnalyzer;
-	private final Class<?> entityType;
+	private final IndexedEntityTypeIdentifier entityType;
 
-	public QueryBuildingContext(ExtendedSearchIntegrator factory, Analyzer queryAnalyzer, Class<?> entityType) {
+	public QueryBuildingContext(ExtendedSearchIntegrator factory, Analyzer queryAnalyzer, IndexedEntityTypeIdentifier entityType) {
 		this.factory = factory;
 		this.queryAnalyzer = queryAnalyzer;
 		this.entityType = entityType;
@@ -34,7 +35,7 @@ public class QueryBuildingContext {
 		return queryAnalyzer;
 	}
 
-	public Class<?> getEntityType() {
+	public IndexedEntityTypeIdentifier getEntityType() {
 		return entityType;
 	}
 }

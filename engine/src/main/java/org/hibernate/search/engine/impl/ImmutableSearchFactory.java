@@ -6,6 +6,7 @@
  */
 package org.hibernate.search.engine.impl;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -27,6 +28,7 @@ import org.hibernate.search.engine.spi.AbstractDocumentBuilder;
 import org.hibernate.search.engine.spi.DocumentBuilderContainedEntity;
 import org.hibernate.search.engine.spi.DocumentBuilderIndexedEntity;
 import org.hibernate.search.engine.spi.EntityIndexBinding;
+import org.hibernate.search.engine.spi.IdentifierConverter;
 import org.hibernate.search.engine.spi.TimingSource;
 import org.hibernate.search.exception.AssertionFailure;
 import org.hibernate.search.exception.ErrorHandler;
@@ -34,7 +36,9 @@ import org.hibernate.search.exception.SearchException;
 import org.hibernate.search.filter.FilterCachingStrategy;
 import org.hibernate.search.indexes.IndexReaderAccessor;
 import org.hibernate.search.indexes.impl.DefaultIndexReaderAccessor;
+import org.hibernate.search.indexes.impl.IndexReaderAccessorAdapter;
 import org.hibernate.search.indexes.impl.IndexManagerHolder;
+import org.hibernate.search.indexes.spi.EntityIndexReaderAccessor;
 import org.hibernate.search.indexes.spi.IndexManager;
 import org.hibernate.search.jmx.StatisticsInfoMBean;
 import org.hibernate.search.jmx.impl.JMXRegistrar;
@@ -48,6 +52,7 @@ import org.hibernate.search.query.dsl.impl.ConnectedQueryContextBuilder;
 import org.hibernate.search.query.engine.impl.HSQueryImpl;
 import org.hibernate.search.query.engine.spi.HSQuery;
 import org.hibernate.search.query.engine.spi.TimeoutExceptionFactory;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.spi.InstanceInitializer;
 import org.hibernate.search.spi.SearchIntegrator;
 import org.hibernate.search.spi.WorkerBuildContext;
@@ -74,12 +79,12 @@ public class ImmutableSearchFactory implements ExtendedSearchIntegratorWithShare
 
 	private static final Log log = LoggerFactory.make();
 
-	private final Map<Class<?>, EntityIndexBinding> indexBindingForEntities;
-	private final Map<Class<?>, DocumentBuilderContainedEntity> documentBuildersContainedEntities;
+	private final Map<IndexedEntityTypeIdentifier, EntityIndexBinding> indexBindingForEntities;
+	private final Map<IndexedEntityTypeIdentifier, DocumentBuilderContainedEntity> documentBuildersContainedEntities;
 	/**
 	 * Lazily populated map of type descriptors
 	 */
-	private final ConcurrentHashMap<Class, IndexedTypeDescriptor> indexedTypeDescriptors;
+	private final ConcurrentHashMap<IndexedEntityTypeIdentifier, IndexedTypeDescriptor> indexedTypeDescriptors;
 	private final Worker worker;
 	private final Map<String, FilterDef> filterDefinitions;
 	private final FilterCachingStrategy filterCachingStrategy;
@@ -95,7 +100,7 @@ public class ImmutableSearchFactory implements ExtendedSearchIntegratorWithShare
 	private final String indexingStrategy;
 	private final ServiceManager serviceManager;
 	private final boolean enableDirtyChecks;
-	private final DefaultIndexReaderAccessor indexReaderAccessor;
+	private final EntityIndexReaderAccessor indexReaderAccessor;
 	private final InstanceInitializer instanceInitializer;
 	private final TimeoutExceptionFactory timeoutExceptionFactory;
 	private final TimingSource timingSource;
@@ -233,28 +238,28 @@ public class ImmutableSearchFactory implements ExtendedSearchIntegratorWithShare
 	}
 
 	@Override
-	public Map<Class<?>, DocumentBuilderContainedEntity> getDocumentBuildersContainedEntities() {
+	public Map<IndexedEntityTypeIdentifier, DocumentBuilderContainedEntity> getDocumentBuildersContainedEntities() {
 		return documentBuildersContainedEntities;
 	}
 
 	@Override
-	public Map<Class<?>, EntityIndexBinding> getIndexBindings() {
+	public Map<IndexedEntityTypeIdentifier, EntityIndexBinding> getIndexBindings() {
 		return indexBindingForEntities;
 	}
 
 	@Override
-	public EntityIndexBinding getIndexBinding(Class<?> entityType) {
+	public EntityIndexBinding getIndexBinding(IndexedEntityTypeIdentifier entityType) {
 		return indexBindingForEntities.get( entityType );
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public DocumentBuilderContainedEntity getDocumentBuilderContainedEntity(Class entityType) {
-		return documentBuildersContainedEntities.get( entityType );
+	public DocumentBuilderContainedEntity getDocumentBuilderContainedEntity(IndexedEntityTypeIdentifier entityType) {
+		return (DocumentBuilderContainedEntity) documentBuildersContainedEntities.get( entityType );
 	}
 
 	@Override
-	public void addClasses(Class<?>... classes) {
+	public void addClasses(IndexedEntityTypeIdentifier... classes) {
 		throw new AssertionFailure( "Cannot add classes to an " + ImmutableSearchFactory.class.getName() );
 	}
 
@@ -272,7 +277,8 @@ public class ImmutableSearchFactory implements ExtendedSearchIntegratorWithShare
 
 	@Override
 	public void optimize(Class entityType) {
-		EntityIndexBinding entityIndexBinding = getSafeIndexBindingForEntity( entityType );
+		IndexedEntityTypeIdentifier entityIdentifier = getIdentifierConverter().convertEntityIdentifier( entityType );
+		EntityIndexBinding entityIndexBinding = getSafeIndexBindingForEntity( entityIdentifier );
 		for ( IndexManager im : entityIndexBinding.getIndexManagers() ) {
 			im.optimize();
 		}
@@ -287,11 +293,10 @@ public class ImmutableSearchFactory implements ExtendedSearchIntegratorWithShare
 		return analyzer;
 	}
 
-	@Override
+	@Deprecated
 	public Analyzer getAnalyzer(Class<?> clazz) {
-		EntityIndexBinding entityIndexBinding = getSafeIndexBindingForEntity( clazz );
-		DocumentBuilderIndexedEntity builder = entityIndexBinding.getDocumentBuilder();
-		return builder.getAnalyzer();
+		IndexedEntityTypeIdentifier entityIdentifier = getIdentifierConverter().convertEntityIdentifier( clazz );
+		return getAnalyzer( entityIdentifier );
 	}
 
 	@Override
@@ -340,7 +345,7 @@ public class ImmutableSearchFactory implements ExtendedSearchIntegratorWithShare
 	}
 
 	@Override
-	public Set<Class<?>> getIndexedTypesPolymorphic(Class<?>[] classes) {
+	public Set<IndexedEntityTypeIdentifier> getIndexedTypesPolymorphic(IndexedEntityTypeIdentifier[] classes) {
 		return indexHierarchy.getIndexedClasses( classes );
 	}
 
@@ -421,7 +426,7 @@ public class ImmutableSearchFactory implements ExtendedSearchIntegratorWithShare
 		return this.allIndexesManager;
 	}
 
-	public EntityIndexBinding getSafeIndexBindingForEntity(Class<?> entityType) {
+	public EntityIndexBinding getSafeIndexBindingForEntity(IndexedEntityTypeIdentifier entityType) {
 		if ( entityType == null ) {
 			throw log.nullIsInvalidIndexedType();
 		}
@@ -439,7 +444,7 @@ public class ImmutableSearchFactory implements ExtendedSearchIntegratorWithShare
 
 	@Override
 	public IndexReaderAccessor getIndexReaderAccessor() {
-		return indexReaderAccessor;
+		return new IndexReaderAccessorAdapter( indexReaderAccessor, getIdentifierConverter() );
 	}
 
 	@Override
@@ -467,8 +472,14 @@ public class ImmutableSearchFactory implements ExtendedSearchIntegratorWithShare
 	}
 
 	@Override
-	public Set<Class<?>> getIndexedTypes() {
+	public Set<IndexedEntityTypeIdentifier> getIndexedTypes() {
 		return indexBindingForEntities.keySet();
+		/*IdentifierConverter identifierConverter = getIdentifierConverter();
+		HashSet<Class<?>> set = new HashSet<>();
+		for (IndexedEntityTypeIdentifier key :  ) {
+			set.add( identifierConverter.inverseConversion( key ) );
+		}
+		return set;*/
 	}
 
 	@Override
@@ -525,6 +536,30 @@ public class ImmutableSearchFactory implements ExtendedSearchIntegratorWithShare
 		else {
 			throw new SearchException( "Can not unwrap an ImmutableSearchFactory into a '" + cls + "'" );
 		}
+	}
+
+	@Override
+	public IdentifierConverter getIdentifierConverter() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<IndexedEntityTypeIdentifier> getIndexedTypeIdentifiers() {
+		return indexBindingForEntities.keySet();
+	}
+
+	@Override
+	public Analyzer getAnalyzer(IndexedEntityTypeIdentifier entityIdentifier) {
+		EntityIndexBinding entityIndexBinding = getSafeIndexBindingForEntity( entityIdentifier );
+		DocumentBuilderIndexedEntity builder = entityIndexBinding.getDocumentBuilder();
+		return builder.getAnalyzer();
+	}
+
+	@Override
+	public IdentifierConverter<Class<?>> getPojoIdentifierConverter() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

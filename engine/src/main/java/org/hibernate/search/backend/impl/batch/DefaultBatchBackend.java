@@ -20,6 +20,7 @@ import org.hibernate.search.batchindexing.MassIndexerProgressMonitor;
 import org.hibernate.search.engine.spi.EntityIndexBinding;
 import org.hibernate.search.indexes.spi.IndexManager;
 import org.hibernate.search.spi.SearchIntegrator;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.store.IndexShardingStrategy;
 
 /**
@@ -51,7 +52,7 @@ public class DefaultBatchBackend implements BatchBackend {
 	}
 
 	private void sendWorkToShards(LuceneWork work, boolean forceAsync) {
-		final Class<?> entityType = work.getEntityClass();
+		final IndexedEntityTypeIdentifier entityType = work.getEntityClass();
 		EntityIndexBinding entityIndexBinding = integrator.getIndexBinding( entityType );
 		IndexShardingStrategy shardingStrategy = entityIndexBinding.getSelectionStrategy();
 		if ( forceAsync ) {
@@ -67,7 +68,7 @@ public class DefaultBatchBackend implements BatchBackend {
 	}
 
 	@Override
-	public void flush(Set<Class<?>> entityTypes) {
+	public void flush(Set<IndexedEntityTypeIdentifier> entityTypes) {
 		Collection<IndexManager> uniqueIndexManagers = uniqueIndexManagerForTypes( entityTypes );
 		for ( IndexManager indexManager : uniqueIndexManagers ) {
 			indexManager.performStreamOperation( FlushLuceneWork.INSTANCE, progressMonitor, false );
@@ -75,16 +76,16 @@ public class DefaultBatchBackend implements BatchBackend {
 	}
 
 	@Override
-	public void optimize(Set<Class<?>> entityTypes) {
+	public void optimize(Set<IndexedEntityTypeIdentifier> entityTypes) {
 		Collection<IndexManager> uniqueIndexManagers = uniqueIndexManagerForTypes( entityTypes );
 		for ( IndexManager indexManager : uniqueIndexManagers ) {
 			indexManager.performStreamOperation( OptimizeLuceneWork.INSTANCE, progressMonitor, false );
 		}
 	}
 
-	private Collection<IndexManager> uniqueIndexManagerForTypes(Collection<Class<?>> entityTypes) {
+	private Collection<IndexManager> uniqueIndexManagerForTypes(Collection<IndexedEntityTypeIdentifier> entityTypes) {
 		HashMap<String,IndexManager> uniqueBackends = new HashMap<String, IndexManager>( entityTypes.size() );
-		for ( Class<?> type : entityTypes ) {
+		for ( IndexedEntityTypeIdentifier type : entityTypes ) {
 			EntityIndexBinding indexBindingForEntity = integrator.getIndexBinding( type );
 			if ( indexBindingForEntity != null ) {
 				IndexManager[] indexManagers = indexBindingForEntity.getIndexManagers();

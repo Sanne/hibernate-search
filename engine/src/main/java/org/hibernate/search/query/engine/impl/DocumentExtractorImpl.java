@@ -25,7 +25,7 @@ import org.hibernate.search.engine.impl.DocumentBuilderHelper;
 import org.hibernate.search.query.engine.spi.DocumentExtractor;
 import org.hibernate.search.query.engine.spi.EntityInfo;
 import org.hibernate.search.query.collector.impl.FieldCacheCollector;
-
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
 import org.hibernate.search.util.logging.impl.Log;
 
@@ -58,11 +58,11 @@ public class DocumentExtractorImpl implements DocumentExtractor {
 	private ReusableDocumentStoredFieldVisitor fieldLoadingVisitor;
 	private boolean allowFieldSelection;
 	private boolean needId;
-	private final Map<String, Class> targetedClasses;
+	private final Map<String, IndexedEntityTypeIdentifier> targetedClasses;
 	private int firstIndex;
 	private int maxIndex;
 	private Query query;
-	private final Class singleClassIfPossible; //null when not possible
+	private final IndexedEntityTypeIdentifier singleClassIfPossible; //null when not possible
 	private final FieldCacheCollector classTypeCollector; //null when not used
 	private final FieldCacheCollector idsCollector; //null when not used
 	private final ConversionContext exceptionWrap = new ContextualExceptionBridgeHelper();
@@ -76,7 +76,7 @@ public class DocumentExtractorImpl implements DocumentExtractor {
 								Query query,
 								int firstIndex,
 								int maxIndex,
-								Set<Class<?>> classesAndSubclasses) {
+								Set<IndexedEntityTypeIdentifier> classesAndSubclasses) {
 		this.extendedIntegrator = extendedIntegrator;
 		if ( projection != null ) {
 			this.projection = projection.clone();
@@ -86,8 +86,8 @@ public class DocumentExtractorImpl implements DocumentExtractor {
 		}
 		this.queryHits = queryHits;
 		this.allowFieldSelection = allowFieldSelection;
-		this.targetedClasses = new HashMap<String, Class>( classesAndSubclasses.size() );
-		for ( Class<?> clazz : classesAndSubclasses ) {
+		this.targetedClasses = new HashMap<String, IndexedEntityTypeIdentifier>( classesAndSubclasses.size() );
+		for ( IndexedEntityTypeIdentifier clazz : classesAndSubclasses ) {
 			//useful to reload classes from index without using reflection
 			targetedClasses.put( clazz.getName(), clazz );
 		}
@@ -166,7 +166,7 @@ public class DocumentExtractorImpl implements DocumentExtractor {
 	}
 
 	private EntityInfo extractEntityInfo(int docId, Document document, int scoreDocIndex, ConversionContext exceptionWrap) throws IOException {
-		Class clazz = extractClass( docId, document, scoreDocIndex );
+		IndexedEntityTypeIdentifier clazz = extractClass( docId, document, scoreDocIndex );
 		String idName = DocumentBuilderHelper.getDocumentIdName( extendedIntegrator, clazz );
 		Serializable id = extractId( docId, document, clazz );
 		Object[] projected = null;
@@ -178,7 +178,7 @@ public class DocumentExtractorImpl implements DocumentExtractor {
 		return new EntityInfoImpl( clazz, idName, id, projected );
 	}
 
-	private Serializable extractId(int docId, Document document, Class clazz) {
+	private Serializable extractId(int docId, Document document, IndexedEntityTypeIdentifier clazz) {
 		if ( !needId ) {
 			return null;
 		}
@@ -190,7 +190,7 @@ public class DocumentExtractorImpl implements DocumentExtractor {
 		}
 	}
 
-	private Class extractClass(int docId, Document document, int scoreDocIndex) throws IOException {
+	private IndexedEntityTypeIdentifier extractClass(int docId, Document document, int scoreDocIndex) throws IOException {
 		//maybe we can avoid document extraction:
 		if ( singleClassIfPossible != null ) {
 			return singleClassIfPossible;
@@ -207,12 +207,12 @@ public class DocumentExtractorImpl implements DocumentExtractor {
 			className = document.get( ProjectionConstants.OBJECT_CLASS );
 		}
 		//and quite likely we can avoid the Reflect helper:
-		Class clazz = targetedClasses.get( className );
+		IndexedEntityTypeIdentifier clazz = targetedClasses.get( className );
 		if ( clazz != null ) {
 			return clazz;
 		}
 		else {
-			return DocumentBuilderHelper.getDocumentClass( className, extendedIntegrator.getServiceManager() );
+			return extendedIntegrator.getIdentifierConverter().fromName( className );
 		}
 	}
 

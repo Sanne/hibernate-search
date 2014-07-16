@@ -10,12 +10,12 @@ import java.io.Serializable;
 
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
-
 import org.hibernate.search.exception.SearchException;
 import org.hibernate.search.backend.IndexingMonitor;
 import org.hibernate.search.backend.LuceneWork;
 import org.hibernate.search.bridge.util.impl.NumericFieldUtils;
 import org.hibernate.search.engine.spi.DocumentBuilderIndexedEntity;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.store.Workspace;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
 import org.hibernate.search.util.logging.impl.Log;
@@ -38,7 +38,7 @@ public final class ByTermDeleteWorkDelegate extends DeleteWorkDelegate {
 
 	@Override
 	public void performWork(LuceneWork work, IndexWriter writer, IndexingMonitor monitor) {
-		final Class<?> managedType = work.getEntityClass();
+		final IndexedEntityTypeIdentifier managedType = work.getEntityClass();
 		DocumentBuilderIndexedEntity builder = workspace.getDocumentBuilder( managedType );
 		Serializable id = work.getId();
 		log.tracef( "Removing %s#%s by id using an IndexWriter.", managedType, id );

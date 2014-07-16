@@ -20,6 +20,7 @@ import org.hibernate.search.engine.spi.DocumentBuilderIndexedEntity;
 import org.hibernate.search.exception.impl.ErrorContextBuilder;
 import org.hibernate.search.indexes.impl.PropertiesParseHelper;
 import org.hibernate.search.indexes.spi.DirectoryBasedIndexManager;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.spi.WorkerBuildContext;
 import org.hibernate.search.store.Workspace;
 import org.hibernate.search.store.optimization.OptimizerStrategy;
@@ -60,7 +61,7 @@ public abstract class AbstractWorkspaceImpl implements Workspace {
 	}
 
 	@Override
-	public DocumentBuilderIndexedEntity getDocumentBuilder(Class<?> entity) {
+	public DocumentBuilderIndexedEntity getDocumentBuilder(IndexedEntityTypeIdentifier entity) {
 		return indexManager.getIndexBinding( entity ).getDocumentBuilder();
 	}
 
@@ -85,7 +86,7 @@ public abstract class AbstractWorkspaceImpl implements Workspace {
 	}
 
 	@Override
-	public Set<Class<?>> getEntitiesInIndexManager() {
+	public Set<IndexedEntityTypeIdentifier> getEntitiesInIndexManager() {
 		// Do not cache it as an IndexManager receiving a new type should return an updated list
 		// and will trigger a LuceneBackendResources rebuild and by side effect
 		// a new LuceneWorkVisitor which will need the new list

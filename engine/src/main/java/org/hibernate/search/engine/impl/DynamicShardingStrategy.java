@@ -13,9 +13,11 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.lucene.document.Document;
+import org.hibernate.search.engine.spi.IdentifierConverter;
 import org.hibernate.search.filter.FullTextFilterImplementor;
 import org.hibernate.search.indexes.impl.IndexManagerHolder;
 import org.hibernate.search.indexes.spi.IndexManager;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.store.IndexShardingStrategy;
 import org.hibernate.search.store.ShardIdentifierProvider;
 
@@ -24,19 +26,23 @@ import org.hibernate.search.store.ShardIdentifierProvider;
  * @author Emmanuel Bernard <emmanuel@hibernate.org>
  */
 class DynamicShardingStrategy implements IndexShardingStrategy {
+
 	private final ShardIdentifierProvider shardIdentifierProvider;
 	private final IndexManagerHolder indexManagerHolder;
 	private final String rootIndexName;
 	private final DynamicShardingEntityIndexBinding entityIndexBinding;
+	private final IdentifierConverter<Class<?>> pojoIdentifierConverter;
 
 	DynamicShardingStrategy(ShardIdentifierProvider shardIdentifierProvider,
 			IndexManagerHolder indexManagerHolder,
 			DynamicShardingEntityIndexBinding entityIndexBinding,
-			String rootIndexName) {
+			String rootIndexName,
+			IdentifierConverter<Class<?>> pojoIdentifierConverter) {
 		this.shardIdentifierProvider = shardIdentifierProvider;
 		this.indexManagerHolder = indexManagerHolder;
 		this.entityIndexBinding = entityIndexBinding;
 		this.rootIndexName = rootIndexName;
+		this.pojoIdentifierConverter = pojoIdentifierConverter;
 	}
 
 	@Override
@@ -50,8 +56,9 @@ class DynamicShardingStrategy implements IndexShardingStrategy {
 	}
 
 	@Override
-	public IndexManager getIndexManagerForAddition(Class<?> entity, Serializable id, String idInString, Document document) {
-		String shardIdentifier = shardIdentifierProvider.getShardIdentifier( entity, id, idInString, document );
+	public IndexManager getIndexManagerForAddition(IndexedEntityTypeIdentifier entity, Serializable id, String idInString, Document document) {
+		Class<?> entityType = pojoIdentifierConverter.inverseConversion( entity );
+		String shardIdentifier = shardIdentifierProvider.getShardIdentifier( entityType, id, idInString, document );
 		return indexManagerHolder.getOrCreateIndexManager(
 				rootIndexName,
 				shardIdentifier,
@@ -60,7 +67,7 @@ class DynamicShardingStrategy implements IndexShardingStrategy {
 	}
 
 	@Override
-	public IndexManager[] getIndexManagersForDeletion(Class<?> entity, Serializable id, String idInString) {
+	public IndexManager[] getIndexManagersForDeletion(IndexedEntityTypeIdentifier entity, Serializable id, String idInString) {
 		Set<String> shardIdentifiers = shardIdentifierProvider.getAllShardIdentifiers();
 		return getIndexManagersFromShards( shardIdentifiers );
 	}

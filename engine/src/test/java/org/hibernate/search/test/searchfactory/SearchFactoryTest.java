@@ -14,6 +14,7 @@ import org.hibernate.search.cfg.SearchMapping;
 import org.hibernate.search.metadata.IndexedTypeDescriptor;
 import org.hibernate.search.spi.SearchIntegratorBuilder;
 import org.hibernate.search.spi.SearchIntegrator;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.testsupport.setup.SearchConfigurationForTest;
 import org.junit.Test;
 
@@ -51,9 +52,8 @@ public class SearchFactoryTest {
 	@Test
 	public void testGetIndexedTypesNoTypeIndexed() {
 		SearchConfigurationForTest cfg = getManualConfiguration();
-
 		try ( SearchIntegrator si = new SearchIntegratorBuilder().configuration( cfg ).buildSearchIntegrator() ) {
-			Set<Class<?>> indexedClasses = si.getIndexedTypes();
+			Set<IndexedEntityTypeIdentifier> indexedClasses = si.getIndexedTypes();
 			assertEquals( "Wrong number of indexed entities", 0, indexedClasses.size() );
 		}
 	}
@@ -70,7 +70,7 @@ public class SearchFactoryTest {
 		cfg.setProgrammaticMapping( mapping );
 
 		try ( SearchIntegrator si = new SearchIntegratorBuilder().configuration( cfg ).buildSearchIntegrator() ) {
-			Set<Class<?>> indexedClasses = si.getIndexedTypes();
+			Set<IndexedEntityTypeIdentifier> indexedClasses = si.getIndexedTypes();
 			assertEquals( "Wrong number of indexed entities", 1, indexedClasses.size() );
 			assertTrue( indexedClasses.iterator().next().equals( Foo.class ) );
 		}
@@ -90,7 +90,7 @@ public class SearchFactoryTest {
 		cfg.setProgrammaticMapping( mapping );
 
 		SearchIntegrator si = new SearchIntegratorBuilder().configuration( cfg ).buildSearchIntegrator();
-		Set<Class<?>> indexedClasses = si.getIndexedTypes();
+		Set<IndexedEntityTypeIdentifier> indexedClasses = si.getIndexedTypes();
 		assertEquals( "Wrong number of indexed entities", 2, indexedClasses.size() );
 	}
 

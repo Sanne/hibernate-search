@@ -21,6 +21,7 @@ import org.hibernate.search.engine.spi.EntityIndexBinding;
 import org.hibernate.search.exception.AssertionFailure;
 import org.hibernate.search.query.engine.spi.EntityInfo;
 import org.hibernate.search.query.engine.spi.TimeoutManager;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 
 /**
  * A loader which loads objects of multiple types.
@@ -51,13 +52,13 @@ public class MultiClassesQueryLoader extends AbstractLoader {
 		return true; //no user provided criteria
 	}
 
-	public void setEntityTypes(Set<Class<?>> entityTypes) {
-		List<Class<?>> safeEntityTypes = new ArrayList<>();
+	public void setEntityTypes(Set<IndexedEntityTypeIdentifier> entityTypes) {
+		List<IndexedEntityTypeIdentifier> safeEntityTypes = new ArrayList<>();
 		// TODO should we go find the root entity for a given class rather than just checking for it's root status?
 		// root entity could lead to quite inefficient queries in Hibernate when using table per class
 		if ( entityTypes.size() == 0 ) {
 			//support all classes
-			for ( Map.Entry<Class<?>, EntityIndexBinding> entry : extendedIntegrator.getIndexBindings().entrySet() ) {
+			for ( Map.Entry<IndexedEntityTypeIdentifier, EntityIndexBinding> entry : extendedIntegrator.getIndexBindings().entrySet() ) {
 				//get only root entities to limit queries
 				if ( entry.getValue().getDocumentBuilder().isRoot() ) {
 					safeEntityTypes.add( entry.getKey() );
@@ -68,7 +69,7 @@ public class MultiClassesQueryLoader extends AbstractLoader {
 			safeEntityTypes.addAll( entityTypes );
 		}
 		entityMetadata = new ArrayList<>( safeEntityTypes.size() );
-		for ( Class clazz : safeEntityTypes ) {
+		for ( IndexedEntityTypeIdentifier clazz : safeEntityTypes ) {
 			entityMetadata.add( new RootEntityMetadata( clazz, extendedIntegrator ) );
 		}
 	}
@@ -102,7 +103,7 @@ public class MultiClassesQueryLoader extends AbstractLoader {
 		Map<RootEntityMetadata, List<EntityInfo>> entityInfoBuckets = new HashMap<>( entityMetadata.size() );
 		for ( EntityInfo entityInfo : entityInfos ) {
 			boolean found = false;
-			final Class<?> clazz = entityInfo.getClazz();
+			final IndexedEntityTypeIdentifier clazz = entityInfo.getClazz();
 			for ( RootEntityMetadata rootEntityInfo : entityMetadata ) {
 				if ( rootEntityInfo.rootEntity == clazz || rootEntityInfo.mappedSubclasses.contains( clazz ) ) {
 					List<EntityInfo> bucket = entityInfoBuckets.get( rootEntityInfo );
@@ -154,11 +155,11 @@ public class MultiClassesQueryLoader extends AbstractLoader {
 	}
 
 	private static class RootEntityMetadata {
-		public final Class<?> rootEntity;
+		public final IndexedEntityTypeIdentifier rootEntity;
 		public final Set<Class<?>> mappedSubclasses;
 		private final Criteria criteria;
 
-		RootEntityMetadata(Class<?> rootEntity, ExtendedSearchIntegrator extendedIntegrator) {
+		RootEntityMetadata(IndexedEntityTypeIdentifier rootEntity, ExtendedSearchIntegrator extendedIntegrator) {
 			this.rootEntity = rootEntity;
 			EntityIndexBinding provider = extendedIntegrator.getIndexBinding( rootEntity );
 			if ( provider == null ) {

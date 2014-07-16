@@ -10,9 +10,9 @@ import java.util.Properties;
 import java.io.Serializable;
 
 import org.apache.lucene.document.Document;
-
 import org.hibernate.search.filter.FullTextFilterImplementor;
 import org.hibernate.search.indexes.spi.IndexManager;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.store.IndexShardingStrategy;
 import org.hibernate.search.util.logging.impl.Log;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
@@ -41,12 +41,12 @@ public class IdHashShardingStrategy implements IndexShardingStrategy {
 	}
 
 	@Override
-	public IndexManager getIndexManagerForAddition(Class<?> entity, Serializable id, String idInString, Document document) {
+	public IndexManager getIndexManagerForAddition(IndexedEntityTypeIdentifier entity, Serializable id, String idInString, Document document) {
 		return indexManagers[hashKey( idInString )];
 	}
 
 	@Override
-	public IndexManager[] getIndexManagersForDeletion(Class<?> entity, Serializable id, String idInString) {
+	public IndexManager[] getIndexManagersForDeletion(IndexedEntityTypeIdentifier entity, Serializable id, String idInString) {
 		if ( idInString == null ) {
 			return indexManagers;
 		}

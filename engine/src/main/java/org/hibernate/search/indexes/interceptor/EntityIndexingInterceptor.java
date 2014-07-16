@@ -23,7 +23,7 @@ package org.hibernate.search.indexes.interceptor;
  *
  * @author Emmanuel Bernard <emmanuel@hibernate.org>
  */
-public interface EntityIndexingInterceptor<T> {
+public interface EntityIndexingInterceptor {
 
 	/**
 	 * Triggered when an entity instance T should be added to the index, either by an event listener or by the
@@ -35,7 +35,7 @@ public interface EntityIndexingInterceptor<T> {
 	 * @return Return {@link IndexingOverride#APPLY_DEFAULT} to have the instance be added to the index as normal; return a
 	 *         different value to override the behaviour.
 	 */
-	IndexingOverride onAdd(T entity);
+	IndexingOverride onAdd(Object entity);
 
 	/**
 	 * Triggered when an entity instance T should be updated in the index.
@@ -45,7 +45,7 @@ public interface EntityIndexingInterceptor<T> {
 	 * @return Return {@link IndexingOverride#APPLY_DEFAULT} to have the instance removed and re-added to the index as
 	 *         normal; return a different value to override the behaviour.
 	 */
-	IndexingOverride onUpdate(T entity);
+	IndexingOverride onUpdate(Object entity);
 
 	/**
 	 * Triggered when an entity instance T should be deleted from the index.
@@ -55,7 +55,7 @@ public interface EntityIndexingInterceptor<T> {
 	 * @return Return {@link IndexingOverride#APPLY_DEFAULT} to have the instance removed from the index as normal;
 	 *         return a different value to override the behaviour.
 	 */
-	IndexingOverride onDelete(T entity);
+	IndexingOverride onDelete(Object entity);
 
 	/**
 	 * A CollectionUpdate event is fired on collections included in an indexed entity, for example when using
@@ -67,6 +67,6 @@ public interface EntityIndexingInterceptor<T> {
 	 * @return Return {@link IndexingOverride#APPLY_DEFAULT} to have the instance removed and re-added to the index as
 	 *         normal; return a different value to override the behaviour.
 	 */
-	IndexingOverride onCollectionUpdate(T entity);
+	IndexingOverride onCollectionUpdate(Object entity);
 
 }

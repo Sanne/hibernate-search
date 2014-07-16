@@ -9,6 +9,7 @@ package org.hibernate.search.bridge.spi;
 import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.bridge.StringBridge;
 import org.hibernate.search.bridge.TwoWayFieldBridge;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 
 
 /**
@@ -52,7 +53,7 @@ public interface ConversionContext {
 	 * @param beanClass the class type which is going to be converted
 	 * @return this for method chaining.
 	 */
-	ConversionContext setClass(Class<?> beanClass);
+	ConversionContext setClass(IndexedEntityTypeIdentifier beanClass);
 
 	/**
 	 * In case the next conversion fails, the error message will point to the

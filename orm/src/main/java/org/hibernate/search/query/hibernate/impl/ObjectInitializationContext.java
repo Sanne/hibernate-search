@@ -10,6 +10,7 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.search.engine.integration.impl.ExtendedSearchIntegrator;
 import org.hibernate.search.query.engine.spi.TimeoutManager;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 
 /**
  * Context class wrapping all resources needed in the context of object initialization.
@@ -18,7 +19,7 @@ import org.hibernate.search.query.engine.spi.TimeoutManager;
  */
 public class ObjectInitializationContext {
 	private final Criteria criteria;
-	private final Class<?> entityType;
+	private final IndexedEntityTypeIdentifier entityType;
 	private final ExtendedSearchIntegrator extendedIntegrator;
 	private final TimeoutManager timeoutManager;
 	private final Session session;
@@ -32,7 +33,7 @@ public class ObjectInitializationContext {
 	 * @param session Handle to the ORM session
 	 */
 	public ObjectInitializationContext(Criteria criteria,
-			Class<?> targetedEntityType,
+			IndexedEntityTypeIdentifier targetedEntityType,
 			ExtendedSearchIntegrator extendedIntegrator,
 			TimeoutManager timeoutManager,
 			Session session) {
@@ -47,7 +48,7 @@ public class ObjectInitializationContext {
 		return criteria;
 	}
 
-	public Class<?> getEntityType() {
+	public IndexedEntityTypeIdentifier getEntityType() {
 		return entityType;
 	}
 

@@ -15,6 +15,7 @@ import org.hibernate.annotations.common.reflection.XClass;
 import org.hibernate.search.backend.LuceneWork;
 import org.hibernate.search.bridge.spi.ConversionContext;
 import org.hibernate.search.engine.metadata.impl.TypeMetadata;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.spi.InstanceInitializer;
 
 /**
@@ -37,10 +38,10 @@ public class DocumentBuilderContainedEntity extends AbstractDocumentBuilder {
 	 * @param optimizationBlackList mutable register, keeps track of types on which we need to disable collection events optimizations
 	 * @param instanceInitializer a {@link org.hibernate.search.spi.InstanceInitializer} object
 	 */
-	public DocumentBuilderContainedEntity(XClass xClass,
+	public DocumentBuilderContainedEntity(IndexedEntityTypeIdentifier xClass,
 			TypeMetadata typeMetadata,
 			ReflectionManager reflectionManager,
-			Set<XClass> optimizationBlackList,
+			Set<IndexedEntityTypeIdentifier> optimizationBlackList,
 			InstanceInitializer instanceInitializer) {
 		super( xClass, typeMetadata, reflectionManager, optimizationBlackList, instanceInitializer );
 
@@ -51,7 +52,7 @@ public class DocumentBuilderContainedEntity extends AbstractDocumentBuilder {
 	}
 
 	@Override
-	public void addWorkToQueue(Class<?> entityClass,
+	public void addWorkToQueue(IndexedEntityTypeIdentifier entityClass,
 			Object entity,
 			Serializable id,
 			boolean delete,

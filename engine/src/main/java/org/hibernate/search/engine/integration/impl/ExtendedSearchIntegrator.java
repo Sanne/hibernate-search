@@ -15,11 +15,13 @@ import org.hibernate.search.batchindexing.MassIndexerProgressMonitor;
 import org.hibernate.search.engine.impl.FilterDef;
 import org.hibernate.search.engine.spi.DocumentBuilderContainedEntity;
 import org.hibernate.search.engine.spi.EntityIndexBinding;
+import org.hibernate.search.engine.spi.IdentifierConverter;
 import org.hibernate.search.engine.spi.TimingSource;
 import org.hibernate.search.filter.FilterCachingStrategy;
 import org.hibernate.search.indexes.impl.IndexManagerHolder;
 import org.hibernate.search.query.DatabaseRetrievalMethod;
 import org.hibernate.search.query.ObjectLookupMethod;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.spi.InstanceInitializer;
 import org.hibernate.search.spi.SearchIntegrator;
 import org.hibernate.search.stat.spi.StatisticsImplementor;
@@ -38,9 +40,9 @@ public interface ExtendedSearchIntegrator extends SearchIntegrator {
 	 * @return a map of all known entity index binding (indexed entities) keyed against the indexed type. The empty
 	 * map is returned if there are no indexed types.
 	 */
-	Map<Class<?>, EntityIndexBinding> getIndexBindings();
+	Map<IndexedEntityTypeIdentifier, EntityIndexBinding> getIndexBindings();
 
-	DocumentBuilderContainedEntity getDocumentBuilderContainedEntity(Class<?> entityType);
+	DocumentBuilderContainedEntity getDocumentBuilderContainedEntity(IndexedEntityTypeIdentifier entityType);
 
 	FilterCachingStrategy getFilterCachingStrategy();
 
@@ -50,7 +52,7 @@ public interface ExtendedSearchIntegrator extends SearchIntegrator {
 
 	int getFilterCacheBitResultsSize();
 
-	Set<Class<?>> getIndexedTypesPolymorphic(Class<?>[] classes);
+	Set<IndexedEntityTypeIdentifier> getIndexedTypesPolymorphic(IndexedEntityTypeIdentifier[] classes);
 
 	BatchBackend makeBatchBackend(MassIndexerProgressMonitor progressMonitor);
 
@@ -105,4 +107,20 @@ public interface ExtendedSearchIntegrator extends SearchIntegrator {
 	 * @return returns the default {@code OBJECT_LOOKUP_METHOD}.
 	 */
 	ObjectLookupMethod getDefaultObjectLookupMethod();
+
+	Set<IndexedEntityTypeIdentifier> getIndexedTypeIdentifiers();
+
+	IdentifierConverter getIdentifierConverter();
+
+	/**
+	 * Similar to {@link #getIdentifierConverter()} but it will throw an exception if the IdentifierConverter
+	 * being registered isn't compatible with the IdentifierConverter<Class<?>> signature.
+	 * This is a temporary measure to allow to iteratively migrate all features to not specifically
+	 * require coupling to the Class for type identification.
+	 *
+	 * @deprecated use {@link #getIdentifierConverter()}
+	 */
+	@Deprecated
+	IdentifierConverter<Class<?>> getPojoIdentifierConverter();
+
 }

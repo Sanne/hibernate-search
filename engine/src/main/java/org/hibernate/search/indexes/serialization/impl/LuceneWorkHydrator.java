@@ -43,11 +43,12 @@ import org.hibernate.search.bridge.spi.ConversionContext;
 import org.hibernate.search.engine.integration.impl.ExtendedSearchIntegrator;
 import org.hibernate.search.engine.spi.DocumentBuilderIndexedEntity;
 import org.hibernate.search.engine.spi.EntityIndexBinding;
+import org.hibernate.search.engine.spi.IdentifierConverter;
 import org.hibernate.search.indexes.serialization.spi.LuceneWorksBuilder;
 import org.hibernate.search.indexes.serialization.spi.SerializableIndex;
 import org.hibernate.search.indexes.serialization.spi.SerializableStore;
 import org.hibernate.search.indexes.serialization.spi.SerializableTermVector;
-import org.hibernate.search.util.impl.ClassLoaderHelper;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.util.logging.impl.Log;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
 
@@ -60,6 +61,7 @@ public class LuceneWorkHydrator implements LuceneWorksBuilder {
 	private static final Log log = LoggerFactory.make();
 
 	private ExtendedSearchIntegrator searchIntegrator;
+	private final IdentifierConverter identifierConverter;
 	private List<LuceneWork> results;
 	private ClassLoader loader;
 	private Document luceneDocument;
@@ -69,7 +71,9 @@ public class LuceneWorkHydrator implements LuceneWorksBuilder {
 
 	public LuceneWorkHydrator(ExtendedSearchIntegrator searchIntegrator) {
 		this.searchIntegrator = searchIntegrator;
+		this.identifierConverter = searchIntegrator.getIdentifierConverter();
 		this.results = new ArrayList<LuceneWork>();
+		//FIXME use the classloaderService
 		this.loader = Thread.currentThread().getContextClassLoader();
 	}
 
@@ -89,12 +93,8 @@ public class LuceneWorkHydrator implements LuceneWorksBuilder {
 
 	@Override
 	public void addPurgeAllLuceneWork(String entityClassName) {
-		Class<?> entityClass = ClassLoaderHelper.classForName(
-				entityClassName,
-				"entity class",
-				searchIntegrator.getServiceManager()
-		);
-		results.add( new PurgeAllLuceneWork( entityClass ) );
+		IndexedEntityTypeIdentifier typeIdentifier = identifierConverter.fromName( entityClassName );
+		results.add( new PurgeAllLuceneWork( typeIdentifier ) );
 	}
 
 	@Override
@@ -109,11 +109,7 @@ public class LuceneWorkHydrator implements LuceneWorksBuilder {
 
 	@Override
 	public void addDeleteLuceneWork(String entityClassName, ConversionContext conversionContext) {
-		Class<?> entityClass = ClassLoaderHelper.classForName(
-				entityClassName,
-				"entity class",
-				searchIntegrator.getServiceManager()
-		);
+		final IndexedEntityTypeIdentifier entityClass = identifierConverter.fromName( entityClassName );
 		LuceneWork result = new DeleteLuceneWork(
 				id,
 				objectIdInString( entityClass, id, conversionContext ),
@@ -125,11 +121,7 @@ public class LuceneWorkHydrator implements LuceneWorksBuilder {
 
 	@Override
 	public void addAddLuceneWork(String entityClassName, Map<String, String> fieldToAnalyzerMap, ConversionContext conversionContext) {
-		Class<?> entityClass = ClassLoaderHelper.classForName(
-				entityClassName,
-				"entity class",
-				searchIntegrator.getServiceManager()
-		);
+		final IndexedEntityTypeIdentifier entityClass = identifierConverter.fromName( entityClassName );
 		LuceneWork result = new AddLuceneWork(
 				id,
 				objectIdInString( entityClass, id, conversionContext ),
@@ -144,11 +136,7 @@ public class LuceneWorkHydrator implements LuceneWorksBuilder {
 
 	@Override
 	public void addUpdateLuceneWork(String entityClassName, Map<String, String> fieldToAnalyzerMap, ConversionContext conversionContext) {
-		Class<?> entityClass = ClassLoaderHelper.classForName(
-				entityClassName,
-				"entity class",
-				searchIntegrator.getServiceManager()
-		);
+		final IndexedEntityTypeIdentifier entityClass = identifierConverter.fromName( entityClassName );
 		LuceneWork result = new UpdateLuceneWork(
 				id,
 				objectIdInString( entityClass, id, conversionContext ),
@@ -326,7 +314,7 @@ public class LuceneWorkHydrator implements LuceneWorksBuilder {
 		return luceneDocument;
 	}
 
-	private String objectIdInString(Class<?> entityClass, Serializable id, ConversionContext conversionContext) {
+	private String objectIdInString(IndexedEntityTypeIdentifier entityClass, Serializable id, ConversionContext conversionContext) {
 		EntityIndexBinding indexBindingForEntity = searchIntegrator.getIndexBinding( entityClass );
 		if ( indexBindingForEntity == null ) {
 			throw new SearchException( "Unable to find entity type metadata while deserializing: " + entityClass );

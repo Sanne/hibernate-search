@@ -22,6 +22,7 @@ import org.hibernate.search.indexes.serialization.spi.Deserializer;
 import org.hibernate.search.indexes.serialization.spi.SerializationProvider;
 import org.hibernate.search.indexes.serialization.spi.Serializer;
 import org.hibernate.search.indexes.spi.IndexManager;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.testsupport.TestForIssue;
 import org.hibernate.search.testsupport.junit.SearchFactoryHolder;
 import org.junit.Assert;
@@ -89,10 +90,11 @@ public class SerializationInstanceNotReusedTest {
 	}
 
 	private List<LuceneWork> makeSomeWork() {
+		IndexedEntityTypeIdentifier bookType = factoryHolder.getSearchFactory().getIdentifierConverter().convertEntityIdentifier( Book.class );
 		List<LuceneWork> list = new LinkedList<>();
 		//just some random data:
-		list.add( new AddLuceneWork( Integer.valueOf( 5 ), "id:5", Book.class, new Document() ) );
-		list.add( new AddLuceneWork( Integer.valueOf( 6 ), "id:6", Book.class, new Document() ) );
+		list.add( new AddLuceneWork( Integer.valueOf( 5 ), "id:5", bookType, new Document() ) );
+		list.add( new AddLuceneWork( Integer.valueOf( 6 ), "id:6", bookType, new Document() ) );
 		return list;
 	}
 

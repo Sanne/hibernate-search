@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.hibernate.search.backend.spi.Work;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.spi.InstanceInitializer;
 
 /**
@@ -31,16 +32,17 @@ public final class SimpleInitializer implements InstanceInitializer {
 	}
 
 	@Override
-	public Class<?> getClassFromWork(Work work) {
-		return work.getEntityClass() != null ?
+	public IndexedEntityTypeIdentifier getClassFromWork(Work work) {
+		/*return work.getEntityClass() != null ?
 				work.getEntityClass() :
 				getClass( work.getEntity() );
+				*/
+		return null;
 	}
 
 	@Override
-	@SuppressWarnings( "unchecked" )
-	public <T> Class<T> getClass(T entity) {
-		return (Class<T>) entity.getClass();
+	public IndexedEntityTypeIdentifier getClass(Object entity) {
+		return null; //entity.getClass();
 	}
 
 	@Override
