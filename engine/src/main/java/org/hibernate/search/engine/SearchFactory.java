@@ -97,9 +97,13 @@ public interface SearchFactory {
 	Set<Class<?>> getIndexedTypes();
 
 	/**
-	 * Unwraps some internal Hibernate Search types.
-	 * Currently, no public type is accessible. This method should not be used by users.
+	 * Advanced: meant to expose implementation details. Use it to access methods exposed on
+	 * SearchFactoryIntegrator or similar, but beware these are not public API and might change
+	 * in any version. Generally speaking this is meant to be used only by other frameworks
+	 * integrating.
+	 * @param interfaceType
+	 * @return the requested instance, or an exception if the class is not handled.
 	 */
-	<T> T unwrap(Class<T> cls);
+	<T> T unwrap(Class<T> interfaceType);
 
 }

@@ -8,6 +8,8 @@ package org.hibernate.search.backend.spi;
 
 import java.io.Serializable;
 
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
+
 /**
  * A unit of work. Only make sense inside the same session since it uses the scope principle.
  *
@@ -16,7 +18,7 @@ import java.io.Serializable;
  */
 public class Work {
 	private final Object entity;
-	private final Class<?> entityClass;
+	private final IndexedEntityTypeIdentifier entityClass;
 	private final Serializable id;
 	private final WorkType type;
 	private final boolean identifierWasRolledBack;
@@ -29,7 +31,7 @@ public class Work {
 		this( entity, null, id, type, identifierRollbackEnabled );
 	}
 
-	public Work(Class<?> entityType, Serializable id, WorkType type) {
+	public Work(IndexedEntityTypeIdentifier entityType, Serializable id, WorkType type) {
 		this( null, entityType, id, type, false );
 	}
 
@@ -37,7 +39,7 @@ public class Work {
 		this( entity, null, null, type, false );
 	}
 
-	private Work(Object entity, Class<?> entityClass, Serializable id,
+	private Work(Object entity, IndexedEntityTypeIdentifier entityClass, Serializable id,
 			WorkType type, boolean identifierWasRolledBack) {
 		this.entity = entity;
 		this.entityClass = entityClass;
@@ -46,7 +48,7 @@ public class Work {
 		this.identifierWasRolledBack = identifierWasRolledBack;
 	}
 
-	public Class<?> getEntityClass() {
+	public IndexedEntityTypeIdentifier getEntityClass() {
 		return entityClass;
 	}
 

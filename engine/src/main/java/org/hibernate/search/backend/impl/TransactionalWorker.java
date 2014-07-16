@@ -21,6 +21,7 @@ import org.hibernate.search.util.impl.Maps;
 import org.hibernate.search.util.logging.impl.Log;
 import org.hibernate.search.exception.SearchException;
 import org.hibernate.search.backend.TransactionContext;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.spi.InstanceInitializer;
 import org.hibernate.search.spi.WorkerBuildContext;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
@@ -51,7 +52,7 @@ public class TransactionalWorker implements Worker {
 
 	@Override
 	public void performWork(Work work, TransactionContext transactionContext) {
-		final Class<?> entityType = instanceInitializer.getClassFromWork( work );
+		final IndexedEntityTypeIdentifier entityType = instanceInitializer.getClassFromWork( work );
 		EntityIndexBinding indexBindingForEntity = factory.getIndexBinding( entityType );
 		if ( indexBindingForEntity == null
 				&& factory.getDocumentBuilderContainedEntity( entityType ) == null ) {
@@ -118,7 +119,7 @@ public class TransactionalWorker implements Worker {
 				throw new AssertionFailure( "Unknown work type: " + work.getType() );
 		}
 		Work result = work;
-		Class<?> entityClass = work.getEntityClass();
+		IndexedEntityTypeIdentifier entityClass = work.getEntityClass();
 		switch ( operation ) {
 			case APPLY_DEFAULT:
 				break;

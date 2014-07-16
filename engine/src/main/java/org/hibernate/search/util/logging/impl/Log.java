@@ -19,6 +19,7 @@ import org.hibernate.search.cfg.Environment;
 import org.hibernate.search.exception.AssertionFailure;
 import org.hibernate.search.exception.EmptyQueryException;
 import org.hibernate.search.exception.SearchException;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger.Level;
 import org.jboss.logging.annotations.Cause;
@@ -175,12 +176,12 @@ public interface Log extends BasicLogger {
 	@Message(id = 45, value = "@ContainedIn is pointing to an entity having @ProvidedId: %1$s. " +
 			"This is not supported, indexing of contained in entities will be skipped. " +
 			"Indexed data of the embedded object might become out of date in objects of type ")
-	void containedInPointsToProvidedId(Class<?> objectClass);
+	void containedInPointsToProvidedId(IndexedEntityTypeIdentifier objectClass);
 
 	@LogMessage(level = WARN)
 	@Message(id = 46,
 			value = "FieldCache was enabled on class %1$s but for this type of identifier we can't extract values from the FieldCache: cache disabled")
-	void cannotExtractValueForIdentifier(Class<?> beanClass);
+	void cannotExtractValueForIdentifier(IndexedEntityTypeIdentifier beanClass);
 
 	@LogMessage(level = WARN)
 	@Message(id = 47, value = "Unable to close JMS connection for %1$s")
@@ -410,15 +411,15 @@ public interface Log extends BasicLogger {
 
 	@LogMessage(level = TRACE)
 	@Message(id = 125, value = "Interceptor enforces skip index operation %2$s on instance of class %1$s")
-	void forceSkipIndexOperationViaInterception(Class<?> entityClass, WorkType type);
+	void forceSkipIndexOperationViaInterception(IndexedEntityTypeIdentifier entityClass, WorkType type);
 
 	@LogMessage(level = TRACE)
 	@Message(id = 126, value = "Interceptor enforces removal of index data instead of index operation %2$s on instance of class %1$s")
-	void forceRemoveOnIndexOperationViaInterception(Class<?> entityClass, WorkType type);
+	void forceRemoveOnIndexOperationViaInterception(IndexedEntityTypeIdentifier entityClass, WorkType type);
 
 	@LogMessage(level = TRACE)
 	@Message(id = 128, value = "Interceptor enforces update of index data instead of index operation %2$s on instance of class %1$s")
-	void forceUpdateOnIndexOperationViaInterception(Class<?> entityClass, WorkType type);
+	void forceUpdateOnIndexOperationViaInterception(IndexedEntityTypeIdentifier entityClass, WorkType type);
 
 	@Message(id = 131, value = "The field '%1$s#%2$s' used for the spatial query is not configured as spatial field. Check the proper use of @Spatial respectively SpatialFieldBridge")
 	SearchException targetedFieldNotSpatial(String className, String fieldName);
@@ -517,7 +518,7 @@ public interface Log extends BasicLogger {
 
 	@Message(id = 169, value = "FieldBridge '%1$s' does not have a objectToString method: field '%2$s' in '%3$s'" +
 			" The FieldBridge must be a TwoWayFieldBridge or you have to enable the ignoreFieldBridge option when defining a Query")
-	SearchException fieldBridgeNotTwoWay(Class<? extends FieldBridge> bridgeClass, String fieldName, XClass beanXClass);
+	SearchException fieldBridgeNotTwoWay(Class<? extends FieldBridge> bridgeClass, String fieldName, IndexedEntityTypeIdentifier beanXClass);
 
 	@Message(id = 176, value = "Document could not be parsed")
 	SearchException unableToParseDocument(@Cause Throwable cause);
@@ -544,7 +545,7 @@ public interface Log extends BasicLogger {
 	String massIndexerUnableToIndexInstance(String clazz, String value);
 
 	@Message(id = 184, value = "Cannot define an entity with 0 shard on '%1$s'")
-	SearchException entityWithNoShard(Class<?> type);
+	SearchException entityWithNoShard(IndexedEntityTypeIdentifier type);
 
 	@Message(id = 186, value = "[AssertionFailure: open a bug report] SearchFactory from entityIndexBinding is not assignable to WorkerBuilderContext. Actual class is %1$s")
 	SearchException assertionFailureCannotCastToWorkerBuilderContext(Class<?> type);
@@ -589,19 +590,19 @@ public interface Log extends BasicLogger {
 	SearchException incorrectEditDistance();
 
 	@Message(id = 202, value = "Unable to find entity $1%s with id $2%s")
-	SearchException entityWithIdNotFound(Class<?> entityType, String id);
+	SearchException entityWithIdNotFound(IndexedEntityTypeIdentifier entityType, String id);
 
 	@Message(id = 203, value = "No field from %s can be used for More Like This queries. They are neither stored or including the term vectors.")
-	SearchException noFieldCompatibleForMoreLikeThis(Class<?> entityType);
+	SearchException noFieldCompatibleForMoreLikeThis(IndexedEntityTypeIdentifier entityType);
 
 	@Message(id = 205, value = "An IOException happened while accessing the Lucene indexes related to '%1$s'")
-	SearchException ioExceptionOnIndexOfEntity(@Cause IOException e, Class<?> entityType);
+	SearchException ioExceptionOnIndexOfEntity(@Cause IOException e, IndexedEntityTypeIdentifier entityType);
 
 	@Message(id = 206, value = "MoreLikeThis queries require a TFIDFSimilarity for entity '$1%s'")
-	SearchException requireTFIDFSimilarity(Class<?> beanClass);
+	SearchException requireTFIDFSimilarity(IndexedEntityTypeIdentifier beanClass);
 
 	@Message(id = 207, value = "Field %s of entity %s cannot be used in a MoreLikeThis query: the term vector (preferred) or the value itself need to be stored.")
-	SearchException fieldNotStoredNorTermVectorCannotBeUsedInMoreLikeThis(String fieldName, Class<?> entityType);
+	SearchException fieldNotStoredNorTermVectorCannotBeUsedInMoreLikeThis(String fieldName, IndexedEntityTypeIdentifier entityType);
 
 	@Message(id = 208, value = "ClassLoaderService cannot be provided via SearchConfiguration#getProvidedServices. Use SearchConfiguration#getClassLoaderService!")
 	SearchException classLoaderServiceContainedInProvidedServicesException();
@@ -619,10 +620,10 @@ public interface Log extends BasicLogger {
 	String massIndexerExceptionWhileTransformingIds();
 
 	@Message(id = 213, value = "Field %s of entity %s cannot be used in a MoreLikeThis query. Ids and embedded ids are excluded.")
-	SearchException fieldIdCannotBeUsedInMoreLikeThis(String fieldName, Class<?> entityType);
+	SearchException fieldIdCannotBeUsedInMoreLikeThis(String fieldName, IndexedEntityTypeIdentifier entityType);
 
 	@Message(id = 214, value = "Field %s of entity %s cannot be used in a MoreLikeThis query. Numeric fields are not considered for the moment.")
-	SearchException numericFieldCannotBeUsedInMoreLikeThis(String fieldName, Class<?> entityType);
+	SearchException numericFieldCannotBeUsedInMoreLikeThis(String fieldName, IndexedEntityTypeIdentifier entityType);
 
 	@Message(id = 215, value = "Multiple matching FieldBridges found for %s of return type %s: %s" )
 	SearchException multipleMatchingFieldBridges(XMember member, XClass memberType, String listOfFieldBridges);

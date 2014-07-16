@@ -8,11 +8,10 @@ package org.hibernate.search.backend.impl.lucene.works;
 
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
-
 import org.hibernate.search.engine.ProjectionConstants;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.store.Workspace;
 import org.hibernate.search.util.logging.impl.Log;
-
 import org.hibernate.search.exception.SearchException;
 import org.hibernate.search.backend.IndexingMonitor;
 import org.hibernate.search.backend.LuceneWork;
@@ -38,7 +37,7 @@ class PurgeAllWorkDelegate implements LuceneWorkDelegate {
 
 	@Override
 	public void performWork(LuceneWork work, IndexWriter writer, IndexingMonitor monitor) {
-		final Class<?> entityType = work.getEntityClass();
+		final IndexedEntityTypeIdentifier entityType = work.getEntityClass();
 		log.tracef( "purgeAll Lucene index using IndexWriter for type: %s", entityType );
 		try {
 			Term term = new Term( ProjectionConstants.OBJECT_CLASS, entityType.getName() );
