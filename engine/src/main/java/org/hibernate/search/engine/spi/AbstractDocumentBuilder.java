@@ -41,6 +41,7 @@ import org.hibernate.search.util.logging.impl.LoggerFactory;
  * @author Sanne Grinovero
  */
 public abstract class AbstractDocumentBuilder {
+
 	private static final Log log = LoggerFactory.make();
 
 	private final XClass beanXClass;
