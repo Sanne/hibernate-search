@@ -29,6 +29,7 @@ import org.hibernate.search.indexes.serialization.spi.SerializationProvider;
 import org.hibernate.search.indexes.spi.DirectoryBasedReaderProvider;
 import org.hibernate.search.indexes.spi.IndexManager;
 import org.hibernate.search.indexes.spi.ReaderProvider;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.spi.WorkerBuildContext;
 import org.hibernate.search.store.DirectoryProvider;
 import org.hibernate.search.store.impl.DirectoryProviderFactory;
@@ -52,7 +53,7 @@ public class DirectoryBasedIndexManager implements IndexManager {
 	private BackendQueueProcessor backend;
 	private OptimizerStrategy optimizer;
 	private LuceneIndexingParameters indexingParameters;
-	private final Set<Class<?>> containedEntityTypes = new HashSet<Class<?>>();
+	private final Set<IndexedEntityTypeIdentifier> containedEntityTypes = new HashSet<IndexedEntityTypeIdentifier>();
 	private LuceneWorkSerializer serializer;
 	private SerializationProvider serializationProvider;
 	private SearchFactoryImplementor boundSearchFactory = null;
@@ -93,7 +94,7 @@ public class DirectoryBasedIndexManager implements IndexManager {
 	}
 
 	@Override
-	public Set<Class<?>> getContainedTypes() {
+	public Set<IndexedEntityTypeIdentifier> getContainedTypes() {
 		return containedEntityTypes;
 	}
 
@@ -130,7 +131,7 @@ public class DirectoryBasedIndexManager implements IndexManager {
 	}
 
 	@Override
-	public void addContainedEntity(Class<?> entity) {
+	public void addContainedEntity(IndexedEntityTypeIdentifier entity) {
 		if ( containedEntityTypes.add( entity ) ) {
 			triggerWorkspaceReconfiguration();
 		}
@@ -157,7 +158,7 @@ public class DirectoryBasedIndexManager implements IndexManager {
 	}
 
 	//Not exposed on the IndexManager interface
-	public EntityIndexBinding getIndexBinding(Class<?> entityType) {
+	public EntityIndexBinding getIndexBinding(IndexedEntityTypeIdentifier entityType) {
 		return boundSearchFactory.getIndexBinding( entityType );
 	}
 

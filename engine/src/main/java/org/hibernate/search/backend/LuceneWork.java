@@ -10,8 +10,8 @@ import java.io.Serializable;
 import java.util.Map;
 
 import org.apache.lucene.document.Document;
-
 import org.hibernate.search.backend.impl.WorkVisitor;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 
 /**
  * Represent a Serializable Lucene unit work
@@ -30,15 +30,15 @@ import org.hibernate.search.backend.impl.WorkVisitor;
 public abstract class LuceneWork implements Serializable {
 
 	private final Document document;
-	private final Class<?> entityClass;
+	private final IndexedEntityTypeIdentifier entityClass;
 	private final Serializable id;
 	private final String idInString;
 
-	public LuceneWork(Serializable id, String idInString, Class<?> entity) {
+	public LuceneWork(Serializable id, String idInString, IndexedEntityTypeIdentifier entity) {
 		this( id, idInString, entity, null );
 	}
 
-	public LuceneWork(Serializable id, String idInString, Class<?> entity, Document document) {
+	public LuceneWork(Serializable id, String idInString, IndexedEntityTypeIdentifier entity, Document document) {
 		this.id = id;
 		this.idInString = idInString;
 		this.entityClass = entity;
@@ -49,7 +49,7 @@ public abstract class LuceneWork implements Serializable {
 		return document;
 	}
 
-	public Class<?> getEntityClass() {
+	public IndexedEntityTypeIdentifier getEntityClass() {
 		return entityClass;
 	}
 

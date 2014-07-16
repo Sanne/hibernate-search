@@ -10,12 +10,12 @@ import java.util.HashMap;
 import java.util.TreeSet;
 
 import org.apache.lucene.index.IndexReader;
-
 import org.hibernate.search.engine.spi.EntityIndexBinding;
 import org.hibernate.search.impl.ImmutableSearchFactory;
-import org.hibernate.search.indexes.IndexReaderAccessor;
+import org.hibernate.search.indexes.spi.EntityIndexReaderAccessor;
 import org.hibernate.search.indexes.spi.IndexManager;
 import org.hibernate.search.reader.impl.MultiReaderFactory;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.util.logging.impl.Log;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
 
@@ -25,7 +25,7 @@ import org.hibernate.search.util.logging.impl.LoggerFactory;
  *
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2011 Red Hat Inc.
  */
-public class DefaultIndexReaderAccessor implements IndexReaderAccessor {
+public class DefaultIndexReaderAccessor implements EntityIndexReaderAccessor {
 
 	private static final Log log = LoggerFactory.make();
 
@@ -41,13 +41,13 @@ public class DefaultIndexReaderAccessor implements IndexReaderAccessor {
 	}
 
 	@Override
-	public IndexReader open(Class<?>... entities) {
+	public IndexReader open(IndexedEntityTypeIdentifier... entities) {
 		if ( entities.length == 0 ) {
 			throw log.needAtLeastOneIndexedEntityType();
 		}
 
 		HashMap<String, IndexManager> indexManagers = new HashMap<String, IndexManager>();
-		for ( Class<?> type : entities ) {
+		for ( IndexedEntityTypeIdentifier type : entities ) {
 			EntityIndexBinding entityIndexBinding = searchFactory.getSafeIndexBindingForEntity( type );
 			IndexManager[] indexManagersForAllShards = entityIndexBinding.getSelectionStrategy()
 					.getIndexManagersForAllShards();

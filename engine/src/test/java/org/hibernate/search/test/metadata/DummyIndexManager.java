@@ -19,12 +19,14 @@ import org.hibernate.search.engine.spi.SearchFactoryImplementor;
 import org.hibernate.search.indexes.serialization.spi.LuceneWorkSerializer;
 import org.hibernate.search.indexes.spi.IndexManager;
 import org.hibernate.search.indexes.spi.ReaderProvider;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.spi.WorkerBuildContext;
 
 /**
  * @author Hardy Ferentschik
  */
 class DummyIndexManager implements IndexManager {
+
 	private final String indexName;
 
 	public DummyIndexManager(String indexName) {
@@ -62,7 +64,7 @@ class DummyIndexManager implements IndexManager {
 	}
 
 	@Override
-	public Set<Class<?>> getContainedTypes() {
+	public Set<IndexedEntityTypeIdentifier> getContainedTypes() {
 		throw new UnsupportedOperationException( "Not supported in dummy index manager" );
 	}
 
@@ -82,7 +84,7 @@ class DummyIndexManager implements IndexManager {
 	}
 
 	@Override
-	public void addContainedEntity(Class<?> entity) {
+	public void addContainedEntity(IndexedEntityTypeIdentifier entity) {
 		throw new UnsupportedOperationException( "Not supported in dummy index manager" );
 	}
 
@@ -95,6 +97,7 @@ class DummyIndexManager implements IndexManager {
 	public LuceneWorkSerializer getSerializer() {
 		throw new UnsupportedOperationException( "Not supported in dummy index manager" );
 	}
+
 }
 
 

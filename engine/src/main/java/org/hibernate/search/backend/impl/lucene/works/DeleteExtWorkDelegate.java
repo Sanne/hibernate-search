@@ -16,6 +16,7 @@ import org.hibernate.search.backend.IndexingMonitor;
 import org.hibernate.search.backend.LuceneWork;
 import org.hibernate.search.bridge.util.impl.NumericFieldUtils;
 import org.hibernate.search.engine.spi.DocumentBuilderIndexedEntity;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.store.Workspace;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
 import org.hibernate.search.util.logging.impl.Log;
@@ -30,7 +31,7 @@ import org.hibernate.search.util.logging.impl.Log;
  */
 public final class DeleteExtWorkDelegate extends DeleteWorkDelegate {
 
-	private final Class<?> managedType;
+	private final IndexedEntityTypeIdentifier managedType;
 	private final DocumentBuilderIndexedEntity builder;
 	private static final Log log = LoggerFactory.make();
 	private final boolean idIsNumeric;

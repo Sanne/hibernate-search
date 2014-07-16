@@ -6,10 +6,12 @@
  */
 package org.hibernate.search.spi;
 
+import org.apache.lucene.analysis.Analyzer;
 import org.hibernate.search.backend.spi.Worker;
 import org.hibernate.search.engine.SearchFactory;
 import org.hibernate.search.engine.spi.EntityIndexBinding;
 import org.hibernate.search.exception.ErrorHandler;
+import org.hibernate.search.indexes.spi.EntityIndexReaderAccessor;
 import org.hibernate.search.query.engine.spi.HSQuery;
 import org.hibernate.search.query.engine.spi.TimeoutExceptionFactory;
 
@@ -37,13 +39,13 @@ public interface SearchFactoryIntegrator extends SearchFactory {
 	 * @return the entity to index binding for the given type. {@code null} is returned for types which are unindexed or
 	 *         unknown.
 	 */
-	EntityIndexBinding getIndexBinding(Class<?> entityType);
+	EntityIndexBinding getIndexBinding(IndexedEntityTypeIdentifier entityType);
 
 	/**
 	 * Add the following classes to the SearchFactory. If these classes are new to the SearchFactory this
 	 * will trigger a reconfiguration.
 	 */
-	void addClasses(Class<?>... classes);
+	void addClasses(IndexedEntityTypeIdentifier... classes);
 
 	//TODO consider accepting SearchConfiguration or SearchMapping
 
@@ -75,5 +77,14 @@ public interface SearchFactoryIntegrator extends SearchFactory {
 	ErrorHandler getErrorHandler();
 
 	TimeoutExceptionFactory getDefaultTimeoutExceptionFactory();
+
+	Analyzer getAnalyzer(IndexedEntityTypeIdentifier indexBoundType);
+
+	/**
+	 * Provides access to the IndexReader API
+	 *
+	 * @return the EntityIndexReaderAccessor for this SearchFactory
+	 */
+	EntityIndexReaderAccessor getEntityIndexReaderAccessor();
 
 }

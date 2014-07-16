@@ -13,6 +13,7 @@ import org.hibernate.search.engine.spi.DocumentBuilderIndexedEntity;
 import org.hibernate.search.indexes.spi.IndexManager;
 import org.hibernate.search.indexes.interceptor.EntityIndexingInterceptor;
 import org.hibernate.search.query.collector.impl.FieldCacheCollectorFactory;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.store.IndexShardingStrategy;
 import org.hibernate.search.store.ShardIdentifierProvider;
 
@@ -70,7 +71,7 @@ public class DefaultMutableEntityIndexBinding implements MutableEntityIndexBindi
 	}
 
 	@Override
-	public void postInitialize(Set<Class<?>> indexedClasses) {
+	public void postInitialize(Set<IndexedEntityTypeIdentifier> indexedClasses) {
 		documentBuilder.postInitialize( indexedClasses );
 	}
 

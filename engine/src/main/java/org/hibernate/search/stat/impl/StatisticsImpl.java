@@ -24,12 +24,13 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
-
 import org.hibernate.search.engine.ProjectionConstants;
 import org.hibernate.search.exception.SearchException;
 import org.hibernate.search.engine.Version;
 import org.hibernate.search.engine.service.classloading.spi.ClassLoadingException;
 import org.hibernate.search.engine.spi.SearchFactoryImplementor;
+import org.hibernate.search.indexes.spi.EntityIndexReaderAccessor;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.stat.Statistics;
 import org.hibernate.search.stat.spi.StatisticsImplementor;
 import org.hibernate.search.util.impl.ClassLoaderHelper;
@@ -198,7 +199,7 @@ public class StatisticsImpl implements Statistics, StatisticsImplementor {
 	@Override
 	public Set<String> getIndexedClassNames() {
 		Set<String> indexedClasses = new HashSet<String>();
-		for ( Class clazz : searchFactoryImplementor.getIndexBindings().keySet() ) {
+		for ( IndexedEntityTypeIdentifier clazz : searchFactoryImplementor.getIndexBindings().keySet() ) {
 			indexedClasses.add( clazz.getName() );
 		}
 		return indexedClasses;
@@ -206,8 +207,9 @@ public class StatisticsImpl implements Statistics, StatisticsImplementor {
 
 	@Override
 	public int getNumberOfIndexedEntities(String entity) {
-		Class<?> clazz = getEntityClass( entity );
-		IndexReader indexReader = searchFactoryImplementor.getIndexReaderAccessor().open( clazz );
+		final IndexedEntityTypeIdentifier typeIdentifier = searchFactoryImplementor.getIdentifierConverter().fromName(entity);
+		final EntityIndexReaderAccessor indexReaderAccessor = searchFactoryImplementor.getEntityIndexReaderAccessor();
+		IndexReader indexReader = indexReaderAccessor.open( typeIdentifier );
 		try {
 			IndexSearcher searcher = new IndexSearcher( indexReader );
 			BooleanQuery boolQuery = new BooleanQuery();
@@ -224,7 +226,7 @@ public class StatisticsImpl implements Statistics, StatisticsImplementor {
 			}
 		}
 		finally {
-			searchFactoryImplementor.getIndexReaderAccessor().close( indexReader );
+			indexReaderAccessor.close( indexReader );
 		}
 	}
 
@@ -237,16 +239,6 @@ public class StatisticsImpl implements Statistics, StatisticsImplementor {
 		return countPerEntity;
 	}
 
-	private Class<?> getEntityClass(String entity) {
-		Class<?> clazz;
-		try {
-			clazz = ClassLoaderHelper.classForName( entity, searchFactoryImplementor.getServiceManager() );
-		}
-		catch (ClassLoadingException e) {
-			throw new IllegalArgumentException( entity + "not a indexed entity" );
-		}
-		return clazz;
-	}
 }
 
 

@@ -9,6 +9,7 @@ package org.hibernate.search.backend;
 import java.io.Serializable;
 
 import org.hibernate.search.backend.impl.WorkVisitor;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 
 /**
  * A unit of work used to purge an entire index.
@@ -19,7 +20,7 @@ public class PurgeAllLuceneWork extends LuceneWork implements Serializable {
 
 	private static final long serialVersionUID = 8124091288284011715L;
 
-	public PurgeAllLuceneWork(Class<?> entity) {
+	public PurgeAllLuceneWork(IndexedEntityTypeIdentifier entity) {
 		super( null, null, entity, null );
 	}
 

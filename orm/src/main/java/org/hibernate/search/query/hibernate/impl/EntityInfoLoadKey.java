@@ -6,16 +6,18 @@
  */
 package org.hibernate.search.query.hibernate.impl;
 
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
+
 /**
  * Custom key to keep a map of loaded {@code EntityInfo} instances.
  *
  * @author Hardy Ferentschik
  */
 public class EntityInfoLoadKey {
-	private final Class<?> type;
+	private final IndexedEntityTypeIdentifier type;
 	private final Object id;
 
-	public EntityInfoLoadKey(Class<?> type, Object id) {
+	public EntityInfoLoadKey(IndexedEntityTypeIdentifier type, Object id) {
 		this.type = type;
 		this.id = id;
 	}
