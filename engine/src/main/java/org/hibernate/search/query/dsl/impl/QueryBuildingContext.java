@@ -8,8 +8,8 @@
 package org.hibernate.search.query.dsl.impl;
 
 import org.apache.lucene.analysis.Analyzer;
-
 import org.hibernate.search.engine.spi.SearchFactoryImplementor;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 
 /**
  * Keep the query builder contextual information
@@ -19,9 +19,9 @@ import org.hibernate.search.engine.spi.SearchFactoryImplementor;
 public class QueryBuildingContext {
 	private final SearchFactoryImplementor factory;
 	private final Analyzer queryAnalyzer;
-	private final Class<?> entityType;
+	private final IndexedEntityTypeIdentifier entityType;
 
-	public QueryBuildingContext(SearchFactoryImplementor factory, Analyzer queryAnalyzer, Class<?> entityType) {
+	public QueryBuildingContext(SearchFactoryImplementor factory, Analyzer queryAnalyzer, IndexedEntityTypeIdentifier entityType) {
 		this.factory = factory;
 		this.queryAnalyzer = queryAnalyzer;
 		this.entityType = entityType;
@@ -35,7 +35,7 @@ public class QueryBuildingContext {
 		return queryAnalyzer;
 	}
 
-	public Class<?> getEntityType() {
+	public IndexedEntityTypeIdentifier getEntityType() {
 		return entityType;
 	}
 }

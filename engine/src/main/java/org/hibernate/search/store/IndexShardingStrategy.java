@@ -12,6 +12,7 @@ import java.util.Properties;
 import org.apache.lucene.document.Document;
 import org.hibernate.search.filter.FullTextFilterImplementor;
 import org.hibernate.search.indexes.spi.IndexManager;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 
 /**
  * Defines how a given virtual index shards data into different IndexManager(s).
@@ -37,7 +38,7 @@ public interface IndexShardingStrategy {
 	/**
 	 * return the IndexManager where the given entity will be indexed
 	 */
-	IndexManager getIndexManagerForAddition(Class<?> entity, Serializable id, String idInString, Document document);
+	IndexManager getIndexManagerForAddition(IndexedEntityTypeIdentifier entity, Serializable id, String idInString, Document document);
 
 	/**
 	 * return the IndexManager(s) where the given entity is stored and where the deletion operation needs to be applied
@@ -47,7 +48,7 @@ public interface IndexShardingStrategy {
 	 * @param id the id in object form
 	 * @param idInString the id as transformed by the used TwoWayStringBridge
 	 */
-	IndexManager[] getIndexManagersForDeletion(Class<?> entity, Serializable id, String idInString);
+	IndexManager[] getIndexManagersForDeletion(IndexedEntityTypeIdentifier entity, Serializable id, String idInString);
 
 	/**
 	 * return the set of IndexManager(s) where the entities matching the filters are stored

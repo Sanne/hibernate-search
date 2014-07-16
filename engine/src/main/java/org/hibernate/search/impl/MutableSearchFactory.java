@@ -22,18 +22,21 @@ import org.hibernate.search.engine.impl.FilterDef;
 import org.hibernate.search.engine.service.spi.ServiceManager;
 import org.hibernate.search.engine.spi.DocumentBuilderContainedEntity;
 import org.hibernate.search.engine.spi.EntityIndexBinding;
+import org.hibernate.search.engine.spi.IdentifierConverter;
 import org.hibernate.search.engine.spi.SearchFactoryImplementor;
 import org.hibernate.search.engine.spi.TimingSource;
 import org.hibernate.search.exception.ErrorHandler;
 import org.hibernate.search.filter.FilterCachingStrategy;
 import org.hibernate.search.indexes.IndexReaderAccessor;
 import org.hibernate.search.indexes.impl.IndexManagerHolder;
+import org.hibernate.search.indexes.spi.EntityIndexReaderAccessor;
 import org.hibernate.search.metadata.IndexedTypeDescriptor;
 import org.hibernate.search.query.DatabaseRetrievalMethod;
 import org.hibernate.search.query.ObjectLookupMethod;
 import org.hibernate.search.query.dsl.QueryContextBuilder;
 import org.hibernate.search.query.engine.spi.HSQuery;
 import org.hibernate.search.query.engine.spi.TimeoutExceptionFactory;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.spi.InstanceInitializer;
 import org.hibernate.search.spi.SearchFactoryBuilder;
 import org.hibernate.search.spi.SearchFactoryIntegrator;
@@ -71,17 +74,17 @@ public class MutableSearchFactory implements SearchFactoryImplementorWithShareab
 	}
 
 	@Override
-	public Map<Class<?>, EntityIndexBinding> getIndexBindings() {
+	public Map<IndexedEntityTypeIdentifier, EntityIndexBinding> getIndexBindings() {
 		return delegate.getIndexBindings();
 	}
 
 	@Override
-	public EntityIndexBinding getIndexBinding(Class<?> entityType) {
+	public EntityIndexBinding getIndexBinding(IndexedEntityTypeIdentifier entityType) {
 		return delegate.getIndexBinding( entityType );
 	}
 
 	@Override
-	public DocumentBuilderContainedEntity getDocumentBuilderContainedEntity(Class<?> entityType) {
+	public DocumentBuilderContainedEntity getDocumentBuilderContainedEntity(IndexedEntityTypeIdentifier entityType) {
 		return delegate.getDocumentBuilderContainedEntity( entityType );
 	}
 
@@ -139,7 +142,7 @@ public class MutableSearchFactory implements SearchFactoryImplementorWithShareab
 	}
 
 	@Override
-	public Set<Class<?>> getIndexedTypesPolymorphic(Class<?>[] classes) {
+	public Set<IndexedEntityTypeIdentifier> getIndexedTypesPolymorphic(IndexedEntityTypeIdentifier[] classes) {
 		return delegate.getIndexedTypesPolymorphic( classes );
 	}
 
@@ -209,14 +212,14 @@ public class MutableSearchFactory implements SearchFactoryImplementorWithShareab
 	}
 
 	@Override
-	public Map<Class<?>, DocumentBuilderContainedEntity> getDocumentBuildersContainedEntities() {
+	public Map<IndexedEntityTypeIdentifier, DocumentBuilderContainedEntity> getDocumentBuildersContainedEntities() {
 		return delegate.getDocumentBuildersContainedEntities();
 	}
-
+/*
 	@Override
-	public void addClasses(Class<?>... classes) {
+	public void addClasses(IndexedEntityTypeIdentifier... classes) {
 		final SearchFactoryBuilder builder = new SearchFactoryBuilder().currentFactory( this );
-		for ( Class<?> type : classes ) {
+		for ( IndexedEntityTypeIdentifier type : classes ) {
 			builder.addClass( type );
 		}
 		try {
@@ -227,7 +230,7 @@ public class MutableSearchFactory implements SearchFactoryImplementorWithShareab
 			mutating.unlock();
 		}
 	}
-
+*/
 	@Override
 	public boolean isDirtyChecksEnabled() {
 		return delegate.isDirtyChecksEnabled();
@@ -316,6 +319,26 @@ public class MutableSearchFactory implements SearchFactoryImplementorWithShareab
 		else {
 			return delegate.unwrap( cls );
 		}
+	}
+
+	@Override
+	public IdentifierConverter getIdentifierConverter() {
+		return delegate.getIdentifierConverter();
+	}
+
+	@Override
+	public Set<IndexedEntityTypeIdentifier> getIndexedTypeIdentifiers() {
+		return delegate.getIndexedTypeIdentifiers();
+	}
+
+	@Override
+	public Analyzer getAnalyzer(IndexedEntityTypeIdentifier indexBoundType) {
+		return delegate.getAnalyzer( indexBoundType );
+	}
+
+	@Override
+	public EntityIndexReaderAccessor getEntityIndexReaderAccessor() {
+		return delegate.getEntityIndexReaderAccessor();
 	}
 
 }

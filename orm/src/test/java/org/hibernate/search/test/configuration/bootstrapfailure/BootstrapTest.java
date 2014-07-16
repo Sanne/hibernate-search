@@ -8,6 +8,7 @@ package org.hibernate.search.test.configuration.bootstrapfailure;
 
 import java.util.Set;
 
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.test.SearchTestBase;
 import org.hibernate.search.testsupport.TestForIssue;
 import org.junit.Test;
@@ -23,7 +24,7 @@ public class BootstrapTest extends SearchTestBase {
 
 	@Test
 	public void testCreateIndexSearchEntityWithLobField() {
-		Set<Class<?>> indexedTypes = getSearchFactory().getIndexedTypes();
+		Set<IndexedEntityTypeIdentifier> indexedTypes = getSearchFactory().getIndexedTypes();
 
 		assertTrue( "There should only be one indexed entity", indexedTypes.size() == 1 );
 		assertTrue(

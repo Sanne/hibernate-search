@@ -10,8 +10,8 @@ import java.io.Serializable;
 import java.util.Map;
 
 import org.apache.lucene.document.Document;
-
 import org.hibernate.search.backend.impl.WorkVisitor;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 
 /**
  * @author Emmanuel Bernard
@@ -22,11 +22,11 @@ public class AddLuceneWork extends LuceneWork implements Serializable {
 
 	private final Map<String, String> fieldToAnalyzerMap;
 
-	public AddLuceneWork(Serializable id, String idInString, Class<?> entity, Document document) {
+	public AddLuceneWork(Serializable id, String idInString, IndexedEntityTypeIdentifier entity, Document document) {
 		this( id, idInString, entity, document, null );
 	}
 
-	public AddLuceneWork(Serializable id, String idInString, Class<?> entity, Document document, Map<String, String> fieldToAnalyzerMap) {
+	public AddLuceneWork(Serializable id, String idInString, IndexedEntityTypeIdentifier entity, Document document, Map<String, String> fieldToAnalyzerMap) {
 		super( id, idInString, entity, document );
 		this.fieldToAnalyzerMap = fieldToAnalyzerMap;
 	}

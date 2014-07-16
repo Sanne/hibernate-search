@@ -12,13 +12,14 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexWriter;
 import org.hibernate.search.backend.LuceneWork;
 import org.hibernate.search.engine.spi.DocumentBuilderIndexedEntity;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 
 /**
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2011 Red Hat Inc.
  */
 public interface Workspace {
 
-	DocumentBuilderIndexedEntity getDocumentBuilder(Class<?> entity);
+	DocumentBuilderIndexedEntity getDocumentBuilder(IndexedEntityTypeIdentifier entity);
 
 	Analyzer getAnalyzer(String name);
 
@@ -49,7 +50,7 @@ public interface Workspace {
 	 * @return The unmodifiable set of entity types being indexed
 	 * in the underlying IndexManager backing this Workspace.
 	 */
-	Set<Class<?>> getEntitiesInIndexManager();
+	Set<IndexedEntityTypeIdentifier> getEntitiesInIndexManager();
 
 	/**
 	 * Invoked after all changes of a transaction are applied.

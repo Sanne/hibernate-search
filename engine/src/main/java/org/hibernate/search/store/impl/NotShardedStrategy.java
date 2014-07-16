@@ -13,6 +13,7 @@ import org.apache.lucene.document.Document;
 import org.hibernate.search.exception.AssertionFailure;
 import org.hibernate.search.filter.FullTextFilterImplementor;
 import org.hibernate.search.indexes.spi.IndexManager;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.store.IndexShardingStrategy;
 
 /**
@@ -36,12 +37,12 @@ public class NotShardedStrategy implements IndexShardingStrategy {
 	}
 
 	@Override
-	public IndexManager getIndexManagerForAddition(Class<?> entity, Serializable id, String idInString, Document document) {
+	public IndexManager getIndexManagerForAddition(IndexedEntityTypeIdentifier entity, Serializable id, String idInString, Document document) {
 		return directoryProvider[0];
 	}
 
 	@Override
-	public IndexManager[] getIndexManagersForDeletion(Class<?> entity, Serializable id, String idInString) {
+	public IndexManager[] getIndexManagersForDeletion(IndexedEntityTypeIdentifier entity, Serializable id, String idInString) {
 		return directoryProvider;
 	}
 

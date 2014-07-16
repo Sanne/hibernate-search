@@ -10,13 +10,13 @@ package org.hibernate.search.bridge.util.impl;
 import java.util.ArrayList;
 
 import org.apache.lucene.document.Document;
-
 import org.hibernate.search.bridge.BridgeException;
 import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.bridge.LuceneOptions;
 import org.hibernate.search.bridge.StringBridge;
 import org.hibernate.search.bridge.TwoWayFieldBridge;
 import org.hibernate.search.bridge.spi.ConversionContext;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 
 /**
  * Wrap the exception with an exception provide contextual feedback.
@@ -31,7 +31,7 @@ public final class ContextualExceptionBridgeHelper implements ConversionContext 
 	private static final String IDENTIFIER = "identifier";
 
 	// Mutable state:
-	private Class<?> clazz;
+	private IndexedEntityTypeIdentifier clazz;
 	private StringBridge stringBridge;
 	private FieldBridge oneWayBridge;
 	private TwoWayFieldBridge twoWayBridge;
@@ -43,7 +43,7 @@ public final class ContextualExceptionBridgeHelper implements ConversionContext 
 	private final StringConversionContextImpl stringAdapter = new StringConversionContextImpl();
 
 	@Override
-	public ConversionContext setClass(Class<?> clazz) {
+	public ConversionContext setClass(IndexedEntityTypeIdentifier clazz) {
 		this.clazz = clazz;
 		return this;
 	}

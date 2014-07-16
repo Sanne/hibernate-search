@@ -30,6 +30,7 @@ import org.hibernate.search.exception.SearchException;
 import org.hibernate.search.indexes.interceptor.DefaultEntityInterceptor;
 import org.hibernate.search.indexes.interceptor.EntityIndexingInterceptor;
 import org.hibernate.search.indexes.spi.IndexManager;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 import org.hibernate.search.spi.WorkerBuildContext;
 import org.hibernate.search.spi.impl.SearchFactoryImplementorWithShareableState;
 import org.hibernate.search.store.IndexShardingStrategy;
@@ -467,7 +468,7 @@ public class IndexManagerHolder {
 	private IndexManager[] createIndexManagers(String indexBaseName,
 			Properties[] indexProperties,
 			Similarity similarity,
-			Class<?> mappedClass,
+			IndexedEntityTypeIdentifier mappedClass,
 			WorkerBuildContext context) {
 		IndexManager[] indexManagers;
 		int nbrOfIndexManagers = indexProperties.length;
@@ -504,7 +505,7 @@ public class IndexManagerHolder {
 	 * to avoid contention on this synchronized method during dynamic reconfiguration at runtime.
 	 */
 	private synchronized IndexManager createIndexManager(String indexManagerName,
-			Class<?> mappedClass,
+			IndexedEntityTypeIdentifier mappedClass,
 			Similarity similarity,
 			Properties indexProperties,
 			WorkerBuildContext context) {

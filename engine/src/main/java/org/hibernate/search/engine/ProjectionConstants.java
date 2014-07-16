@@ -6,6 +6,11 @@
  */
 package org.hibernate.search.engine;
 
+import java.util.List;
+
+import org.hibernate.search.query.engine.spi.HSQuery;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
+
 /**
  * Defined projection constants.
  *

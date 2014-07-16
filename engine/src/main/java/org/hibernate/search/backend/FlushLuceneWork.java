@@ -9,6 +9,7 @@ package org.hibernate.search.backend;
 import java.io.Serializable;
 
 import org.hibernate.search.backend.impl.WorkVisitor;
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
 
 /**
  * Used to flush and commit asynchronous and other pending operations on the Indexes.
@@ -26,7 +27,7 @@ public class FlushLuceneWork extends LuceneWork implements Serializable {
 	 *
 	 * @param entity the entity type for which to flush the index
 	 */
-	public FlushLuceneWork(Class<?> entity) {
+	public FlushLuceneWork(IndexedEntityTypeIdentifier entity) {
 		super( null, null, entity );
 	}
 
@@ -44,7 +45,7 @@ public class FlushLuceneWork extends LuceneWork implements Serializable {
 
 	@Override
 	public String toString() {
-		Class entityClass = this.getEntityClass();
+		IndexedEntityTypeIdentifier entityClass = this.getEntityClass();
 		if ( entityClass == null ) {
 			return "FlushLuceneWork: global";
 		}

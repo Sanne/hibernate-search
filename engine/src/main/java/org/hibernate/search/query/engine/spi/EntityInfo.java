@@ -9,13 +9,15 @@ package org.hibernate.search.query.engine.spi;
 import java.io.Serializable;
 import java.util.List;
 
+import org.hibernate.search.spi.IndexedEntityTypeIdentifier;
+
 /**
  * Wrapper class describing the loading of an element.
  *
  * @author Emmanuel Bernard <emmanuel@hibernate.org>
  */
 public interface EntityInfo {
-	Class<?> getClazz();
+	IndexedEntityTypeIdentifier getClazz();
 
 	Serializable getId();
 
