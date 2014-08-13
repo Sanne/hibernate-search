@@ -6,6 +6,8 @@
  */
 package org.hibernate.search.test.integration.wildfly;
 
+import java.io.File;
+import java.io.PrintWriter;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -19,6 +21,8 @@ import org.jboss.arquillian.container.test.api.OperateOnDeployment;
 import org.jboss.arquillian.container.test.api.TargetsContainer;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
+import org.jboss.modules.DependencyTreeViewer;
+import org.jboss.modules.ModuleIdentifier;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.Asset;
@@ -134,5 +138,15 @@ public class InfinispanModuleMemberRegistrationIT {
 
 		assertNotNull( "Search should never return null", search );
 		assertTrue( "Search results should be empty", search.isEmpty() );
+	}
+
+	public static void main(String[] args) {
+		final String prefix = "/home/sanne/workspaces/hibernate/hibernate-search-root/integrationtest/wildfly/target/";
+		PrintWriter printWriter = new PrintWriter( System.out );
+		ModuleIdentifier identifier = ModuleIdentifier.create( "org.hibernate.search.orm", "5.0.0-SNAPSHOT" );
+		File[] roots = {
+				new File( prefix + "wildfly-8.1.0.Final/modules" ),
+				new File( prefix + "wildfly-8.1.0.Final/modules/system/layers/base") };
+		DependencyTreeViewer.print( printWriter, identifier, roots );
 	}
 }
