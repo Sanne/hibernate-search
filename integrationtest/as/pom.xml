@@ -244,19 +244,19 @@
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.infinispan</groupId>
-                                    <artifactId>infinispan-as-modules</artifactId><!-- Named in JDG: infinispan-as-modules-library -->
+                                    <artifactId>infinispan-as-modules-library</artifactId><!-- Named in JDG: infinispan-as-modules-library -->
                                     <version>${infinispanVersion}</version>
                                     <type>zip</type>
                                     <overWrite>false</overWrite>
-                                    <outputDirectory>${project.build.directory}/node1/jboss-eap-6.3/modules</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/node1/jboss-eap-6.3</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.infinispan</groupId>
-                                    <artifactId>infinispan-as-modules</artifactId><!-- Named in JDG: infinispan-as-modules-library -->
+                                    <artifactId>infinispan-as-modules-library</artifactId><!-- Named in JDG: infinispan-as-modules-library -->
                                     <version>${infinispanVersion}</version>
                                     <type>zip</type>
                                     <overWrite>false</overWrite>
-                                    <outputDirectory>${project.build.directory}/node2/jboss-eap-6.3/modules</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/node2/jboss-eap-6.3</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>

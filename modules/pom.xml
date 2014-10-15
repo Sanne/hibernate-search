@@ -41,16 +41,16 @@
         <hibernate.search.version>${project.version}</hibernate.search.version>
 
         <!-- Needs to match the SLOT being used by Infinispan -->
-        <infinispan.integration.slot>6.0</infinispan.integration.slot>
+        <infinispan.integration.slot>jdg-6.3</infinispan.integration.slot>
 
         <!-- Needs to match the SLOT being used by Infinispan -->
-        <jgroups.integration.slot>3.4</jgroups.integration.slot>
+        <jgroups.integration.slot>jdg-6.3</jgroups.integration.slot>
 
         <!-- Needs to match the VERSION being used by Infinispan -->
-        <hibernate-search-infinispan.version>4.5.0.Final</hibernate-search-infinispan.version>
+        <hibernate-search-infinispan.version>4.5.0.Final-redhat-3</hibernate-search-infinispan.version>
 
         <!-- Needs to match the VERSION being used by Infinispan (if any) -->
-        <jbossmarshalling.integration.slot>main</jbossmarshalling.integration.slot>
+        <jbossmarshalling.integration.slot>jdg-6.3</jbossmarshalling.integration.slot>
 
     </properties>
 
