@@ -66,7 +66,7 @@ public class InfinispanDirectoryProvider implements org.hibernate.search.store.D
 		writeFileListAsync = ConfigurationParseHelper.getBooleanValue( properties, InfinispanIntegration.WRITE_METADATA_ASYNC, false );
 		//Only override the default Infinispan LockDirectory if an explicit option is set:
 		if ( DirectoryProviderHelper.configurationExplicitlySetsLockFactory( properties ) ) {
-			indexWriterLockFactory = DirectoryProviderHelper.createLockFactory( null, properties, serviceManager );
+			indexWriterLockFactory = DirectoryProviderHelper.createLockFactory( null, properties, context.getClassLoaderService() );
 		}
 	}
 

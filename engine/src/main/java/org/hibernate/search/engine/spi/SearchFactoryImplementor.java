@@ -13,6 +13,7 @@ import java.util.Set;
 import org.hibernate.search.backend.impl.batch.BatchBackend;
 import org.hibernate.search.batchindexing.MassIndexerProgressMonitor;
 import org.hibernate.search.engine.impl.FilterDef;
+import org.hibernate.search.engine.service.classloading.spi.ClassLoaderService;
 import org.hibernate.search.filter.FilterCachingStrategy;
 import org.hibernate.search.indexes.impl.IndexManagerHolder;
 import org.hibernate.search.query.DatabaseRetrievalMethod;
@@ -102,4 +103,11 @@ public interface SearchFactoryImplementor extends SearchIntegrator {
 	 * @return returns the default {@code OBJECT_LOOKUP_METHOD}.
 	 */
 	ObjectLookupMethod getDefaultObjectLookupMethod();
+
+	/**
+	 * This specific service has a direct accessor as it's both essential
+	 * and a performance hotspot.
+	 */
+	ClassLoaderService getClassLoaderService();
+
 }
