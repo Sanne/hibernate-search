@@ -48,6 +48,7 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.features;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.logLevel;
+import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 
 /**
  * A basic integration test that executes Hibernate Search in Apache Karaf using
@@ -118,6 +119,7 @@ public class HibernateSearchWithKarafIT {
 		File examDir = new File( "target/exam" );
 		File ariesLogDir = new File( examDir, "/aries/log" );
 		return new Option[] {
+				junitBundles(),
 				DEBUG ? debugConfiguration( "5005", true ) : null,
 				logLevel( LogLevelOption.LogLevel.WARN ),
 				karafDistributionConfiguration()
