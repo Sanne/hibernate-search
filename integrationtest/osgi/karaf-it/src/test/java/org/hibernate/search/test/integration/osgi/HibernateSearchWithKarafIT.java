@@ -129,7 +129,7 @@ public class HibernateSearchWithKarafIT {
 				DEBUG ? keepRuntimeFolder() : null,
 				configureConsole()
 					.ignoreRemoteShell()
-					.ignoreLocalConsole() ,
+					.ignoreLocalConsole(),
 				features( karafStandardRepo, "scr" ),
 				features( hibernateSearchFeature, "hibernate-search" ),
 
