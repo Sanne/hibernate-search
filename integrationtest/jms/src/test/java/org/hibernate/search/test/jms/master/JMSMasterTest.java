@@ -91,7 +91,7 @@ public class JMSMasterTest extends SearchTestBase {
 		{
 			FullTextSession ftSess = Search.getFullTextSession( openSession() );
 			ftSess.getTransaction().begin();
-			QueryParser parser = new QueryParser( TestConstants.getTargetLuceneVersion(), "id", TestConstants.stopAnalyzer );
+			QueryParser parser = new QueryParser( "id", TestConstants.stopAnalyzer );
 			Query luceneQuery = parser.parse( "logo:jboss" );
 			org.hibernate.Query query = ftSess.createFullTextQuery( luceneQuery );
 			List result = query.list();
