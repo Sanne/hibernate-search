@@ -28,9 +28,9 @@ class TikaBridgeProvider extends ExtendedBridgeProvider {
 
 	private static final Log LOG = LoggerFactory.make();
 
-	private final String TIKA_BRIDGE_NAME = "org.hibernate.search.bridge.builtin.TikaBridge";
-	private final String TIKA_BRIDGE_METADATA_PROCESSOR_SETTER = "setMetadataProcessorClass";
-	private final String TIKA_BRIDGE_PARSE_CONTEXT_SETTER = "setParseContextProviderClass";
+	private static final String TIKA_BRIDGE_NAME = "org.hibernate.search.bridge.builtin.TikaBridge";
+	private static final String TIKA_BRIDGE_METADATA_PROCESSOR_SETTER = "setMetadataProcessorClass";
+	private static final String TIKA_BRIDGE_PARSE_CONTEXT_SETTER = "setParseContextProviderClass";
 
 	@Override
 	public FieldBridge provideFieldBridge(ExtendedBridgeProviderContext context) {

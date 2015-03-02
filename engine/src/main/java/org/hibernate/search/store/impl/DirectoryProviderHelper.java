@@ -210,7 +210,7 @@ public final class DirectoryProviderHelper {
 					"Unable to initialize index: " + directoryProviderName + "; refresh period is not numeric.", nfe
 			);
 		}
-		log.debugf( "Refresh period: %d seconds", (Long) period );
+		log.debugf( "Refresh period: %s seconds", refreshPeriod );
 		return period * 1000; //per second
 	}
 
