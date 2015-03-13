@@ -22,7 +22,6 @@ import org.hibernate.search.test.SearchTestBase;
 import org.hibernate.search.testsupport.TestConstants;
 import org.hibernate.search.util.logging.impl.Log;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -36,12 +35,6 @@ import static org.junit.Assert.fail;
 public class InheritanceTest extends SearchTestBase {
 
 	private static final Log log = LoggerFactory.make();
-
-	@Override
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-	}
 
 	@Test
 	public void testSearchUnindexClass() throws Exception {
