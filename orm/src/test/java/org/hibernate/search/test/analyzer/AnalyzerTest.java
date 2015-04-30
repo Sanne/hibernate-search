@@ -15,21 +15,12 @@ import org.apache.lucene.queryparser.classic.QueryParser;
 
 import org.hibernate.Transaction;
 
-import org.hibernate.annotations.common.reflection.ReflectionManager;
-import org.hibernate.annotations.common.reflection.XClass;
-import org.hibernate.boot.registry.classloading.internal.ClassLoaderServiceImpl;
 import org.hibernate.search.FullTextQuery;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.hibernate.search.SearchFactory;
-import org.hibernate.search.exception.SearchException;
-import org.hibernate.search.cfg.impl.SearchConfigurationFromHibernateCore;
-import org.hibernate.search.engine.impl.ConfigContext;
-import org.hibernate.search.engine.metadata.impl.AnnotationMetadataProvider;
-import org.hibernate.search.engine.metadata.impl.MetadataProvider;
 import org.hibernate.search.test.SearchTestBase;
 import org.hibernate.search.testsupport.TestConstants;
-import org.hibernate.search.testsupport.setup.BuildContextForTest;
 import org.hibernate.search.util.AnalyzerUtils;
 import org.hibernate.search.util.logging.impl.Log;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
@@ -37,8 +28,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * @author Emmanuel Bernard

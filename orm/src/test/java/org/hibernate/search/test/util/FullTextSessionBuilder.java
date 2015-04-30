@@ -30,13 +30,12 @@ import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.hibernate.search.SearchFactory;
+import org.hibernate.search.cfg.SearchMapping;
 import org.hibernate.search.hcore.util.impl.ContextHelper;
 import org.hibernate.search.impl.ImplementationFactory;
-import org.hibernate.search.cfg.SearchMapping;
 import org.hibernate.search.testsupport.TestConstants;
 import org.hibernate.search.util.impl.FileHelper;
 import org.hibernate.search.util.logging.impl.Log;
-import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.spi.ServiceRegistryImplementor;
 import org.hibernate.testing.cache.CachingRegionFactory;
 import org.junit.rules.TestRule;
@@ -140,6 +139,7 @@ public class FullTextSessionBuilder implements AutoCloseable, TestRule {
 	 * Closes the SessionFactory.
 	 * Make sure you close all sessions first
 	 */
+	@Override
 	public void close() {
 		if ( sessionFactory == null ) {
 			throw new java.lang.IllegalStateException( "sessionFactory not yet built" );
