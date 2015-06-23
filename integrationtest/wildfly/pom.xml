@@ -30,6 +30,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <byteman.agent.path>${org.jboss.byteman:byteman:jar}</byteman.agent.path>
         <byteman.script.path>${basedir}${file.separator}src${file.separator}test${file.separator}resources${file.separator}disablejpadapters.btm</byteman.script.path>
+        <wildfly.home>${project.build.directory}/wildfly-${wildflyVersion}</wildfly.home>
+        <wildfly.modules>${wildfly.home}/modules</wildfly.modules>
     </properties>
 
     <dependencyManagement>
@@ -91,8 +93,8 @@
         </dependency>
         <dependency>
             <groupId>org.wildfly.arquillian</groupId>
-            <artifactId>wildfly-arquillian-container-managed</artifactId>
-            <version>1.0.0.Alpha5</version>
+            <artifactId>wildfly-arquillian-container-remote</artifactId>
+            <version>1.0.0.CR1</version>
             <scope>test</scope>
             <exclusions>
                 <!-- This exclusion is needed to be able to setup the project in Windows:
@@ -234,7 +236,7 @@
                                     <classifier>wildfly-8-dist</classifier>
                                     <type>zip</type>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/wildfly-${wildflyVersion}/modules</outputDirectory>
+                                    <outputDirectory>${wildfly.modules}</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
@@ -253,7 +255,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/wildfly-${wildflyVersion}</outputDirectory>
+                            <outputDirectory>${wildfly.home}</outputDirectory>
                             <overwrite>true</overwrite>
                             <resources>
                                 <resource>
@@ -261,6 +263,48 @@
                                 </resource>
                             </resources>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.wildfly.plugins</groupId>
+                <artifactId>wildfly-maven-plugin</artifactId>
+                <version>1.1.0.Alpha1</version>
+                <configuration>
+                    <jboss-home>${wildfly.home}</jboss-home>
+                    <serverConfig>standalone-full-testqueues.xml</serverConfig>
+                    <javaOpts>
+                        <javaOpt>-javaagent:${byteman.agent.path}=script:${byteman.script.path}</javaOpt>
+                        <javaOpt>-Djboss.server.base.dir=${wildfly.home}/standalone</javaOpt>
+                        <javaOpt>-Xmx512m</javaOpt>
+                        <javaOpt>-XX:MaxPermSize=196m</javaOpt>
+                        <javaOpt>-Djava.net.preferIPv4Stack=true</javaOpt>
+                        <javaOpt>-Djgroups.bind_addr=127.0.0.1</javaOpt>
+                        <!-- Needed to allow setting MaxPermSize w/o failing on Java 9 :-->
+                        <javaOpt>-XX:+IgnoreUnrecognizedVMOptions</javaOpt>
+                        <!-- To use for debugging: -->
+                        <!-- javaOpt>-Xrunjdwp:transport=dt_socket,address=5005,server=y,suspend=y</javaOpt-->
+                    </javaOpts>
+                    <execute-commands>
+                        <scripts>
+                            <script>wildfly-config.cli</script>
+                        </scripts>
+                    </execute-commands>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>wildfly-run</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>wildfly-stop</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>shutdown</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
