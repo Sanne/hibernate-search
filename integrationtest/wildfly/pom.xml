@@ -230,24 +230,6 @@
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}/node2/wildfly-${wildflyVersion}/modules</outputDirectory>
                                 </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.hibernate</groupId>
-                                    <artifactId>hibernate-search-testingmodules</artifactId>
-                                    <version>${project.version}</version>
-                                    <classifier>testing-modules-dist</classifier>
-                                    <type>zip</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/node1/wildfly-${wildflyVersion}/modules</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.hibernate</groupId>
-                                    <artifactId>hibernate-search-testingmodules</artifactId>
-                                    <version>${project.version}</version>
-                                    <classifier>testing-modules-dist</classifier>
-                                    <type>zip</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/node2/wildfly-${wildflyVersion}/modules</outputDirectory>
-                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
