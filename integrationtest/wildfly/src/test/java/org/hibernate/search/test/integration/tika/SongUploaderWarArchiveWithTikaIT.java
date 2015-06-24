@@ -8,12 +8,8 @@ package org.hibernate.search.test.integration.tika;
 
 import static org.junit.Assert.assertNotNull;
 
-import java.io.File;
-import java.net.URISyntaxException;
-
 import javax.inject.Inject;
 
-import org.hibernate.search.test.bridge.tika.TikaBridgeTest;
 import org.hibernate.search.test.integration.VersionTestHelper;
 import org.hibernate.search.test.integration.tika.controller.SongUploader;
 import org.hibernate.search.test.integration.tika.model.Mp3TikaMetadataProcessor;
@@ -25,7 +21,6 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.Asset;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
-import org.jboss.shrinkwrap.api.asset.FileAsset;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -43,18 +38,7 @@ import org.junit.runner.RunWith;
 @RunWith(Arquillian.class)
 public class SongUploaderWarArchiveWithTikaIT {
 
-	private static final String TEST_MP3_DOCUMENT = "/org/hibernate/search/test/bridge/tika/mysong.mp3";
-	private static final String PATH_TO_TEST_MP3;
-
-	static {
-		try {
-			File mp3File = new File( TikaBridgeTest.class.getResource( TEST_MP3_DOCUMENT ).toURI() );
-			PATH_TO_TEST_MP3 = mp3File.getAbsolutePath();
-		}
-		catch (URISyntaxException e) {
-			throw new RuntimeException( "Unable to determine file path for test document" );
-		}
-	}
+	private static final String TEST_MP3_DOCUMENT = "org/hibernate/search/test/bridge/tika/mysong.mp3";
 
 	@Deployment
 	public static Archive<?> createTestArchive() {
@@ -63,7 +47,7 @@ public class SongUploaderWarArchiveWithTikaIT {
 				.addClasses( SongUploaderWarArchiveWithTikaIT.class, Song.class, SongUploader.class, Resources.class, Mp3TikaMetadataProcessor.class )
 				.addAsResource( persistenceXml(), "META-INF/persistence.xml" )
 				.addAsResource( VersionTestHelper.moduleDependencyManifest(), "META-INF/MANIFEST.MF" )
-				.addAsResource( new FileAsset( new File( PATH_TO_TEST_MP3 ) ), TEST_MP3_DOCUMENT )
+				.addAsResource( TEST_MP3_DOCUMENT )
 				.addAsLibraries( tikaLibraries() )
 				.addAsWebInfResource( EmptyAsset.INSTANCE, "beans.xml" )
 				;
@@ -101,7 +85,7 @@ public class SongUploaderWarArchiveWithTikaIT {
 	@Test
 	public void testSongUpload() throws Exception {
 		Song newSong = songUploader.getNewSong();
-		newSong.setMp3FileName( PATH_TO_TEST_MP3 );
+		newSong.setMp3FileName( TEST_MP3_DOCUMENT );
 		songUploader.upload();
 
 		assertNotNull( newSong.getId() );
