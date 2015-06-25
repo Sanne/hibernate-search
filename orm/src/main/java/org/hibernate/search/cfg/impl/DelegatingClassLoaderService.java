@@ -43,7 +43,7 @@ public class DelegatingClassLoaderService implements ClassLoaderService {
 		try {
 			return hibernateClassLoaderService.classForName( className );
 		}
-		catch (ClassLoadingException e) {
+		catch (ClassLoadingException|LinkageError e) {
 			return internalClassLoaderService.classForName( className );
 		}
 	}
