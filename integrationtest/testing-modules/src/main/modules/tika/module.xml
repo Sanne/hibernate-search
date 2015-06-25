@@ -10,4 +10,7 @@
         <resource-root path="tika-parsers-${tikaVersion}.jar" />
         <resource-root path="tika-core-${tikaVersion}.jar" />
     </resources>
+    <dependencies>
+        <module name="javax.api" />
+    </dependencies>
 </module>
