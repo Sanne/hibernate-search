@@ -91,7 +91,7 @@ public class VersionTestHelper {
 	}
 
 	private static String getWildFlyModuleDependencies() {
-		return "org.hibernate.search.orm:" + getModuleSlotString() + " services";
+		return "org.hibernate.search.orm:" + getModuleSlotString() + " services";//, org.apache.tika:1.4 services";
 	}
 
 	/**

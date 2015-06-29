@@ -8,6 +8,11 @@ package org.hibernate.search.test.integration.tika;
 
 import static org.junit.Assert.assertNotNull;
 
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+
 import javax.inject.Inject;
 
 import org.hibernate.search.test.integration.VersionTestHelper;
@@ -21,6 +26,7 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.Asset;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
+import org.jboss.shrinkwrap.api.asset.FileAsset;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -38,8 +44,6 @@ import org.junit.runner.RunWith;
 @RunWith(Arquillian.class)
 public class SongUploaderWarArchiveWithTikaIT {
 
-	private static final String TEST_MP3_DOCUMENT = "org/hibernate/search/test/bridge/tika/mysong.mp3";
-
 	@Deployment
 	public static Archive<?> createTestArchive() {
 		WebArchive war = ShrinkWrap
@@ -47,7 +51,6 @@ public class SongUploaderWarArchiveWithTikaIT {
 				.addClasses( SongUploaderWarArchiveWithTikaIT.class, Song.class, SongUploader.class, Resources.class, Mp3TikaMetadataProcessor.class )
 				.addAsResource( persistenceXml(), "META-INF/persistence.xml" )
 				.addAsResource( VersionTestHelper.moduleDependencyManifest(), "META-INF/MANIFEST.MF" )
-				.addAsResource( TEST_MP3_DOCUMENT )
 				.addAsLibraries( tikaLibraries() )
 				.addAsWebInfResource( EmptyAsset.INSTANCE, "beans.xml" )
 				;
@@ -55,7 +58,7 @@ public class SongUploaderWarArchiveWithTikaIT {
 	}
 
 	private static JavaArchive[] tikaLibraries() {
-		JavaArchive[] tikaLibraries = Maven
+		JavaArchive[] tikaLibraries = Maven	
 				.resolver()
 				.resolve( "org.apache.tika:tika-core:" + VersionTestHelper.getDependencyVersionTika(), "org.apache.tika:tika-parsers:" + VersionTestHelper.getDependencyVersionTika() )
 						.withoutTransitivity()
@@ -85,7 +88,7 @@ public class SongUploaderWarArchiveWithTikaIT {
 	@Test
 	public void testSongUpload() throws Exception {
 		Song newSong = songUploader.getNewSong();
-		newSong.setMp3FileName( TEST_MP3_DOCUMENT );
+		newSong.setMp3FileName( "/home/sanne/workspaces/hibernate/hibernate-search-root/integrationtest/wildfly/src/test/resources/org/hibernate/search/test/bridge/tika/mysong.mp3" );
 		songUploader.upload();
 
 		assertNotNull( newSong.getId() );
