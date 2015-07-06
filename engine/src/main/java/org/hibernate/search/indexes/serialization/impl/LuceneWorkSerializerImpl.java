@@ -211,6 +211,9 @@ public class LuceneWorkSerializerImpl implements LuceneWorkSerializer {
 				serializer.addDocValuesFieldWithBinaryValue( new LuceneFieldContext( field ) );
 				break;
 			}
+			case NONE: {
+				break;
+			}
 			default: {
 				// in case Lucene is going to add more in coming releases
 				throw log.unknownDocValuesTypeType( docValuesType.toString() );
