@@ -12,8 +12,10 @@ import static org.hibernate.search.test.performance.task.InsertBookTask.SUMMARIE
 import static org.hibernate.search.test.performance.util.CheckerUncaughtExceptions.initUncaughtExceptionHandler;
 import static org.hibernate.search.test.performance.util.Util.log;
 
-import java.io.UnsupportedEncodingException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -38,6 +40,7 @@ import org.hibernate.search.test.performance.task.UpdateBookTotalSoldTask;
 import org.hibernate.search.test.performance.util.BatchCallback;
 import org.hibernate.search.test.performance.util.BatchSupport;
 import org.hibernate.search.testsupport.TestConstants;
+import org.hibernate.search.util.impl.FileHelper;
 
 /**
  * @author Tomas Hradec
@@ -97,6 +100,20 @@ public abstract class TestScenario {
 		performCleanUp( sf );
 		initIndex( sf );
 		performMeasuring( sf );
+		deleteIndexfiles( sf );
+	}
+
+	private void deleteIndexfiles(SessionFactory sf) {
+		String path = getHibernateProperties().getProperty( "hibernate.search.default.indexBase" );
+		if ( path != null ) {
+			Path baseIndexDir = FileSystems.getDefault().getPath( path );
+			try {
+				FileHelper.delete( baseIndexDir );
+			}
+			catch (IOException e) {
+				throw new RuntimeException( e );
+			}
+		}
 	}
 
 	protected void initDatabase(SessionFactory sf) {
