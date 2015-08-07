@@ -27,6 +27,7 @@ import org.hibernate.search.backend.spi.WorkType;
 import org.hibernate.search.backend.spi.Worker;
 import org.hibernate.search.bridge.builtin.IntegerBridge;
 import org.hibernate.search.engine.integration.impl.ExtendedSearchIntegrator;
+import org.hibernate.search.query.dsl.QueryBuilder;
 import org.hibernate.search.query.engine.spi.EntityInfo;
 import org.hibernate.search.query.engine.spi.HSQuery;
 import org.hibernate.search.testsupport.junit.SearchFactoryHolder;
@@ -67,6 +68,21 @@ public class SortingTest {
 		assertSortedResults( query, sortAsInt, 0, 3, 2, 1 );
 	}
 
+	@Test
+	public void testSortOnNullableNumericField() throws Exception {
+		storeTestingData(
+				new Person( 1, 25, "name1" ),
+				new Person( 2, 22, null ),
+				new Person( 3, null, "name3" )
+			);
+
+		HSQuery nameQuery = queryForValueNullAndSorting( "name", SortField.Type.STRING );
+		assertEquals( nameQuery.queryEntityInfos().size(), 1 );
+
+		HSQuery ageQuery = queryForValueNullAndSorting( "ageForNullChecks", SortField.Type.INT );
+		assertEquals( ageQuery.queryEntityInfos().size(), 1 );
+	}
+
 	private void storeTestingData(Person... testData) {
 		Worker worker = factoryHolder.getSearchFactory().getWorker();
 		TransactionContextForTest tc = new TransactionContextForTest();
@@ -92,6 +108,21 @@ public class SortingTest {
 			assertNotNull( entityInfo );
 			assertEquals( expectedIds[i], entityInfo.getId() );
 		}
+	}
+
+	private HSQuery queryForValueNullAndSorting(String fieldName, SortField.Type sortType) {
+		ExtendedSearchIntegrator integrator = factoryHolder.getSearchFactory();
+		QueryBuilder queryBuilder = integrator.buildQueryBuilder().forEntity( Person.class ).get();
+		Query query = queryBuilder
+				.keyword()
+				.onField( fieldName )
+				.matching( null )
+				.createQuery();
+
+		HSQuery hsQuery = integrator.createHSQuery().luceneQuery( query );
+		Sort sort = new Sort( new SortField( fieldName, sortType ) );
+		hsQuery.targetedEntities( Arrays.<Class<?>>asList( Person.class ) ).sort( sort );
+		return hsQuery;
 	}
 
 	@Indexed
