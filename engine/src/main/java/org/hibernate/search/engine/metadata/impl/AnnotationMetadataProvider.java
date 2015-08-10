@@ -70,6 +70,7 @@ import org.hibernate.search.bridge.builtin.impl.NullEncodingFieldBridge;
 import org.hibernate.search.bridge.builtin.impl.NullEncodingTwoWayFieldBridge;
 import org.hibernate.search.bridge.builtin.impl.TwoWayString2FieldBridgeAdaptor;
 import org.hibernate.search.bridge.impl.BridgeFactory;
+import org.hibernate.search.bridge.impl.NullEncodingIgnoring;
 import org.hibernate.search.engine.BoostStrategy;
 import org.hibernate.search.engine.impl.AnnotationProcessingHelper;
 import org.hibernate.search.engine.impl.ConfigContext;
@@ -959,6 +960,10 @@ public class AnnotationMetadataProvider implements MetadataProvider {
 		);
 
 		String nullToken = determineNullToken( fieldAnnotation, configContext );
+		if ( nullToken != null && fieldBridge instanceof NullEncodingIgnoring ) {
+			NullEncodingIgnoring bridge = (NullEncodingIgnoring) fieldBridge;
+			bridge.warnForIgnoringNullEncodingRequest( fieldName, member.getDeclaringClass().getName() );
+		}
 		fieldBridge = NullEncodingTwoWayFieldBridge.wrapForNullEncodingIfNeeded( fieldBridge, nullToken );
 		Analyzer analyzer = determineAnalyzer( fieldAnnotation, member, configContext );
 

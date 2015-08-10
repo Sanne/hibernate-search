@@ -874,4 +874,34 @@ public interface Log extends BasicLogger {
 	@Message(id = 288, value = "The configuration property '%s' no longer applies and will be ignored." )
 	void deprecatedConfigurationPropertyIsIgnored(String string);
 
+	@LogMessage(level = Level.WARN)
+	@Message(id = 289, value = "The field '%1$s' of entity '%2$s' is configured to use an indexNullAs marker, but the index field is set to use Numeric Long encoding,"
+			+ " which is not compatible with any null marker. The indexNullAs option will be ignored: null values will not be indexed." )
+	void ignoringNullTokenMappingForLongEncodedField(String fieldName, String entityName);
+
+	@LogMessage(level = Level.WARN)
+	@Message(id = 290, value = "The field '%1$s' of entity '%2$s' is configured to use an indexNullAs marker, but the index field is set to use Numeric Integer encoding,"
+			+ " which is not compatible with any null marker. The indexNullAs option will be ignored: null values will not be indexed." )
+	void ignoringNullTokenMappingForIntegerEncodedField(String fieldName, String entityName);
+
+	@LogMessage(level = Level.WARN)
+	@Message(id = 291, value = "The field '%1$s' of entity '%2$s' is configured to use an indexNullAs marker, but the index field is set to use Numeric Float encoding,"
+			+ " which is not compatible with any null marker. The indexNullAs option will be ignored: null values will not be indexed." )
+	void ignoringNullTokenMappingForFloatEncodedField(String fieldName, String entityName);
+
+	@LogMessage(level = Level.WARN)
+	@Message(id = 292, value = "The field '%1$s' of entity '%2$s' is configured to use an indexNullAs marker, but the index field is set to use Numeric Short encoding,"
+			+ " which is not compatible with any null marker. The indexNullAs option will be ignored: null values will not be indexed." )
+	void ignoringNullTokenMappingForShortEncodedField(String fieldName, String entityName);
+
+	@LogMessage(level = Level.WARN)
+	@Message(id = 293, value = "The field '%1$s' of entity '%2$s' is configured to use an indexNullAs marker, but the index field is set to use Numeric Byte encoding,"
+			+ " which is not compatible with any null marker. The indexNullAs option will be ignored: null values will not be indexed." )
+	void ignoringNullTokenMappingForByteEncodedField(String fieldName, String entityName);
+
+	@LogMessage(level = Level.WARN)
+	@Message(id = 294, value = "The field '%1$s' of entity '%2$s' is configured to use an indexNullAs marker, but the index field is set to use Numeric Double encoding,"
+			+ " which is not compatible with any null marker. The indexNullAs option will be ignored: null values will not be indexed." )
+	void ignoringNullTokenMappingForDoubleEncodedField(String fieldName, String entityName);
+
 }

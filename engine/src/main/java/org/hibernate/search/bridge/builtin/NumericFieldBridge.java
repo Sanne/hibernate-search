@@ -14,6 +14,9 @@ import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.bridge.LuceneOptions;
 import org.hibernate.search.bridge.TwoWayFieldBridge;
 import org.hibernate.search.bridge.impl.NullEncodingCapable;
+import org.hibernate.search.bridge.impl.NullEncodingIgnoring;
+import org.hibernate.search.util.logging.impl.Log;
+import org.hibernate.search.util.logging.impl.LoggerFactory;
 
 /**
  * Stateless field bridges for the conversion of numbers to numeric field values.
@@ -21,7 +24,7 @@ import org.hibernate.search.bridge.impl.NullEncodingCapable;
  * @author Sanne Grinovero
  * @author Gunnar Morling
  */
-public enum NumericFieldBridge implements FieldBridge, TwoWayFieldBridge, NullEncodingCapable {
+public enum NumericFieldBridge implements FieldBridge, TwoWayFieldBridge, NullEncodingCapable, NullEncodingIgnoring {
 
 	/**
 	 * Persists byte properties in int index fields. Takes care of all the required conversion.
@@ -41,6 +44,11 @@ public enum NumericFieldBridge implements FieldBridge, TwoWayFieldBridge, NullEn
 		@Override
 		public Query generateUniverseRangeQuery(String fieldName) {
 			return NumericRangeQuery.newIntRange( fieldName, null, null, true, true );
+		}
+
+		@Override
+		public void warnForIgnoringNullEncodingRequest(String fieldName, String entityName) {
+			log.ignoringNullTokenMappingForByteEncodedField( fieldName, entityName );
 		}
 	},
 	/**
@@ -62,6 +70,11 @@ public enum NumericFieldBridge implements FieldBridge, TwoWayFieldBridge, NullEn
 		public Query generateUniverseRangeQuery(String fieldName) {
 			return NumericRangeQuery.newIntRange( fieldName, null, null, true, true );
 		}
+
+		@Override
+		public void warnForIgnoringNullEncodingRequest(String fieldName, String entityName) {
+			log.ignoringNullTokenMappingForShortEncodedField( fieldName, entityName );
+		}
 	},
 	/**
 	 * Persists int properties in int index fields. Takes care of all the required conversion.
@@ -71,6 +84,11 @@ public enum NumericFieldBridge implements FieldBridge, TwoWayFieldBridge, NullEn
 		@Override
 		public Query generateUniverseRangeQuery(String fieldName) {
 			return NumericRangeQuery.newIntRange( fieldName, null, null, true, true );
+		}
+
+		@Override
+		public void warnForIgnoringNullEncodingRequest(String fieldName, String entityName) {
+			log.ignoringNullTokenMappingForIntegerEncodedField( fieldName, entityName );
 		}
 
 	},
@@ -84,6 +102,11 @@ public enum NumericFieldBridge implements FieldBridge, TwoWayFieldBridge, NullEn
 			return NumericRangeQuery.newFloatRange( fieldName, null, null, true, true );
 		}
 
+		@Override
+		public void warnForIgnoringNullEncodingRequest(String fieldName, String entityName) {
+			log.ignoringNullTokenMappingForFloatEncodedField( fieldName, entityName );
+		}
+
 	},
 	/**
 	 * Persists double properties in double index fields. Takes care of all the required conversion.
@@ -95,6 +118,11 @@ public enum NumericFieldBridge implements FieldBridge, TwoWayFieldBridge, NullEn
 			return NumericRangeQuery.newDoubleRange( fieldName, null, null, true, true );
 		}
 
+		@Override
+		public void warnForIgnoringNullEncodingRequest(String fieldName, String entityName) {
+			log.ignoringNullTokenMappingForDoubleEncodedField( fieldName, entityName );
+		}
+
 	},
 	/**
 	 * Persists long properties in long index fields. Takes care of all the required conversion.
@@ -104,6 +132,11 @@ public enum NumericFieldBridge implements FieldBridge, TwoWayFieldBridge, NullEn
 		@Override
 		public Query generateUniverseRangeQuery(String fieldName) {
 			return NumericRangeQuery.newLongRange( fieldName, null, null, true, true );
+		}
+
+		@Override
+		public void warnForIgnoringNullEncodingRequest(String fieldName, String entityName) {
+			log.ignoringNullTokenMappingForLongEncodedField( fieldName, entityName );
 		}
 
 	};
@@ -138,5 +171,7 @@ public enum NumericFieldBridge implements FieldBridge, TwoWayFieldBridge, NullEn
 	}
 
 	public abstract Query generateUniverseRangeQuery(String fieldName);
+
+	private static final Log log = LoggerFactory.make();
 
 }
