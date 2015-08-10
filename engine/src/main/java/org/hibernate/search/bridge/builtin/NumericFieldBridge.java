@@ -8,6 +8,8 @@ package org.hibernate.search.bridge.builtin;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
+import org.apache.lucene.search.NumericRangeQuery;
+import org.apache.lucene.search.Query;
 import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.bridge.LuceneOptions;
 import org.hibernate.search.bridge.TwoWayFieldBridge;
@@ -35,6 +37,11 @@ public enum NumericFieldBridge implements FieldBridge, TwoWayFieldBridge, NullEn
 		protected void applyToLuceneOptions(LuceneOptions luceneOptions, String name, Number value, Document document) {
 			super.applyToLuceneOptions( luceneOptions, name, value.intValue(), document );
 		}
+
+		@Override
+		public Query generateUniverseRangeQuery(String fieldName) {
+			return NumericRangeQuery.newIntRange( fieldName, null, null, true, true );
+		}
 	},
 	/**
 	 * Persists short properties in int index fields. Takes care of all the required conversion.
@@ -50,38 +57,64 @@ public enum NumericFieldBridge implements FieldBridge, TwoWayFieldBridge, NullEn
 		protected void applyToLuceneOptions(LuceneOptions luceneOptions, String name, Number value, Document document) {
 			super.applyToLuceneOptions( luceneOptions, name, value.intValue(), document );
 		}
+
+		@Override
+		public Query generateUniverseRangeQuery(String fieldName) {
+			return NumericRangeQuery.newIntRange( fieldName, null, null, true, true );
+		}
 	},
 	/**
 	 * Persists int properties in int index fields. Takes care of all the required conversion.
 	 */
 	INT_FIELD_BRIDGE {
+
+		@Override
+		public Query generateUniverseRangeQuery(String fieldName) {
+			return NumericRangeQuery.newIntRange( fieldName, null, null, true, true );
+		}
+
 	},
 	/**
 	 * Persists float properties in float index fields. Takes care of all the required conversion.
 	 */
 	FLOAT_FIELD_BRIDGE {
+
+		@Override
+		public Query generateUniverseRangeQuery(String fieldName) {
+			return NumericRangeQuery.newFloatRange( fieldName, null, null, true, true );
+		}
+
 	},
 	/**
 	 * Persists double properties in double index fields. Takes care of all the required conversion.
 	 */
 	DOUBLE_FIELD_BRIDGE {
+
+		@Override
+		public Query generateUniverseRangeQuery(String fieldName) {
+			return NumericRangeQuery.newDoubleRange( fieldName, null, null, true, true );
+		}
+
 	},
 	/**
 	 * Persists long properties in long index fields. Takes care of all the required conversion.
 	 */
 	LONG_FIELD_BRIDGE {
+
+		@Override
+		public Query generateUniverseRangeQuery(String fieldName) {
+			return NumericRangeQuery.newLongRange( fieldName, null, null, true, true );
+		}
+
 	};
 
 	@Override
 	public void set(String name, Object value, Document document, LuceneOptions luceneOptions) {
-		if ( value == null ) {
-			if ( luceneOptions.indexNullAs() != null ) {
-				luceneOptions.addFieldToDocument( name, luceneOptions.indexNullAs(), document );
-			}
-		}
-		else {
+		if ( value != null ) {
 			applyToLuceneOptions( luceneOptions, name, (Number)value, document );
 		}
+		// Else: for null values no field is encoded for numeric fields, or it breaks sorting.
+		// See also HSEARCH-1956
 	}
 
 	@Override
@@ -103,5 +136,7 @@ public enum NumericFieldBridge implements FieldBridge, TwoWayFieldBridge, NullEn
 	protected void applyToLuceneOptions(LuceneOptions luceneOptions, String name, Number value, Document document) {
 		luceneOptions.addNumericFieldToDocument( name, value, document );
 	}
+
+	public abstract Query generateUniverseRangeQuery(String fieldName);
 
 }

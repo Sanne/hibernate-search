@@ -9,8 +9,12 @@ package org.hibernate.search.bridge.util.impl;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.apache.lucene.search.BooleanClause.Occur;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
+import org.hibernate.search.bridge.builtin.NumericFieldBridge;
 import org.hibernate.search.util.logging.impl.Log;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
 
@@ -79,13 +83,39 @@ public final class NumericFieldUtils {
 	 * Will create a {@code RangeQuery} matching exactly the provided value: lower
 	 * and upper value match, and bounds are included. This should perform
 	 * as efficiently as a TermQuery.
+	 * A value {@code null} will cause a runtime exception.
 	 *
+	 * @throws SearchException in case value is null
 	 * @param fieldName the field name the query targets
 	 * @param value the value to match
 	 * @return the created {@code Query}
 	 */
 	public static Query createExactMatchQuery(String fieldName, Object value) {
 		return createNumericRangeQuery( fieldName, value, value, true, true );
+	}
+
+	/**
+	 * Will create a {@code RangeQuery} matching exactly the provided value: lower
+	 * and upper value match, and bounds are included. This should perform
+	 * as efficiently as a TermQuery.
+	 * When passing {@code null} for the value parameter, this will generate a query
+	 * for which the field does not have a defined value (does not exist) by running
+	 * a negation on the universe range.
+	 *
+	 * @param fieldName the field name the query targets
+	 * @param value the value to match
+	 * @return the created {@code Query}
+	 */
+	public static Query createExactMatchQuery(String fieldName, Object value, NumericFieldBridge fieldBridge) {
+		if ( value == null ) {
+			BooleanQuery base = new BooleanQuery();
+			base.add( new MatchAllDocsQuery(), Occur.FILTER );
+			base.add( fieldBridge.generateUniverseRangeQuery( fieldName ), Occur.MUST_NOT );
+			return base;
+		}
+		else {
+			return createNumericRangeQuery( fieldName, value, value, true, true );
+		}
 	}
 
 	/**
