@@ -15,12 +15,14 @@ import java.util.List;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.SortField.Type;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.backend.spi.Work;
 import org.hibernate.search.backend.spi.WorkType;
@@ -83,6 +85,36 @@ public class SortingTest {
 		assertEquals( ageQuery.queryEntityInfos().size(), 1 );
 	}
 
+	@Test
+	public void testSortOnNullableNumericFieldArray() throws Exception {
+		storeTestingData(
+				new Person( 1, 25, "name1", 1, 2, 3 ),
+				new Person( 2, 22, "name2", 1, null, 3 ),
+				new Person( 3, 23, "name3", 1, 2, 4 )
+			);
+
+		Query rangeQuery = queryForRangeOnFieldSorted( 0, 2, "array" );
+		Sort sortAsInt = new Sort( new SortField( "array", SortField.Type.INT ) );
+		assertSortedResults( rangeQuery, sortAsInt, 1, 2, 3 );
+
+		Sort sortAsIntInverted = new Sort( new SortField( "array", SortField.Type.INT, true ) );
+		assertSortedResults( rangeQuery, sortAsIntInverted, 3, 2, 1 );
+
+//		HSQuery nameQuery = queryForValueNullAndSorting( "array", SortField.Type.INT );
+//		assertEquals( nameQuery.queryEntityInfos().size(), 1 );
+	}
+
+	private Query queryForRangeOnFieldSorted(int min, int max, String fieldName) {
+		ExtendedSearchIntegrator integrator = factoryHolder.getSearchFactory();
+		QueryBuilder queryBuilder = integrator.buildQueryBuilder().forEntity( Person.class ).get();
+		return queryBuilder
+				.range()
+				.onField( fieldName )
+				.from( min )
+				.to( max )
+				.createQuery();
+	}
+
 	private void storeTestingData(Person... testData) {
 		Worker worker = factoryHolder.getSearchFactory().getWorker();
 		TransactionContextForTest tc = new TransactionContextForTest();
@@ -141,10 +173,15 @@ public class SortingTest {
 		@Field(store = Store.YES, analyze = Analyze.NO, indexNullAs = Field.DEFAULT_NULL_TOKEN)
 		final String name;
 
-		Person(int id, Integer age, String name) {
+		@Field
+		@IndexedEmbedded//TODO improve error message when this is missing
+		Integer[] array;
+
+		Person(int id, Integer age, String name, Integer... arrayItems) {
 			this.id = id;
 			this.age = age;
 			this.name = name;
+			this.array = arrayItems;
 		}
 
 	}
