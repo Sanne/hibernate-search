@@ -9,6 +9,7 @@ package org.hibernate.search.backend.jgroups.impl;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 
 import org.jgroups.Address;
 import org.jgroups.Message;
@@ -18,6 +19,7 @@ import org.jgroups.View;
 import org.hibernate.search.exception.SearchException;
 import org.hibernate.search.backend.LuceneWork;
 import org.hibernate.search.backend.jgroups.logging.impl.Log;
+import org.hibernate.search.engine.spi.EntityIndexBinding;
 import org.hibernate.search.indexes.spi.IndexManager;
 import org.hibernate.search.spi.BuildContext;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
@@ -53,7 +55,8 @@ public class JGroupsMasterMessageListener implements Receiver {
 			//nodeSelector can be null if we receive the message during shutdown
 			if ( nodeSelector != null && nodeSelector.isIndexOwnerLocal() ) {
 				byte[] serializedQueue = MessageSerializationHelper.extractSerializedQueue( offset, bufferLength, rawBuffer );
-				final IndexManager indexManager = context.getAllIndexesManager().getIndexManager( indexName );
+				Map<Class<?>, EntityIndexBinding> indexBindings = context.getUninitializedSearchIntegrator().getIndexBindings();
+				final IndexManager indexManager = context.getAllIndexesManager().getIndexManager( indexName, indexBindings );
 				if ( indexManager != null ) {
 					final List<LuceneWork> queue = indexManager.getSerializer().toLuceneWorks( serializedQueue );
 					applyLuceneWorkLocally( queue, indexManager, message );
