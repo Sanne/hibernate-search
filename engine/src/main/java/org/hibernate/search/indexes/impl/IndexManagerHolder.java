@@ -7,6 +7,7 @@
 package org.hibernate.search.indexes.impl;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,10 +24,12 @@ import org.hibernate.search.cfg.spi.IndexManagerFactory;
 import org.hibernate.search.cfg.spi.SearchConfiguration;
 import org.hibernate.search.engine.integration.impl.ExtendedSearchIntegrator;
 import org.hibernate.search.engine.impl.DynamicShardingEntityIndexBinding;
+import org.hibernate.search.engine.impl.DynamicShardingStrategy;
 import org.hibernate.search.engine.impl.EntityIndexBindingFactory;
 import org.hibernate.search.engine.impl.MutableEntityIndexBinding;
 import org.hibernate.search.engine.service.classloading.spi.ClassLoadingException;
 import org.hibernate.search.engine.service.spi.ServiceManager;
+import org.hibernate.search.engine.spi.EntityIndexBinding;
 import org.hibernate.search.exception.SearchException;
 import org.hibernate.search.indexes.interceptor.EntityIndexingInterceptor;
 import org.hibernate.search.indexes.spi.IndexManager;
@@ -200,15 +203,42 @@ public class IndexManagerHolder {
 	}
 
 	/**
+	 * This is only safe to invoke if you're absolutely sure that the IndexManager was already initialized.
+	 * This is often not the case: for example when using Dynamic Sharding some instances might be missing still after full initialization.
+	 * @param targetIndexName the name of the IndexManager to retrieve
+	 * @return the IndexManager, if found, or null.
+	 */
+	@Deprecated
+	public IndexManager getIndexManager(String targetIndexName) {
+		return getIndexManager( targetIndexName, Collections.<Class<?>, EntityIndexBinding>emptyMap() );
+	}
+
+	/**
 	 * @param targetIndexName the name of the IndexManager to look up
+	 * @param indexBindingForEntities map of known entity bindings to potentially trigger initialization of a missing IndexManager
 	 *
 	 * @return the IndexManager, or null if it doesn't exist
 	 */
-	public IndexManager getIndexManager(String targetIndexName) {
+	public IndexManager getIndexManager(String targetIndexName, Map<Class<?>, EntityIndexBinding> indexBindingForEntities) {
 		if ( targetIndexName == null ) {
 			throw log.nullIsInvalidIndexName();
 		}
-		return indexManagersRegistry.get( targetIndexName );
+		IndexManager indexManager = indexManagersRegistry.get( targetIndexName );
+		if ( indexManager == null ) {
+			// we might need to trigger an IndexManager initialization for entities using Dynamic Sharding
+			for ( EntityIndexBinding binding : indexBindingForEntities.values() ) {
+				IndexShardingStrategy indexShardingStrategy = binding.getSelectionStrategy();
+				if ( indexShardingStrategy instanceof DynamicShardingStrategy ) {
+					DynamicShardingStrategy dynSharding = (DynamicShardingStrategy) indexShardingStrategy;
+					indexShardingStrategy.getIndexManagersForAllShards();
+					indexManager = indexManagersRegistry.get( targetIndexName );
+				}
+				if ( indexManager != null ) {
+					break;
+				}
+			}
+		}
+		return indexManager;
 	}
 
 	private Class<? extends EntityIndexingInterceptor> getInterceptorClassFromHierarchy(XClass entity, Indexed indexedAnnotation) {

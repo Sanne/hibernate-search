@@ -535,7 +535,7 @@ public class ImmutableSearchFactory implements ExtendedSearchIntegratorWithShare
 
 	@Override
 	public IndexManager getIndexManager(String indexName) {
-		return getIndexManagerHolder().getIndexManager( indexName );
+		return getIndexManagerHolder().getIndexManager( indexName, indexBindingForEntities );
 	}
 
 	@Override
