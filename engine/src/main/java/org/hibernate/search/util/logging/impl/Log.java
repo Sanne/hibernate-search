@@ -985,4 +985,12 @@ public interface Log extends BasicLogger {
 	@Message(id = 319, value = "Using serialization service %1$s")
 	void usingSerializationService(String serializerDescription);
 
+	@LogMessage(level = Level.WARN)
+	@Message(id = 3020, value = "unknown eventType-id found during index updating: %d")
+	void unknownEventTypeFoundDuringIndexUpdating(int eventType);
+
+	@LogMessage(level = Level.WARN)
+	@Message(id = 3021, value = "class '%1$s' not found in any index during index updating")
+	void entityClassNotFoundInAnyIndexIndexUpdating( Class<?> entityClass );
+
 }
