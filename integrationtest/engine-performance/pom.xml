@@ -47,6 +47,57 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
             </plugin>
             <plugin>
+                    <!-- Redefine the ForbiddenApis configuration as some rules need
+                         to be relaxed in this CLI tool;
+                         e.g. we use System.out.println() instead of enforcing a logger -->
+                    <groupId>de.thetaphi</groupId>
+                    <artifactId>forbiddenapis</artifactId>
+                    <executions>
+                        <execution>
+                            <id>verify-forbidden-apis</id>
+                                <configuration>
+                                     <targetVersion>1.7</targetVersion>
+                                     <!-- disallow undocumented classes like sun.misc.Unsafe: -->
+                                     <internalRuntimeForbidden>true</internalRuntimeForbidden>
+                                     <!-- if the used Java version is too new, don't fail, just do nothing: -->
+                                     <failOnUnsupportedJava>false</failOnUnsupportedJava>
+                                     <excludes>
+                                         <!-- JBoss Logger formats messages according to default Locale (bug or feature?) -->
+                                         <exclude>**/Log_$logger.class</exclude>
+                                     </excludes>
+                                     <bundledSignatures>
+                                         <!-- This will automatically choose the right signatures based on 'targetVersion': -->
+                                         <bundledSignature>jdk-unsafe</bundledSignature>
+                                         <bundledSignature>jdk-deprecated</bundledSignature>
+                                     </bundledSignatures>
+                                 </configuration>
+                             <phase>compile</phase>
+                             <goals>
+                                 <goal>check</goal>
+                             </goals>
+                         </execution>
+                         <execution>
+                             <id>verify-forbidden-test-apis</id>
+                             <configuration>
+                                 <targetVersion>1.7</targetVersion>
+                                 <!-- disallow undocumented classes like sun.misc.Unsafe: -->
+                                 <internalRuntimeForbidden>true</internalRuntimeForbidden>
+                                 <!-- if the used Java version is too new, don't fail, just do nothing: -->
+                                 <failOnUnsupportedJava>false</failOnUnsupportedJava>
+                                 <bundledSignatures>
+                                     <!-- This will automatically choose the right signatures based on 'targetVersion': -->
+                                     <bundledSignature>jdk-unsafe</bundledSignature>
+                                     <bundledSignature>jdk-deprecated</bundledSignature>
+                                 </bundledSignatures>
+                             </configuration>
+                             <phase>test-compile</phase>
+                             <goals>
+                                 <goal>testCheck</goal>
+                             </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <configuration>
