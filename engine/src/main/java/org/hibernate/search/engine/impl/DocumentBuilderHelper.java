@@ -101,7 +101,7 @@ public final class DocumentBuilderHelper {
 					dummy.add( new StringField( idFieldName, value.utf8ToString(), org.apache.lucene.document.Field.Store.NO ) );
 				}
 			}
-			catch(Exception e) {
+			catch (Exception e) {
 				throw new SearchException( "Couldn't determine doc value: ", e);
 			}
 		}

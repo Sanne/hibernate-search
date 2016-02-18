@@ -140,9 +140,9 @@ public class DocumentExtractorImpl implements DocumentExtractor {
 			fields.add( ProjectionConstants.OBJECT_CLASS );
 		}
 		if ( needId ) {
-			for ( String idFieldName : idFieldNames ) {
+			/*for ( String idFieldName : idFieldNames ) {
 				fields.add( idFieldName );
-			}
+			}*/ // DocValue stored!
 		}
 		if ( fields.size() != 0 ) {
 			this.fieldLoadingVisitor = new ReusableDocumentStoredFieldVisitor( fields );
