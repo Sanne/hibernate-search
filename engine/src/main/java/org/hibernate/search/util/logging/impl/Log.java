@@ -1019,4 +1019,12 @@ public interface Log extends BasicLogger {
 			@FormatWith(ClassFormatter.class) Class<?> root,
 			@FormatWith(ClassFormatter.class) Class<?> sub);
 
+	@LogMessage(level = Level.INFO)
+	@Message(id = 326, value = "SQL (Trigger Drop): %1$s")
+	void triggerDropSQL(String sql);
+
+	@LogMessage(level = Level.WARN)
+	@Message(id = 327, value = "Exception occured during shutdown of the Async Backend")
+	void exceptionOccuredDuringShutdownOfAsync(@Cause Exception e);
+
 }
