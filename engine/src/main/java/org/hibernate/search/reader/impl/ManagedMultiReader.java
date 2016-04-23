@@ -175,13 +175,13 @@ public class ManagedMultiReader extends MultiReader {
 		for ( SortField sortField : sort.getSort() ) {
 			if ( sortField.getField() != null ) {
 				switch ( sortField.getType() ) {
-					case INT: mappings.put( sortField.getField(), Type.INTEGER );
+					case INT: mappings.put( sortField.getField(), Type.LEGACY_INTEGER );
 					break;
-					case LONG: mappings.put( sortField.getField(), Type.LONG );
+					case LONG: mappings.put( sortField.getField(), Type.LEGACY_LONG );
 					break;
-					case FLOAT: mappings.put( sortField.getField(), Type.FLOAT );
+					case FLOAT: mappings.put( sortField.getField(), Type.LEGACY_FLOAT );
 					break;
-					case DOUBLE: mappings.put( sortField.getField(), Type.DOUBLE );
+					case DOUBLE: mappings.put( sortField.getField(), Type.LEGACY_DOUBLE );
 					break;
 					case STRING:
 					case STRING_VAL: mappings.put( sortField.getField(), Type.SORTED );
