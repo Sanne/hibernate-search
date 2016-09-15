@@ -38,6 +38,7 @@
         <module>integrationtest/osgi/karaf-features</module>
         <module>integrationtest/sandbox</module>
         <module>integrationtest/engine-performance</module>
+        <module>documentation</module>
     </modules>
 
     <issueManagement>
@@ -933,6 +934,14 @@
                     <groupId>org.asciidoctor</groupId>
                     <artifactId>asciidoctor-maven-plugin</artifactId>
                     <version>1.5.2</version>
+                    <dependencies>
+                        <!-- The version override is needed to make it compatible with Java 9 -->
+                        <dependency>
+                            <groupId>org.jruby</groupId>
+                            <artifactId>jruby-complete</artifactId>
+                            <version>9.1.5.0</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -1395,7 +1404,6 @@ org.jboss.logging.BasicLogger#debugf(java.lang.Throwable, java.lang.String, long
                 <jdk>[1.7,1.8]</jdk>
             </activation>
             <modules>
-                <module>documentation</module>
                 <module>integrationtest/wildfly</module>
                 <module>integrationtest/osgi/karaf-it</module>
                 <module>integrationtest/performance</module>
