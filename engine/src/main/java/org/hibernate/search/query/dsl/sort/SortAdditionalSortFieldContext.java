@@ -50,20 +50,6 @@ public interface SortAdditionalSortFieldContext {
 	SortFieldContext andByField(String fieldName);
 
 	/**
-	 * Order elements by value of a specific field, with the sort field type provided.
-	 *
-	 * <p>The default order is <strong>ascending</strong>.
-	 * <p><strong>Note:</strong> using this method is only required when sorting on a
-	 * field on which a custom field bridge is defined. Otherwise, one may simply use
-	 * {@link #andByField(String)}.
-	 *
-	 * @param fieldName The name of the index field to sort by
-	 * @param sortFieldType The sort field type
-	 * @see #andByField(String, org.apache.lucene.search.SortField.Type)
-	 */
-	SortFieldContext andByField(String fieldName, SortField.Type sortFieldType);
-
-	/**
 	 * Order elements by distance.
 	 *
 	 * <p>The default order is <strong>ascending</strong>, i.e. shorter distances
