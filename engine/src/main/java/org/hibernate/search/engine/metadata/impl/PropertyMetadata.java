@@ -125,7 +125,12 @@ public class PropertyMetadata {
 		public Builder(BackReference<TypeMetadata> declaringType, XProperty propertyAccessor, Class<?> propertyClass) {
 			this.declaringType = declaringType;
 			if ( propertyAccessor != null ) {
-				ReflectionHelper.setAccessible( propertyAccessor );
+				System.out.println( "Property accessor: " + propertyAccessor );
+				try {
+					ReflectionHelper.setAccessible( propertyAccessor );
+				} catch (Exception ioe) {
+					System.out.println( "FAILED ON: accessor " + propertyAccessor );
+				}
 			}
 			this.propertyAccessor = propertyAccessor;
 			this.propertyClass = propertyClass;
