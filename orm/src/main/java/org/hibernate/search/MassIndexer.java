@@ -6,7 +6,7 @@
  */
 package org.hibernate.search;
 
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 import org.hibernate.CacheMode;
 import org.hibernate.search.batchindexing.MassIndexerProgressMonitor;
@@ -110,9 +110,9 @@ public interface MassIndexer {
 	/**
 	 * Starts the indexing process in background (asynchronous).
 	 * Can be called only once.
-	 * @return a Future to control the indexing task.
+	 * @return a CompletableFuture to control the indexing task.
 	 */
-	Future<?> start();
+	CompletableFuture<?> start();
 
 	/**
 	 * Starts the indexing process, and then block until it's finished.

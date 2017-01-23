@@ -8,6 +8,7 @@ package org.hibernate.search.test.batchindexing;
 
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 import org.hibernate.CacheMode;
@@ -140,7 +141,7 @@ public class CustomMassIndexerFactoryTest extends SearchTestBase {
 		}
 
 		@Override
-		public Future<?> start() {
+		public CompletableFuture<?> start() {
 			return null;
 		}
 

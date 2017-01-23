@@ -8,8 +8,8 @@ package org.hibernate.search.batchindexing.impl;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 import org.hibernate.CacheMode;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
@@ -195,12 +195,11 @@ public class MassIndexerImpl implements MassIndexerWithTenant {
 	}
 
 	@Override
-	public Future<?> start() {
+	public CompletableFuture<?> start() {
 		BatchCoordinator coordinator = createCoordinator();
 		ExecutorService executor = Executors.newFixedThreadPool( 1, "batch coordinator" );
 		try {
-			Future<?> submit = executor.submit( coordinator );
-			return submit;
+			return CompletableFuture.runAsync( coordinator, executor );
 		}
 		finally {
 			executor.shutdown();
