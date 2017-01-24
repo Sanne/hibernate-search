@@ -9,6 +9,7 @@ package org.hibernate.search.batchindexing.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -97,7 +98,7 @@ public class BatchCoordinator extends ErrorHandledRunnable {
 			doBatchWork( backend );
 			afterBatch( backend );
 		}
-		catch (InterruptedException | ExecutionException e) {
+		catch (CancellationException | InterruptedException | ExecutionException e) {
 			log.interruptedBatchIndexing();
 			// on thread interruption cancel each pending task - thread executing the task must be interrupted
 			for ( Future<?> task : indexingTasks ) {

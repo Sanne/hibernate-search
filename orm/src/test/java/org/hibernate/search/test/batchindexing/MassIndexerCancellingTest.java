@@ -9,6 +9,7 @@ package org.hibernate.search.test.batchindexing;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -39,7 +40,7 @@ public class MassIndexerCancellingTest extends SearchTestBase {
 
 		int threadsToLoadObjects = 2;
 
-		Future task = fullTextSession.createIndexer( Book.class )
+		CompletableFuture<?> task = fullTextSession.createIndexer( Book.class )
 				.threadsToLoadObjects( threadsToLoadObjects )
 				.batchSizeToLoadObjects( 1 )
 				.progressMonitor( monitor )
