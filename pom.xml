@@ -228,6 +228,13 @@
 
         <puppycrawl.checkstyle.version>6.16</puppycrawl.checkstyle.version>
 
+        <hibernate-commons-asciidoctor-theme.version>1.0.0-SNAPSHOT</hibernate-commons-asciidoctor-theme.version>
+        <asciidoctor-maven-plugin.version>1.5.3</asciidoctor-maven-plugin.version>
+        <jruby.version>1.7.26</jruby.version>
+        <asciidoctorj.version>1.5.4.1</asciidoctorj.version>
+        <asciidoctorj-pdf.version>1.5.0-alpha.11</asciidoctorj-pdf.version>
+        <asciidoctorj-epub3.version>1.5.0-alpha.6</asciidoctorj-epub3.version>
+
         <!-- Version to be used as baseline for API/SPI change reports -->
         <previous.stable>5.5.2.Final</previous.stable>
     </properties>
@@ -949,7 +956,36 @@
                 <plugin>
                     <groupId>org.asciidoctor</groupId>
                     <artifactId>asciidoctor-maven-plugin</artifactId>
-                    <version>1.5.2</version>
+                    <version>${asciidoctor-maven-plugin.version}</version>
+                    <configuration>
+                        <sourceDocumentName>index.asciidoc</sourceDocumentName>
+                        <attributes>
+                            <icons>font</icons>
+
+                            <hibernateSearchVersion>${project.version}</hibernateSearchVersion>
+                            <hibernateVersion>${hibernateVersion}</hibernateVersion>
+                            <luceneVersion>${luceneVersion}</luceneVersion>
+                            <infinispanVersion>${infinispanVersion}</infinispanVersion>
+                            <testElasticsearchVersion>${testElasticsearchVersion}</testElasticsearchVersion>
+                        </attributes>
+                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.jruby</groupId>
+                            <artifactId>jruby-complete</artifactId>
+                            <version>${jruby.version}</version>
+                        </dependency>
+                         <dependency>
+                            <groupId>org.asciidoctor</groupId>
+                            <artifactId>asciidoctorj</artifactId>
+                            <version>${asciidoctorj.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.asciidoctor</groupId>
+                            <artifactId>asciidoctorj-pdf</artifactId>
+                            <version>${asciidoctorj-pdf.version}</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
