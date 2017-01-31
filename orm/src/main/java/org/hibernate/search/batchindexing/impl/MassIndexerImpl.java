@@ -199,7 +199,7 @@ public class MassIndexerImpl implements MassIndexerWithTenant {
 		BatchCoordinator coordinator = createCoordinator();
 		ExecutorService executor = Executors.newFixedThreadPool( 1, "batch coordinator" );
 		try {
-			return CompletableFuture.runAsync( coordinator, executor );
+			return CompletableFuture.runAsync( coordinator, executor ).exceptionally( )
 		}
 		finally {
 			executor.shutdown();
