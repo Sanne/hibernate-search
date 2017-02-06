@@ -23,7 +23,9 @@ import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.engine.transaction.jta.platform.spi.JtaPlatform;
+import org.hibernate.internal.CriteriaImpl;
 import org.hibernate.search.backend.AddLuceneWork;
 import org.hibernate.search.backend.spi.BatchBackend;
 import org.hibernate.search.batchindexing.MassIndexerProgressMonitor;
@@ -160,8 +162,7 @@ public class IdentifierConsumerDocumentProducer implements Runnable {
 		try {
 			beginTransaction( session );
 
-			Criteria criteria = session
-					.createCriteria( type )
+			Criteria criteria = new CriteriaImpl( type.getName(), session )
 					.setCacheMode( cacheMode )
 					.setLockMode( LockMode.NONE )
 					.setCacheable( false )
