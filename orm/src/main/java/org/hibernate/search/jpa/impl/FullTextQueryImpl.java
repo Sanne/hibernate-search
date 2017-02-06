@@ -154,7 +154,7 @@ final class FullTextQueryImpl implements FullTextQuery {
 	@Override
 	public List getResultList() {
 		try {
-			return query.list();
+			return query.getResultList();
 		}
 		catch (QueryTimeoutException e) {
 			throwQueryTimeoutException( e );
