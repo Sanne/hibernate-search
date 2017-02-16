@@ -164,15 +164,17 @@
         <!-- JDK version required for the build; we target 1.8 since Hibernate ORM 5.2 requires Java 8 -->
         <minJdkVersion>1.8</minJdkVersion>
 
-        <!-- Slot definitions for JBoss Modules (both generated and consumed modules) -->
-        <lucene.module.slot>5.5</lucene.module.slot>
-        <hibernate-orm.module.slot>5.2</hibernate-orm.module.slot>
-
         <!-- Dependency versions -->
         <slf4jVersion>1.6.4</slf4jVersion>
         <luceneVersion>5.5.4</luceneVersion>
         <infinispanVersion>8.2.4.Final</infinispanVersion>
         <jgroupsVersion>3.6.12.Final</jgroupsVersion>
+
+        <!-- Slot definitions for JBoss Modules (both generated and consumed modules) -->
+        <lucene.module.slot>${luceneVersion}</lucene.module.slot>
+        <hibernate-orm.module.slot>5.2</hibernate-orm.module.slot>
+        <!-- Match the version of org.hibernate.lucene-modules:lucene-modules to provide the right Lucene slot -->
+        <lucene-modules.version>5.5.0-SNAPSHOT</lucene-modules.version>
 
         <!-- ORM and transitive deps; Make sure to match ORM's set of versions when updating -->
         <hibernateVersion>5.2.7.Final</hibernateVersion>
