@@ -112,7 +112,7 @@ public class JGroupsMasterTest extends SearchTestBase {
 		//send message to all listeners
 		byte[] data = serviceManager.requestService( LuceneWorkSerializer.class ).toSerializedModel( queue );
 		data = MessageSerializationHelper.prependString( indexManagerName, data );
-		Message message = new Message( null, null, data );
+		Message message = new Message( null, data );
 		channel.send( message );
 
 		serviceManager.releaseService( LuceneWorkSerializer.class );

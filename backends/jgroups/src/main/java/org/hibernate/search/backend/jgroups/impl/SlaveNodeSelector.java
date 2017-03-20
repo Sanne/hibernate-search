@@ -7,7 +7,6 @@
 package org.hibernate.search.backend.jgroups.impl;
 
 import org.jgroups.Address;
-import org.jgroups.Message;
 import org.jgroups.View;
 
 
@@ -43,11 +42,6 @@ public class SlaveNodeSelector implements NodeSelectorStrategy {
 	@Override
 	public void viewAccepted(View view) {
 		//nothing to do
-	}
-
-	@Override
-	public Message createMessage(byte[] data) {
-		return new Message( null, localAddress, data );
 	}
 
 }

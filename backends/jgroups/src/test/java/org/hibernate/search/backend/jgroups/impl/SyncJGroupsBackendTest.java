@@ -24,7 +24,6 @@ import org.hibernate.search.testsupport.setup.TransactionContextForTest;
 import org.hibernate.search.util.logging.impl.Log;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
 import java.lang.invoke.MethodHandles;
-import org.jgroups.TimeoutException;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -87,7 +86,7 @@ public class SyncJGroupsBackendTest {
 		catch (SearchException se) {
 			//Expected: we're inducing the RPC into timeout by blocking receiver processing
 			Throwable cause = se.getCause();
-			Assert.assertTrue( "Cause was not a TimeoutException but a " + cause, cause instanceof TimeoutException );
+			Assert.assertTrue( "Cause was not a SearchException but a " + cause, cause instanceof SearchException );
 			timeoutTriggered = true;
 		}
 		finally {

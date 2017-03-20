@@ -65,9 +65,4 @@ public class AutoNodeSelector implements NodeSelectorStrategy {
 		}
 	}
 
-	@Override
-	public Message createMessage(byte[] data) {
-		return new Message( null, localAddress, data );
-	}
-
 }
