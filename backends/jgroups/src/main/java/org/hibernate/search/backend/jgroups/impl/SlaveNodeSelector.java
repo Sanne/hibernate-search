@@ -25,9 +25,7 @@ import org.jgroups.View;
  *
  * @author Sanne Grinovero (C) 2012 Red Hat Inc.
  */
-public class SlaveNodeSelector implements NodeSelectorStrategy {
-
-	private Address localAddress;
+public final class SlaveNodeSelector implements NodeSelectorStrategy {
 
 	@Override
 	public boolean isIndexOwnerLocal() {
@@ -35,12 +33,12 @@ public class SlaveNodeSelector implements NodeSelectorStrategy {
 	}
 
 	@Override
-	public void setLocalAddress(Address address) {
-		this.localAddress = address;
+	public void setLocalAddress(final Address address) {
+		//not needed
 	}
 
 	@Override
-	public void viewAccepted(View view) {
+	public void viewAccepted(final View view) {
 		//nothing to do
 	}
 

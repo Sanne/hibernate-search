@@ -22,6 +22,7 @@ import org.hibernate.search.util.logging.impl.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 import org.jgroups.Address;
 import org.jgroups.JChannel;
+import org.jgroups.Message.TransientFlag;
 import org.jgroups.View;
 import org.jgroups.blocks.MessageDispatcher;
 import org.jgroups.blocks.RequestOptions;
@@ -48,6 +49,11 @@ public final class DispatchMessageSender implements MessageSenderService, Starta
 	public static final String CLUSTER_NAME = JGROUPS_PREFIX + "clusterName";
 	public static final String CHANNEL_INJECT = JGROUPS_PREFIX + "providedChannel";
 	public static final String CLASSLOADER = JGROUPS_PREFIX + "classloader";
+
+	/**
+	 * @deprecated the MUX channels are no longer supported in JGroups 4: this property will be ignored.
+	 */
+	@Deprecated
 	public static final String MUX_ID = JGROUPS_PREFIX + "mux_id";
 
 	private static final String DEFAULT_JGROUPS_CONFIGURATION_FILE = "flush-udp.xml";
@@ -71,35 +77,33 @@ public final class DispatchMessageSender implements MessageSenderService, Starta
 	public void send(final Buffer data, final boolean synchronous, final long timeout) throws Exception {
 		final RequestOptions options = synchronous ? RequestOptions.SYNC() : RequestOptions.ASYNC();
 		options.exclusionList( dispatcher.getChannel().getAddress() );
+		options.setTransientFlags(TransientFlag.DONT_LOOPBACK );
 		options.setTimeout( timeout );
 		if ( synchronous ) {
-			CompletableFuture<RspList<Object>> future = dispatcher.castMessageWithFuture( null, data, options );
-			future.whenComplete( this::handleResponse );
+			try {
+				RspList<Object> rspList = dispatcher.castMessage( null, data, options );
+				handleResponseProblems( rspList, null );
+			}
+			catch (Exception e) {
+				throw log.unableToSendWorkViaJGroups( e );
+			}
 		}
 		else {
-			RuntimeException error = null;
-			RspList<Object> rspList = null;
 			try {
-				rspList = dispatcher.castMessage( null, data, options );
+				CompletableFuture<RspList<Object>> futureMessage = dispatcher.castMessageWithFuture( null, data, options );
+				futureMessage.whenComplete( this::handleResponseProblems );
 			}
-			catch (RuntimeException re) {
-				error = re;
+			catch (RuntimeException e) {
+				throw log.unableToSendWorkViaJGroups( e );
 			}
-			this.handleResponse( rspList, error );
 		}
 	}
 
-	private void handleResponse(RspList<Object> response, Throwable e) {
+	private void handleResponseProblems(RspList<Object> response, Throwable e) {
 		for ( Address suspected : response.getSuspectedMembers() ) {
 			log.jgroupsSuspectingPeer( suspected );
 		}
-		boolean someoneReceived = false;
-		for ( Rsp rsp : response.values() ) {
-			if ( rsp.wasReceived() ) {
-				someoneReceived = true;
-			}
-		}
-		if ( !someoneReceived ) {
+		if ( e != null) {
 			throw log.unableToSendWorkViaJGroups( e );
 		}
 	}
@@ -121,6 +125,7 @@ public final class DispatchMessageSender implements MessageSenderService, Starta
 		MessageListenerToRequestHandlerAdapter requestHandler = new MessageListenerToRequestHandlerAdapter( listener );
 		dispatcher = new MessageDispatcher( channel, requestHandler );
 		//Do not start the Channel before having installed the dispatcher:
+		channel.setReceiver( listener );
 		channelContainer.start();
 
 		masterNodeSelector.setLocalAddress( channel.getAddress() );

@@ -22,7 +22,7 @@ import org.jgroups.View;
  *
  * @author Sanne Grinovero (C) 2012 Red Hat Inc.
  */
-public class MasterNodeSelector implements NodeSelectorStrategy {
+public final class MasterNodeSelector implements NodeSelectorStrategy {
 
 	@Override
 	public boolean isIndexOwnerLocal() {
@@ -30,12 +30,12 @@ public class MasterNodeSelector implements NodeSelectorStrategy {
 	}
 
 	@Override
-	public void setLocalAddress(Address address) {
+	public void setLocalAddress(final Address address) {
 		//not needed
 	}
 
 	@Override
-	public void viewAccepted(View view) {
+	public void viewAccepted(final View view) {
 		//nothing to do
 	}
 

@@ -20,6 +20,7 @@ import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageLogger;
 import org.jboss.logging.annotations.ValidIdRange;
 import org.jgroups.Address;
+import org.jgroups.View;
 
 import static org.jboss.logging.Logger.Level.DEBUG;
 import static org.jboss.logging.Logger.Level.ERROR;
@@ -65,7 +66,7 @@ public interface Log extends BaseHibernateSearchLogger {
 	@Message(id = 200009, value = "MuxId '%1$d' configured on the JGroups was already taken. Can't register handler!")
 	SearchException jGroupsMuxIdAlreadyTaken(short n);
 
-	@LogMessage(level = WARN)
+	@LogMessage(level = DEBUG)
 	@Message(id = 200010,
 			value = "FLUSH is not present in your JGroups stack! FLUSH is needed to ensure messages are not dropped while new nodes join the cluster. Will proceed, but inconsistencies may arise!")
 	void jGroupsFlushNotPresentInStack();
@@ -125,5 +126,9 @@ public interface Log extends BaseHibernateSearchLogger {
 			value = "The configuration property '" + org.hibernate.search.backend.jgroups.impl.DispatchMessageSender.MUX_ID + "' is now ignored: JGroups 4 no longer supports Mux Channels."
 					+ " Use the FORK protocol instead.")
 	void muxIdPropertyIsIgnored();
+
+	@LogMessage(level = INFO)
+	@Message(id = 200025, value = "JGroups election: accepting new cluster view [%s]. Master is now %s for index '%s'")
+	void acceptingNewClusterView(View view, Address masterAddress, String indexName);
 
 }
