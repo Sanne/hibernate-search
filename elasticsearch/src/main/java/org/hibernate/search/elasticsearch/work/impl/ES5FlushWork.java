@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.elasticsearch.client.Response;
 import org.hibernate.search.elasticsearch.client.impl.ElasticsearchRequest;
+import org.hibernate.search.elasticsearch.client.impl.PathComponent;
 import org.hibernate.search.elasticsearch.work.impl.builder.FlushWorkBuilder;
 import org.hibernate.search.elasticsearch.work.impl.builder.RefreshWorkBuilder;
 import org.hibernate.search.elasticsearch.work.impl.factory.ElasticsearchWorkFactory;
@@ -50,7 +51,7 @@ public class ES5FlushWork extends SimpleElasticsearchWork<Void> {
 			implements FlushWorkBuilder {
 		private final RefreshWorkBuilder refreshWorkBuilder;
 
-		private List<String> indexNames = new ArrayList<>();
+		private List<PathComponent> indexNames = new ArrayList<>();
 
 		public Builder(ElasticsearchWorkFactory workFactory) {
 			super( null, DefaultElasticsearchRequestSuccessAssessor.INSTANCE );
@@ -58,7 +59,7 @@ public class ES5FlushWork extends SimpleElasticsearchWork<Void> {
 		}
 
 		@Override
-		public Builder index(String indexName) {
+		public Builder index(PathComponent indexName) {
 			this.indexNames.add( indexName );
 			this.refreshWorkBuilder.index( indexName );
 			return this;

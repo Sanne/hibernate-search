@@ -8,6 +8,7 @@ package org.hibernate.search.elasticsearch.work.impl;
 
 import org.elasticsearch.client.Response;
 import org.hibernate.search.elasticsearch.client.impl.ElasticsearchRequest;
+import org.hibernate.search.elasticsearch.client.impl.PathComponent;
 import org.hibernate.search.elasticsearch.impl.JsonBuilder;
 import org.hibernate.search.elasticsearch.work.impl.builder.ClearScrollWorkBuilder;
 
@@ -18,6 +19,9 @@ import com.google.gson.JsonPrimitive;
  * @author Yoann Rodiere
  */
 public class ClearScrollWork extends SimpleElasticsearchWork<Void> {
+
+	private static final PathComponent SEARCH_PATH = PathComponent.fromString( "_search" );
+	private static final PathComponent SCROLL_PATH = PathComponent.fromString( "scroll" );
 
 	protected ClearScrollWork(Builder builder) {
 		super( builder );
@@ -42,8 +46,8 @@ public class ClearScrollWork extends SimpleElasticsearchWork<Void> {
 		protected ElasticsearchRequest buildRequest() {
 			ElasticsearchRequest.Builder builder =
 					ElasticsearchRequest.delete()
-					.pathComponent( "_search" )
-					.pathComponent( "scroll" )
+					.pathComponent( SEARCH_PATH )
+					.pathComponent( SCROLL_PATH )
 					.body(JsonBuilder.object()
 							.add( "scroll_id", JsonBuilder.array().add( new JsonPrimitive( scrollId ) ) )
 							.build()

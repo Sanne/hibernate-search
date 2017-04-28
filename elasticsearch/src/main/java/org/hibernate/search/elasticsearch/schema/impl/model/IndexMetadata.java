@@ -9,6 +9,7 @@ package org.hibernate.search.elasticsearch.schema.impl.model;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.hibernate.search.elasticsearch.client.impl.PathComponent;
 import org.hibernate.search.elasticsearch.settings.impl.model.IndexSettings;
 
 import com.google.gson.GsonBuilder;
@@ -20,17 +21,17 @@ import com.google.gson.GsonBuilder;
  */
 public class IndexMetadata {
 
-	private String name;
+	private PathComponent name;
 
 	private Map<String, TypeMapping> mappings = new TreeMap<>();
 
 	private IndexSettings settings;
 
-	public String getName() {
+	public PathComponent getName() {
 		return name;
 	}
 
-	public void setName(String name) {
+	public void setName(PathComponent name) {
 		this.name = name;
 	}
 

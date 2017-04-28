@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.elasticsearch.client.Response;
 import org.hibernate.search.elasticsearch.client.impl.ElasticsearchRequest;
+import org.hibernate.search.elasticsearch.client.impl.PathComponent;
 import org.hibernate.search.elasticsearch.work.impl.builder.OptimizeWorkBuilder;
 
 import com.google.gson.JsonObject;
@@ -38,14 +39,14 @@ public class ES2OptimizeWork extends SimpleElasticsearchWork<Void> {
 	public static class Builder
 			extends SimpleElasticsearchWork.Builder<Builder>
 			implements OptimizeWorkBuilder {
-		private List<String> indexNames = new ArrayList<>();
+		private List<PathComponent> indexNames = new ArrayList<>();
 
 		public Builder() {
 			super( null, DefaultElasticsearchRequestSuccessAssessor.INSTANCE );
 		}
 
 		@Override
-		public Builder index(String indexName) {
+		public Builder index(PathComponent indexName) {
 			this.indexNames.add( indexName );
 			return this;
 		}

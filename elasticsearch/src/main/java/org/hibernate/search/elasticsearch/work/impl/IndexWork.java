@@ -9,6 +9,7 @@ package org.hibernate.search.elasticsearch.work.impl;
 import org.elasticsearch.client.Response;
 import org.hibernate.search.backend.IndexingMonitor;
 import org.hibernate.search.elasticsearch.client.impl.ElasticsearchRequest;
+import org.hibernate.search.elasticsearch.client.impl.PathComponent;
 import org.hibernate.search.elasticsearch.impl.JsonBuilder;
 import org.hibernate.search.elasticsearch.work.impl.builder.IndexWorkBuilder;
 
@@ -42,14 +43,14 @@ public class IndexWork extends SimpleBulkableElasticsearchWork<Void> {
 	public static class Builder
 			extends SimpleBulkableElasticsearchWork.Builder<Builder>
 			implements IndexWorkBuilder {
-		private final String indexName;
+		private final PathComponent indexName;
 		private final String typeName;
 		private final String id;
 		private final JsonObject document;
 
 		protected IndexingMonitor monitor;
 
-		public Builder(String indexName, String typeName, String id, JsonObject document) {
+		public Builder(PathComponent indexName, String typeName, String id, JsonObject document) {
 			super( indexName, DefaultElasticsearchRequestSuccessAssessor.INSTANCE );
 			this.indexName = indexName;
 			this.typeName = typeName;

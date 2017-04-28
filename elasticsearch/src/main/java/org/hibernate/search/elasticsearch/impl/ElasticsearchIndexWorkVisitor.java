@@ -26,6 +26,7 @@ import org.hibernate.search.backend.spi.DeleteByQueryLuceneWork;
 import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.bridge.TwoWayFieldBridge;
 import org.hibernate.search.bridge.spi.NullMarker;
+import org.hibernate.search.elasticsearch.client.impl.PathComponent;
 import org.hibernate.search.elasticsearch.gson.impl.JsonAccessor;
 import org.hibernate.search.elasticsearch.gson.impl.JsonElementType;
 import org.hibernate.search.elasticsearch.gson.impl.UnexpectedJsonElementTypeException;
@@ -63,12 +64,12 @@ class ElasticsearchIndexWorkVisitor implements IndexWorkVisitor<IndexingMonitor,
 
 	private static final Log LOG = LoggerFactory.make( Log.class );
 
-	private final String indexName;
+	private final PathComponent indexName;
 	private final boolean refreshAfterWrite;
 	private final ExtendedSearchIntegrator searchIntegrator;
 	private final ElasticsearchWorkFactory workFactory;
 
-	public ElasticsearchIndexWorkVisitor(String indexName, boolean refreshAfterWrite,
+	public ElasticsearchIndexWorkVisitor(PathComponent indexName, boolean refreshAfterWrite,
 			ExtendedSearchIntegrator searchIntegrator, ElasticsearchWorkFactory workFactory) {
 		this.indexName = indexName;
 		this.refreshAfterWrite = refreshAfterWrite;

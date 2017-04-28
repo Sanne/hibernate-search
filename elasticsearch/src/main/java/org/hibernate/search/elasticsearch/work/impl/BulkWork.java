@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 import org.elasticsearch.client.Response;
 import org.hibernate.search.backend.LuceneWork;
 import org.hibernate.search.elasticsearch.client.impl.ElasticsearchRequest;
+import org.hibernate.search.elasticsearch.client.impl.PathComponent;
 import org.hibernate.search.elasticsearch.gson.impl.GsonProvider;
 import org.hibernate.search.elasticsearch.logging.impl.Log;
 import org.hibernate.search.elasticsearch.util.impl.ElasticsearchClientUtils;
@@ -32,6 +33,7 @@ import com.google.gson.JsonObject;
 public class BulkWork implements ElasticsearchWork<Void> {
 
 	private static final Log LOG = LoggerFactory.make( Log.class );
+	private static final PathComponent BULK_PATH = PathComponent.fromString( "_bulk" );
 
 	private final ElasticsearchRequest request;
 
@@ -180,7 +182,7 @@ public class BulkWork implements ElasticsearchWork<Void> {
 		}
 
 		@Override
-		public void setIndexDirty(String indexName) {
+		public void setIndexDirty(PathComponent indexName) {
 			// Don't delegate
 		}
 	}
@@ -202,7 +204,7 @@ public class BulkWork implements ElasticsearchWork<Void> {
 		protected ElasticsearchRequest buildRequest() {
 			ElasticsearchRequest.Builder builder =
 					ElasticsearchRequest.post()
-					.pathComponent( "_bulk" )
+					.pathComponent( BULK_PATH )
 					.param( "refresh", refreshInBulkAPICall );
 
 			for ( BulkableElasticsearchWork<?> work : bulkableWorks ) {

@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.elasticsearch.client.Response;
 import org.hibernate.search.elasticsearch.client.impl.ElasticsearchRequest;
+import org.hibernate.search.elasticsearch.client.impl.PathComponent;
 import org.hibernate.search.elasticsearch.gson.impl.GsonProvider;
 import org.hibernate.search.elasticsearch.schema.impl.model.TypeMapping;
 import org.hibernate.search.elasticsearch.work.impl.builder.GetIndexTypeMappingsWorkBuilder;
@@ -28,7 +29,7 @@ public class GetIndexTypeMappingsWork extends SimpleElasticsearchWork<Map<String
 				// Create a new class to capture generic parameters
 			};
 
-	private final String indexName;
+	private final PathComponent indexName;
 
 	protected GetIndexTypeMappingsWork(Builder builder) {
 		super( builder );
@@ -38,7 +39,7 @@ public class GetIndexTypeMappingsWork extends SimpleElasticsearchWork<Map<String
 	@Override
 	protected Map<String, TypeMapping> generateResult(ElasticsearchWorkExecutionContext context,
 			Response response, JsonObject parsedResponseBody) {
-		JsonElement index = parsedResponseBody.get( indexName );
+		JsonElement index = parsedResponseBody.get( indexName.original );
 		if ( index == null || !index.isJsonObject() ) {
 			throw new AssertionFailure( "Elasticsearch API call succeeded, but the requested index wasn't mentioned in the result: " + parsedResponseBody );
 		}
@@ -57,9 +58,9 @@ public class GetIndexTypeMappingsWork extends SimpleElasticsearchWork<Map<String
 	public static class Builder
 			extends SimpleElasticsearchWork.Builder<Builder>
 			implements GetIndexTypeMappingsWorkBuilder {
-		private final String indexName;
+		private final PathComponent indexName;
 
-		public Builder(String indexName) {
+		public Builder(PathComponent indexName) {
 			super( null, DefaultElasticsearchRequestSuccessAssessor.INSTANCE );
 			this.indexName = indexName;
 		}

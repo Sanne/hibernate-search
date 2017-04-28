@@ -8,6 +8,7 @@ package org.hibernate.search.elasticsearch.work.impl;
 
 import org.elasticsearch.client.Response;
 import org.hibernate.search.elasticsearch.client.impl.ElasticsearchRequest;
+import org.hibernate.search.elasticsearch.client.impl.PathComponent;
 import org.hibernate.search.elasticsearch.work.impl.builder.OpenIndexWorkBuilder;
 
 import com.google.gson.JsonObject;
@@ -29,9 +30,9 @@ public class OpenIndexWork extends SimpleElasticsearchWork<Void> {
 	public static class Builder
 			extends SimpleElasticsearchWork.Builder<Builder>
 			implements OpenIndexWorkBuilder {
-		private final String indexName;
+		private final PathComponent indexName;
 
-		public Builder(String indexName) {
+		public Builder(PathComponent indexName) {
 			super( null, DefaultElasticsearchRequestSuccessAssessor.INSTANCE );
 			this.indexName = indexName;
 		}

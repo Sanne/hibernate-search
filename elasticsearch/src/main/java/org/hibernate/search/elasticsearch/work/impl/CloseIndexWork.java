@@ -8,11 +8,14 @@ package org.hibernate.search.elasticsearch.work.impl;
 
 import org.elasticsearch.client.Response;
 import org.hibernate.search.elasticsearch.client.impl.ElasticsearchRequest;
+import org.hibernate.search.elasticsearch.client.impl.PathComponent;
 import org.hibernate.search.elasticsearch.work.impl.builder.CloseIndexWorkBuilder;
 
 import com.google.gson.JsonObject;
 
 public class CloseIndexWork extends SimpleElasticsearchWork<Void> {
+
+	private static final PathComponent CLOSE_PATH = PathComponent.fromString( "_close" );
 
 	protected CloseIndexWork(Builder builder) {
 		super( builder );
@@ -26,9 +29,10 @@ public class CloseIndexWork extends SimpleElasticsearchWork<Void> {
 	public static class Builder
 			extends SimpleElasticsearchWork.Builder<Builder>
 			implements CloseIndexWorkBuilder {
-		private final String indexName;
 
-		public Builder(String indexName) {
+		private final PathComponent indexName;
+
+		public Builder(PathComponent indexName) {
 			super( null, DefaultElasticsearchRequestSuccessAssessor.INSTANCE );
 			this.indexName = indexName;
 		}
@@ -38,7 +42,7 @@ public class CloseIndexWork extends SimpleElasticsearchWork<Void> {
 			ElasticsearchRequest.Builder builder =
 					ElasticsearchRequest.post()
 					.pathComponent( indexName )
-					.pathComponent( "_close" );
+					.pathComponent( CLOSE_PATH );
 
 			return builder.build();
 		}

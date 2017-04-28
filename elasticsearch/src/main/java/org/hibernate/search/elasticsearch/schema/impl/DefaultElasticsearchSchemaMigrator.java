@@ -8,6 +8,7 @@ package org.hibernate.search.elasticsearch.schema.impl;
 
 import java.util.Map;
 
+import org.hibernate.search.elasticsearch.client.impl.PathComponent;
 import org.hibernate.search.elasticsearch.logging.impl.Log;
 import org.hibernate.search.elasticsearch.schema.impl.model.IndexMetadata;
 import org.hibernate.search.elasticsearch.schema.impl.model.TypeMapping;
@@ -36,7 +37,7 @@ public class DefaultElasticsearchSchemaMigrator implements ElasticsearchSchemaMi
 
 	@Override
 	public void migrate(IndexMetadata indexMetadata, ExecutionOptions executionOptions) {
-		String indexName = indexMetadata.getName();
+		PathComponent indexName = indexMetadata.getName();
 		IndexSettings settings = indexMetadata.getSettings();
 
 		try {
@@ -75,6 +76,5 @@ public class DefaultElasticsearchSchemaMigrator implements ElasticsearchSchemaMi
 			throw LOG.schemaUpdateFailed( indexName, e );
 		}
 	}
-
 
 }

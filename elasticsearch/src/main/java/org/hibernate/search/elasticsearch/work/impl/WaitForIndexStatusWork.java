@@ -9,6 +9,7 @@ package org.hibernate.search.elasticsearch.work.impl;
 import org.elasticsearch.client.Response;
 import org.hibernate.search.elasticsearch.cfg.ElasticsearchIndexStatus;
 import org.hibernate.search.elasticsearch.client.impl.ElasticsearchRequest;
+import org.hibernate.search.elasticsearch.client.impl.PathComponent;
 import org.hibernate.search.elasticsearch.logging.impl.Log;
 import org.hibernate.search.elasticsearch.work.impl.builder.WaitForIndexStatusWorkBuilder;
 import org.hibernate.search.exception.AssertionFailure;
@@ -34,11 +35,11 @@ public class WaitForIndexStatusWork extends SimpleElasticsearchWork<Void> {
 	public static class Builder
 			extends SimpleElasticsearchWork.Builder<Builder>
 			implements WaitForIndexStatusWorkBuilder {
-		private final String indexName;
+		private final PathComponent indexName;
 		private final ElasticsearchIndexStatus requiredStatus;
 		private final String timeout;
 
-		public Builder(String indexName, ElasticsearchIndexStatus requiredStatus, String timeout) {
+		public Builder(PathComponent indexName, ElasticsearchIndexStatus requiredStatus, String timeout) {
 			super( null, new SuccessAssessor( indexName, requiredStatus, timeout ) );
 			this.indexName = indexName;
 			this.requiredStatus = requiredStatus;
@@ -70,7 +71,7 @@ public class WaitForIndexStatusWork extends SimpleElasticsearchWork<Void> {
 
 		private static final int TIMED_OUT_HTTP_STATUS_CODE = 408;
 
-		private final String indexName;
+		private final PathComponent indexName;
 
 		private final ElasticsearchIndexStatus requiredIndexStatus;
 
@@ -78,7 +79,7 @@ public class WaitForIndexStatusWork extends SimpleElasticsearchWork<Void> {
 
 		private final DefaultElasticsearchRequestSuccessAssessor delegate;
 
-		public SuccessAssessor(String indexName,
+		public SuccessAssessor(PathComponent indexName,
 				ElasticsearchIndexStatus requiredIndexStatus,
 				String timeoutAndUnit) {
 			super();
@@ -95,7 +96,7 @@ public class WaitForIndexStatusWork extends SimpleElasticsearchWork<Void> {
 			this.delegate.checkSuccess( context, request, response, parsedResponseBody );
 			if ( response.getStatusLine().getStatusCode() == TIMED_OUT_HTTP_STATUS_CODE ) {
 				String status = parsedResponseBody.get( "status" ).getAsString();
-				throw LOG.unexpectedIndexStatus( indexName, requiredIndexStatus.getElasticsearchString(), status, timeoutAndUnit );
+				throw LOG.unexpectedIndexStatus( indexName.original, requiredIndexStatus.getElasticsearchString(), status, timeoutAndUnit );
 			}
 		}
 

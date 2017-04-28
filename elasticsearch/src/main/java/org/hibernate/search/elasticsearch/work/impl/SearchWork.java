@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.elasticsearch.client.Response;
 import org.hibernate.search.elasticsearch.client.impl.ElasticsearchRequest;
+import org.hibernate.search.elasticsearch.client.impl.PathComponent;
 import org.hibernate.search.elasticsearch.gson.impl.GsonProvider;
 import org.hibernate.search.elasticsearch.gson.impl.JsonAccessor;
 import org.hibernate.search.elasticsearch.logging.impl.Log;
@@ -56,7 +57,7 @@ public class SearchWork extends SimpleElasticsearchWork<SearchResult> {
 			extends SimpleElasticsearchWork.Builder<Builder>
 			implements SearchWorkBuilder {
 		private final JsonObject payload;
-		private final List<String> indexes = new ArrayList<>();
+		private final List<PathComponent> indexes = new ArrayList<>();
 		private Integer from;
 		private Integer size;
 		private Integer scrollSize;
@@ -68,7 +69,7 @@ public class SearchWork extends SimpleElasticsearchWork<SearchResult> {
 		}
 
 		@Override
-		public Builder indexes(Collection<String> indexNames) {
+		public Builder indexes(Collection<PathComponent> indexNames) {
 			indexes.addAll( indexNames );
 			return this;
 		}

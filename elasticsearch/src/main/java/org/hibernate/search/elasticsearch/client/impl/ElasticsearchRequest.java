@@ -87,18 +87,12 @@ public final class ElasticsearchRequest {
 			this.method = method;
 		}
 
-		public Builder pathComponent(String pathComponent) {
-			try {
-				String encodedPathComponent = URLEncoder.encode( pathComponent, StandardCharsets.UTF_8.name() );
-				pathBuilder.append( encodedPathComponent ).append( PATH_SEPARATOR );
-			}
-			catch (UnsupportedEncodingException e) {
-				throw new AssertionFailure( "Unexpected error retrieving the UTF-8 charset", e );
-			}
+		public Builder pathComponent(PathComponent pathComponent) {
+			pathBuilder.append( pathComponent.encodedPath ).append( PATH_SEPARATOR );
 			return this;
 		}
 
-		public Builder multiValuedPathComponent(Iterable<String> indexNames) {
+		public Builder multiValuedPathComponent(Iterable<PathComponent> indexNames) {
 			return pathComponent( StringHelper.join( indexNames, "," ) );
 		}
 

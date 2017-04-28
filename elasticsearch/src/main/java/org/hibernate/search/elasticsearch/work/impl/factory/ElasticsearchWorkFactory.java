@@ -9,6 +9,7 @@ package org.hibernate.search.elasticsearch.work.impl.factory;
 import java.util.List;
 
 import org.hibernate.search.elasticsearch.cfg.ElasticsearchIndexStatus;
+import org.hibernate.search.elasticsearch.client.impl.PathComponent;
 import org.hibernate.search.elasticsearch.schema.impl.model.TypeMapping;
 import org.hibernate.search.elasticsearch.settings.impl.model.IndexSettings;
 import org.hibernate.search.elasticsearch.work.impl.BulkableElasticsearchWork;
@@ -41,11 +42,11 @@ import com.google.gson.JsonObject;
  */
 public interface ElasticsearchWorkFactory {
 
-	IndexWorkBuilder index(String indexName, String typeName, String id, JsonObject document);
+	IndexWorkBuilder index(PathComponent indexName, String typeName, String id, JsonObject document);
 
-	DeleteWorkBuilder delete(String indexName, String typeName, String id);
+	DeleteWorkBuilder delete(PathComponent indexName, String typeName, String id);
 
-	DeleteByQueryWorkBuilder deleteByQuery(String indexName, JsonObject payload);
+	DeleteByQueryWorkBuilder deleteByQuery(PathComponent indexName, JsonObject payload);
 
 	FlushWorkBuilder flush();
 
@@ -57,30 +58,30 @@ public interface ElasticsearchWorkFactory {
 
 	SearchWorkBuilder search(JsonObject payload);
 
-	ExplainWorkBuilder explain(String indexName, String typeName, String id, JsonObject payload);
+	ExplainWorkBuilder explain(PathComponent indexName, String typeName, String id, JsonObject payload);
 
 	ScrollWorkBuilder scroll(String scrollId, String scrollTimeout);
 
 	ClearScrollWorkBuilder clearScroll(String scrollId);
 
-	CreateIndexWorkBuilder createIndex(String indexName);
+	CreateIndexWorkBuilder createIndex(PathComponent indexName);
 
-	DropIndexWorkBuilder dropIndex(String indexName);
+	DropIndexWorkBuilder dropIndex(PathComponent indexName);
 
-	OpenIndexWorkBuilder openIndex(String indexName);
+	OpenIndexWorkBuilder openIndex(PathComponent indexName);
 
-	CloseIndexWorkBuilder closeIndex(String indexName);
+	CloseIndexWorkBuilder closeIndex(PathComponent indexName);
 
-	IndexExistsWorkBuilder indexExists(String indexName);
+	IndexExistsWorkBuilder indexExists(PathComponent indexName);
 
-	GetIndexSettingsWorkBuilder getIndexSettings(String indexName);
+	GetIndexSettingsWorkBuilder getIndexSettings(PathComponent indexName);
 
-	PutIndexSettingsWorkBuilder putIndexSettings(String indexName, IndexSettings settings);
+	PutIndexSettingsWorkBuilder putIndexSettings(PathComponent indexName, IndexSettings settings);
 
-	GetIndexTypeMappingsWorkBuilder getIndexTypeMappings(String indexName);
+	GetIndexTypeMappingsWorkBuilder getIndexTypeMappings(PathComponent indexName);
 
-	PutIndexMappingWorkBuilder putIndexTypeMapping(String indexName, String typeName, TypeMapping mapping);
+	PutIndexMappingWorkBuilder putIndexTypeMapping(PathComponent indexName, String typeName, TypeMapping mapping);
 
-	WaitForIndexStatusWorkBuilder waitForIndexStatusWork(String indexName, ElasticsearchIndexStatus requiredStatus, String timeout);
+	WaitForIndexStatusWorkBuilder waitForIndexStatusWork(PathComponent indexName, ElasticsearchIndexStatus requiredStatus, String timeout);
 
 }

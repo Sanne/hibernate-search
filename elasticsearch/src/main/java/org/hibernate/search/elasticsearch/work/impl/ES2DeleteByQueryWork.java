@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.elasticsearch.client.Response;
 import org.hibernate.search.elasticsearch.client.impl.ElasticsearchRequest;
+import org.hibernate.search.elasticsearch.client.impl.PathComponent;
 import org.hibernate.search.elasticsearch.gson.impl.GsonProvider;
 import org.hibernate.search.elasticsearch.logging.impl.Log;
 import org.hibernate.search.elasticsearch.util.impl.ElasticsearchClientUtils;
@@ -40,11 +41,11 @@ public class ES2DeleteByQueryWork extends SimpleElasticsearchWork<Void> {
 	public static class Builder
 			extends SimpleElasticsearchWork.Builder<Builder>
 			implements DeleteByQueryWorkBuilder {
-		private final String indexName;
+		private final PathComponent indexName;
 		private final JsonObject payload;
 		private List<String> typeNames = new ArrayList<>();
 
-		public Builder(String indexName, JsonObject payload) {
+		public Builder(PathComponent indexName, JsonObject payload) {
 			super( indexName, SuccessAssessor.INSTANCE );
 			this.indexName = indexName;
 			this.payload = payload;

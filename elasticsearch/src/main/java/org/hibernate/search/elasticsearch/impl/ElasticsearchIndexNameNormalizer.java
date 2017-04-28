@@ -8,6 +8,7 @@ package org.hibernate.search.elasticsearch.impl;
 
 import java.util.Locale;
 
+import org.hibernate.search.elasticsearch.client.impl.PathComponent;
 import org.hibernate.search.elasticsearch.logging.impl.Log;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
 
@@ -23,12 +24,12 @@ public class ElasticsearchIndexNameNormalizer {
 	private ElasticsearchIndexNameNormalizer() {
 	}
 
-	public static String getElasticsearchIndexName(String indexName) {
+	public static PathComponent getElasticsearchIndexName(String indexName) {
 		String esIndexName = indexName.toLowerCase( Locale.ENGLISH );
 		if ( !esIndexName.equals( indexName ) ) {
 			LOG.debugf( "Normalizing index name from '%1$s' to '%2$s'", indexName, esIndexName );
 		}
 
-		return esIndexName;
+		return PathComponent.fromString( esIndexName );
 	}
 }

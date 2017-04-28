@@ -26,6 +26,7 @@ import org.elasticsearch.client.RestClient;
 import org.hibernate.search.elasticsearch.cfg.ElasticsearchEnvironment;
 import org.hibernate.search.elasticsearch.cfg.ElasticsearchIndexStatus;
 import org.hibernate.search.elasticsearch.client.impl.ElasticsearchRequest;
+import org.hibernate.search.elasticsearch.client.impl.PathComponent;
 import org.hibernate.search.elasticsearch.dialect.impl.DialectIndependentGsonProvider;
 import org.hibernate.search.elasticsearch.impl.ElasticsearchIndexNameNormalizer;
 import org.hibernate.search.elasticsearch.impl.JsonBuilder;
@@ -54,7 +55,7 @@ public class TestElasticsearchClient extends ExternalResource {
 
 	private Gson gson;
 
-	private final List<String> createdIndicesNames = Lists.newArrayList();
+	private final List<PathComponent> createdIndicesNames = Lists.newArrayList();
 
 	private final List<String> createdTemplatesNames = Lists.newArrayList();
 
@@ -63,7 +64,7 @@ public class TestElasticsearchClient extends ExternalResource {
 	}
 
 	public IndexClient index(String indexName) {
-		return new IndexClient( indexName );
+		return new IndexClient( PathComponent.fromString( indexName ) );
 	}
 
 	public TypeClient type(Class<?> rootClass) {
@@ -72,9 +73,9 @@ public class TestElasticsearchClient extends ExternalResource {
 
 	public class IndexClient {
 
-		private final String indexName;
+		private final PathComponent indexName;
 
-		public IndexClient(String indexName) {
+		public IndexClient(PathComponent indexName) {
 			this.indexName = indexName;
 		}
 
@@ -135,7 +136,8 @@ public class TestElasticsearchClient extends ExternalResource {
 		}
 
 		public TypeClient index(String id, String jsonDocument) throws IOException {
-			TestElasticsearchClient.this.index( indexClient.indexName, typeName, id, jsonDocument );
+			PathComponent indexName = indexClient.indexName;
+			TestElasticsearchClient.this.index( indexName, typeName, id, jsonDocument );
 			return this;
 		}
 
@@ -156,11 +158,13 @@ public class TestElasticsearchClient extends ExternalResource {
 		}
 
 		public String get() throws IOException {
-			return TestElasticsearchClient.this.getSettings( indexClient.indexName, settingsPath );
+			PathComponent indexName = indexClient.indexName;
+			return TestElasticsearchClient.this.getSettings( indexName, settingsPath );
 		}
 
 		public void put(String settings) throws IOException {
-			TestElasticsearchClient.this.putSettings( indexClient.indexName, settingsPath, settings );
+			PathComponent indexName = indexClient.indexName;
+			TestElasticsearchClient.this.putSettings( indexName, settingsPath, settings );
 		}
 	}
 
@@ -207,7 +211,7 @@ public class TestElasticsearchClient extends ExternalResource {
 		}
 	}
 
-	private void deleteAndCreateIndex(String indexName) throws IOException {
+	private void deleteAndCreateIndex(PathComponent indexName) throws IOException {
 		// Ignore the result: if the deletion fails, we don't care unless the creation just after also fails
 		tryDeleteESIndex( indexName );
 
@@ -230,7 +234,7 @@ public class TestElasticsearchClient extends ExternalResource {
 				.build() );
 	}
 
-	private void ensureIndexDoesNotExist(String indexName) throws IOException {
+	private void ensureIndexDoesNotExist(PathComponent indexName) throws IOException {
 		try {
 			performRequest( ElasticsearchRequest.delete()
 					.pathComponent( indexName )
@@ -243,7 +247,7 @@ public class TestElasticsearchClient extends ExternalResource {
 		}
 	}
 
-	private void registerIndexForCleanup(String indexName) {
+	private void registerIndexForCleanup(PathComponent indexName) {
 		createdIndicesNames.add( indexName );
 	}
 
@@ -251,7 +255,7 @@ public class TestElasticsearchClient extends ExternalResource {
 		createdTemplatesNames.add( templateName );
 	}
 
-	private void waitForRequiredIndexStatus(final String indexName) throws IOException {
+	private void waitForRequiredIndexStatus(final PathComponent indexName) throws IOException {
 		performRequest( ElasticsearchRequest.get()
 				.pathComponent( "_cluster" ).pathComponent( "health" ).pathComponent( indexName )
 				/*
@@ -263,7 +267,7 @@ public class TestElasticsearchClient extends ExternalResource {
 				.build() );
 	}
 
-	private void putMapping(String indexName, String mappingName, String mappingJson) throws IOException {
+	private void putMapping(PathComponent indexName, String mappingName, String mappingJson) throws IOException {
 		JsonObject mappingJsonObject = toJsonElement( mappingJson ).getAsJsonObject();
 
 		performRequest( ElasticsearchRequest.put()
@@ -272,12 +276,12 @@ public class TestElasticsearchClient extends ExternalResource {
 				.build() );
 	}
 
-	private String getMapping(String indexName, String mappingName) throws IOException {
+	private String getMapping(PathComponent indexName, String mappingName) throws IOException {
 		Response response = performRequest( ElasticsearchRequest.get()
 				.pathComponent( indexName ).pathComponent( "_mapping" ).pathComponent( mappingName )
 				.build() );
 		JsonObject result = toJsonObject( response );
-		JsonElement index = result.get( indexName );
+		JsonElement index = result.get( indexName.original );
 		if ( index == null ) {
 			return new JsonObject().toString();
 		}
@@ -292,7 +296,7 @@ public class TestElasticsearchClient extends ExternalResource {
 		return mapping.toString();
 	}
 
-	private void putSettings(String indexName, String settingsPath, String settings) throws IOException {
+	private void putSettings(PathComponent indexName, String settingsPath, String settings) throws IOException {
 		JsonElement settingsJsonElement = toJsonElement( settings );
 
 		for ( String property : Lists.reverse( Arrays.asList( settingsPath.split( "\\." ) ) ) ) {
@@ -315,12 +319,12 @@ public class TestElasticsearchClient extends ExternalResource {
 				.build() );
 	}
 
-	private String getSettings(String indexName, String path) throws IOException {
+	private String getSettings(PathComponent indexName, String path) throws IOException {
 		Response response = performRequest( ElasticsearchRequest.get()
 				.pathComponent( indexName ).pathComponent( "_settings" )
 				.build() );
 		JsonObject result = toJsonObject( response );
-		JsonElement index = result.get( indexName );
+		JsonElement index = result.get( indexName.original );
 		if ( index == null ) {
 			return new JsonObject().toString();
 		}
@@ -337,7 +341,7 @@ public class TestElasticsearchClient extends ExternalResource {
 		return settings.toString();
 	}
 
-	private void index(String indexName, String typeName, String id, String jsonDocument) throws IOException {
+	private void index(PathComponent indexName, String typeName, String id, String jsonDocument) throws IOException {
 		JsonObject documentJsonObject = toJsonElement( jsonDocument ).getAsJsonObject();
 		performRequest( ElasticsearchRequest.put()
 				.pathComponent( indexName ).pathComponent( typeName ).pathComponent( id )
@@ -346,7 +350,7 @@ public class TestElasticsearchClient extends ExternalResource {
 				.build() );
 	}
 
-	private JsonObject getDocumentSource(String indexName, String typeName, String id) throws IOException {
+	private JsonObject getDocumentSource(PathComponent indexName, String typeName, String id) throws IOException {
 		Response response = performRequest( ElasticsearchRequest.get()
 				.pathComponent( indexName ).pathComponent( typeName ).pathComponent( id )
 				.build() );
@@ -354,7 +358,7 @@ public class TestElasticsearchClient extends ExternalResource {
 		return result.get( "_source" ).getAsJsonObject();
 	}
 
-	protected JsonElement getDocumentField(String indexName, String typeName, String id, String fieldName) throws IOException {
+	protected JsonElement getDocumentField(PathComponent indexName, String typeName, String id, String fieldName) throws IOException {
 		Response response = performRequest( ElasticsearchRequest.get()
 				.pathComponent( indexName ).pathComponent( typeName ).pathComponent( id )
 				.param( "stored_fields", fieldName )
@@ -403,7 +407,7 @@ public class TestElasticsearchClient extends ExternalResource {
 
 	@Override
 	protected void after() {
-		for ( String indexName : createdIndicesNames ) {
+		for ( PathComponent indexName : createdIndicesNames ) {
 			tryDeleteESIndex( indexName );
 		}
 		createdIndicesNames.clear();
@@ -421,7 +425,7 @@ public class TestElasticsearchClient extends ExternalResource {
 		}
 	}
 
-	private void tryDeleteESIndex(String indexName) {
+	private void tryDeleteESIndex(PathComponent indexName) {
 		try {
 			performRequest( ElasticsearchRequest.delete()
 					.pathComponent( indexName )

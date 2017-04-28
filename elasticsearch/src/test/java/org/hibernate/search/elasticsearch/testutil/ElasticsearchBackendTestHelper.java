@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.elasticsearch.client.Response;
 import org.hibernate.search.elasticsearch.client.impl.ElasticsearchRequest;
+import org.hibernate.search.elasticsearch.client.impl.PathComponent;
 import org.hibernate.search.elasticsearch.gson.impl.JsonAccessor;
 import org.hibernate.search.elasticsearch.impl.ElasticsearchIndexManager;
 import org.hibernate.search.elasticsearch.impl.ElasticsearchIndexNameNormalizer;
@@ -50,16 +51,16 @@ public class ElasticsearchBackendTestHelper extends BackendTestHelper {
 				.getIndexBinding( entityType )
 				.getIndexManagers();
 
-		List<String> indexNames = new ArrayList<>( indexManagers.length );
+		List<PathComponent> indexNames = new ArrayList<>( indexManagers.length );
 
 		for ( IndexManager indexManager : indexManagers ) {
-			indexNames.add( ( (ElasticsearchIndexManager)indexManager ).getActualIndexName() );
+			indexNames.add( PathComponent.fromString( ( (ElasticsearchIndexManager)indexManager ).getActualIndexName() ) );
 		}
 
 		try ( ServiceReference<ElasticsearchService> esService =
 				serviceManager.requestReference( ElasticsearchService.class ) ) {
 			CountWork work = new CountWork.Builder( indexNames )
-					.type( entityType.getName() )
+					.type( PathComponent.fromString( entityType.getName() ) )
 					.build();
 			return esService.get().getWorkProcessor().executeSyncUnsafe( work );
 		}
@@ -112,20 +113,20 @@ public class ElasticsearchBackendTestHelper extends BackendTestHelper {
 
 		private static class Builder extends SimpleElasticsearchWork.Builder<Builder> {
 
-			private final List<String> indexNames = new ArrayList<>();
-			private final List<String> typeNames = new ArrayList<>();
+			private final List<PathComponent> indexNames = new ArrayList<>();
+			private final List<PathComponent> typeNames = new ArrayList<>();
 			private JsonObject query;
 
-			public Builder(String indexName) {
+			public Builder(PathComponent indexName) {
 				this( Collections.singletonList( indexName ) );
 			}
 
-			public Builder(Collection<String> indexNames) {
+			public Builder(Collection<PathComponent> indexNames) {
 				super( null, DefaultElasticsearchRequestSuccessAssessor.INSTANCE );
 				this.indexNames.addAll( indexNames );
 			}
 
-			public Builder type(String type) {
+			public Builder type(PathComponent type) {
 				this.typeNames.add( type );
 				return this;
 			}
