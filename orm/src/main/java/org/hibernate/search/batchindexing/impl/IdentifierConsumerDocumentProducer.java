@@ -8,7 +8,6 @@ package org.hibernate.search.batchindexing.impl;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import javax.transaction.TransactionManager;
@@ -40,6 +39,7 @@ import org.hibernate.search.hcore.util.impl.HibernateHelper;
 import org.hibernate.search.indexes.interceptor.EntityIndexingInterceptor;
 import org.hibernate.search.indexes.interceptor.IndexingOverride;
 import org.hibernate.search.spi.InstanceInitializer;
+import org.hibernate.search.spi.IndexedTypeMap;
 import org.hibernate.search.util.logging.impl.Log;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
 
@@ -61,7 +61,7 @@ public class IdentifierConsumerDocumentProducer implements Runnable {
 	private final CacheMode cacheMode;
 	private final Class<?> type;
 	private final MassIndexerProgressMonitor monitor;
-	private final Map<Class<?>, EntityIndexBinding> entityIndexBindings;
+	private final IndexedTypeMap<EntityIndexBinding> entityIndexBindings;
 	private final String idName;
 	private final ErrorHandler errorHandler;
 	private final BatchBackend backend;

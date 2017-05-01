@@ -26,6 +26,7 @@ import org.hibernate.search.engine.spi.EntityIndexBinding;
 import org.hibernate.search.exception.SearchException;
 import org.hibernate.search.indexes.impl.PropertiesParseHelper;
 import org.hibernate.search.indexes.serialization.spi.LuceneWorkSerializer;
+import org.hibernate.search.spi.IndexedTypeIdentifier;
 import org.hibernate.search.spi.WorkerBuildContext;
 import org.hibernate.search.store.DirectoryProvider;
 import org.hibernate.search.store.optimization.OptimizerStrategy;
@@ -175,8 +176,14 @@ public class DirectoryBasedIndexManager implements IndexManager {
 	}
 
 	//Not exposed on the IndexManager interface
+	@Deprecated
 	public EntityIndexBinding getIndexBinding(Class<?> entityType) {
 		return boundSearchIntegrator.getIndexBinding( entityType );
+	}
+
+	//Not exposed on the IndexManager interface
+	public EntityIndexBinding getIndexBinding(IndexedTypeIdentifier type) {
+		return boundSearchIntegrator.getIndexBinding( type );
 	}
 
 	//Not exposed on the IndexManager interface

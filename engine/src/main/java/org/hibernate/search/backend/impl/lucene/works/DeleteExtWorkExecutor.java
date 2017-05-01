@@ -11,6 +11,8 @@ import java.io.Serializable;
 import org.apache.lucene.index.Term;
 import org.hibernate.search.exception.AssertionFailure;
 import org.hibernate.search.exception.SearchException;
+import org.hibernate.search.spi.IndexedTypeIdentifier;
+import org.hibernate.search.spi.impl.PojoIndexedTypeIdentifier;
 import org.hibernate.search.backend.IndexingMonitor;
 import org.hibernate.search.backend.LuceneWork;
 import org.hibernate.search.backend.impl.lucene.IndexWriterDelegate;
@@ -30,14 +32,14 @@ import org.hibernate.search.util.logging.impl.Log;
  */
 public final class DeleteExtWorkExecutor extends DeleteWorkExecutor {
 
-	private final Class<?> managedType;
+	private final IndexedTypeIdentifier managedType;
 	private final DocumentBuilderIndexedEntity builder;
 	private static final Log log = LoggerFactory.make();
 	private final boolean idIsNumeric;
 
 	DeleteExtWorkExecutor(Workspace workspace) {
 		super( workspace );
-		managedType = workspace.getEntitiesInIndexManager().iterator().next();
+		managedType = new PojoIndexedTypeIdentifier( workspace.getEntitiesInIndexManager().iterator().next() );
 		builder = workspace.getDocumentBuilder( managedType );
 		idIsNumeric = isIdNumeric( builder );
 	}
@@ -64,7 +66,7 @@ public final class DeleteExtWorkExecutor extends DeleteWorkExecutor {
 	}
 
 	private void checkType(final LuceneWork work) {
-		if ( work.getEntityClass() != managedType ) {
+		if ( ! work.getEntityType().equals( managedType ) ) {
 			throw new AssertionFailure( "Unexpected type" );
 		}
 	}

@@ -7,7 +7,6 @@
 package org.hibernate.search.elasticsearch.impl;
 
 import java.util.List;
-import java.util.Set;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.facet.FacetsConfig;
@@ -49,6 +48,8 @@ import org.hibernate.search.engine.spi.DocumentBuilderIndexedEntity;
 import org.hibernate.search.engine.spi.EntityIndexBinding;
 import org.hibernate.search.exception.AssertionFailure;
 import org.hibernate.search.spatial.impl.SpatialHelper;
+import org.hibernate.search.spi.IndexedTypeIdentifier;
+import org.hibernate.search.spi.IndexedTypesSet;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
 
 import com.google.gson.JsonElement;
@@ -80,7 +81,7 @@ class ElasticsearchIndexWorkVisitor implements IndexWorkVisitor<IndexingMonitor,
 
 	@Override
 	public ElasticsearchWork<?> visitAddWork(AddLuceneWork work, IndexingMonitor monitor) {
-		return indexDocument( getDocumentId( work ), work.getDocument(), work.getEntityClass() )
+		return indexDocument( getDocumentId( work ), work.getDocument(), work.getEntityType() )
 				.monitor( monitor )
 				.luceneWork( work )
 				.markIndexDirty( refreshAfterWrite )
@@ -113,8 +114,8 @@ class ElasticsearchIndexWorkVisitor implements IndexWorkVisitor<IndexingMonitor,
 				.luceneWork( work )
 				.markIndexDirty( refreshAfterWrite );
 
-		Set<Class<?>> typesToDelete = searchIntegrator.getIndexedTypesPolymorphic( new Class<?>[] { work.getEntityClass() } );
-		for ( Class<?> typeToDelete : typesToDelete ) {
+		IndexedTypesSet typesToDelete = searchIntegrator.getIndexedTypesPolymorphic( work.getEntityType().asTypeSet() );
+		for ( IndexedTypeIdentifier typeToDelete : typesToDelete ) {
 			builder.type( URLEncodedString.fromString( typeToDelete.getName() ) );
 		}
 
@@ -123,7 +124,7 @@ class ElasticsearchIndexWorkVisitor implements IndexWorkVisitor<IndexingMonitor,
 
 	@Override
 	public ElasticsearchWork<?> visitUpdateWork(UpdateLuceneWork work, IndexingMonitor monitor) {
-		return indexDocument( getDocumentId( work ), work.getDocument(), work.getEntityClass() )
+		return indexDocument( getDocumentId( work ), work.getDocument(), work.getEntityType() )
 				.monitor( monitor )
 				.luceneWork( work )
 				.markIndexDirty( refreshAfterWrite )
@@ -141,10 +142,10 @@ class ElasticsearchIndexWorkVisitor implements IndexWorkVisitor<IndexingMonitor,
 	@Override
 	public ElasticsearchWork<?> visitDeleteByQueryWork(DeleteByQueryLuceneWork work, IndexingMonitor monitor) {
 		JsonObject convertedQuery = ToElasticsearch.fromDeletionQuery(
-				searchIntegrator.getIndexBinding( work.getEntityClass() ).getDocumentBuilder(),
+				searchIntegrator.getIndexBinding( work.getEntityType() ).getDocumentBuilder(),
 				work.getDeletionQuery()
 		);
-		URLEncodedString typeName = URLEncodedString.fromString( work.getEntityClass().getName() );
+		URLEncodedString typeName = URLEncodedString.fromString( work.getEntityType().getName() );
 
 		JsonObject payload = createDeleteByQueryPayload( convertedQuery, work.getTenantId() );
 
@@ -179,13 +180,13 @@ class ElasticsearchIndexWorkVisitor implements IndexWorkVisitor<IndexingMonitor,
 	}
 
 
-	private IndexWorkBuilder indexDocument(URLEncodedString id, Document document, Class<?> entityType) {
+	private IndexWorkBuilder indexDocument(URLEncodedString id, Document document, IndexedTypeIdentifier entityType) {
 		JsonObject source = convertDocumentToJson( document, entityType );
 		URLEncodedString typeName = URLEncodedString.fromString( entityType.getName() );
 		return workFactory.index( indexName, typeName, id, source );
 	}
 
-	private JsonObject convertDocumentToJson(Document document, Class<?> entityType) {
+	private JsonObject convertDocumentToJson(Document document, IndexedTypeIdentifier entityType) {
 		EntityIndexBinding indexBinding = searchIntegrator.getIndexBinding( entityType );
 		JsonObject root = new JsonObject();
 
@@ -365,7 +366,7 @@ class ElasticsearchIndexWorkVisitor implements IndexWorkVisitor<IndexingMonitor,
 	}
 
 	private static URLEncodedString entityName(LuceneWork work) {
-		return URLEncodedString.fromString( work.getEntityClass().getName() );
+		return URLEncodedString.fromString( work.getEntityType().getName() );
 	}
 
 }

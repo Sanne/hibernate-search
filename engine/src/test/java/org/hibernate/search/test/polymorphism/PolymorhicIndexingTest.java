@@ -8,14 +8,12 @@ package org.hibernate.search.test.polymorphism;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.engine.integration.impl.ExtendedSearchIntegrator;
+import org.hibernate.search.spi.IndexedTypesSet;
+import org.hibernate.search.spi.impl.IndexedTypesSets;
 import org.hibernate.search.testsupport.junit.SearchFactoryHolder;
 import org.junit.Rule;
 import org.junit.Test;
@@ -55,9 +53,8 @@ public class PolymorhicIndexingTest {
 
 	private void expectingForArgument(Class[] argument, Class... expectedInResult) {
 		ExtendedSearchIntegrator searchIntegrator = factoryHolder.getSearchFactory();
-		Set<Class<?>> set = searchIntegrator.getIndexedTypesPolymorphic( argument );
-		HashSet<Class<?>> expectation = new HashSet<>();
-		expectation.addAll( Arrays.<Class<?>>asList( expectedInResult ) );
+		IndexedTypesSet set = searchIntegrator.getIndexedTypesPolymorphic( argument );
+		IndexedTypesSet expectation = IndexedTypesSets.fromClasses( expectedInResult );
 		assertEquals( expectation, set );
 	}
 

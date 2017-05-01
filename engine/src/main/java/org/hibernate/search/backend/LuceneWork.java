@@ -10,6 +10,8 @@ import java.io.Serializable;
 import java.util.Map;
 
 import org.apache.lucene.document.Document;
+import org.hibernate.search.spi.IndexedTypeIdentifier;
+import org.hibernate.search.spi.impl.PojoIndexedTypeIdentifier;
 
 /**
  * Represent a unit of work to be applied against the Lucene index.
@@ -48,8 +50,17 @@ public abstract class LuceneWork {
 		return document;
 	}
 
+	/**
+	 * @deprecated use {@link #getEntityType()}: this method will be removed!
+	 * @return the Class identifying the entity type
+	 */
+	@Deprecated
 	public Class<?> getEntityClass() {
 		return entityClass;
+	}
+
+	public IndexedTypeIdentifier getEntityType() {
+		return entityClass == null ? null : new PojoIndexedTypeIdentifier( entityClass );
 	}
 
 	public Serializable getId() {

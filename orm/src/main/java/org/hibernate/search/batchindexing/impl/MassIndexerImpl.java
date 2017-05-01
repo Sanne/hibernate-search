@@ -18,6 +18,7 @@ import org.hibernate.search.batchindexing.MassIndexerProgressMonitor;
 import org.hibernate.search.batchindexing.spi.MassIndexerWithTenant;
 import org.hibernate.search.engine.integration.impl.ExtendedSearchIntegrator;
 import org.hibernate.search.jmx.impl.JMXRegistrar;
+import org.hibernate.search.spi.IndexedTypesSet;
 import org.hibernate.search.spi.SearchIntegrator;
 import org.hibernate.search.util.impl.Executors;
 import org.hibernate.search.util.logging.impl.Log;
@@ -78,7 +79,7 @@ public class MassIndexerImpl implements MassIndexerWithTenant {
 		Set<Class<?>> entities = new HashSet<Class<?>>();
 		//first build the "entities" set containing all indexed subtypes of "selection".
 		for ( Class<?> entityType : selection ) {
-			Set<Class<?>> targetedClasses = extendedIntegrator.getIndexedTypesPolymorphic(
+			IndexedTypesSet targetedClasses = extendedIntegrator.getIndexedTypesPolymorphic(
 					new Class[] {
 							entityType
 					}
@@ -87,7 +88,7 @@ public class MassIndexerImpl implements MassIndexerWithTenant {
 				String msg = entityType.getName() + " is not an indexed entity or a subclass of an indexed entity";
 				throw new IllegalArgumentException( msg );
 			}
-			entities.addAll( targetedClasses );
+			entities.addAll( targetedClasses.toPojosSet() );
 		}
 		Set<Class<?>> cleaned = new HashSet<Class<?>>();
 		Set<Class<?>> toRemove = new HashSet<Class<?>>();

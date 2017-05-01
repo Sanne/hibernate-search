@@ -13,6 +13,7 @@ import org.apache.lucene.index.IndexWriter;
 import org.hibernate.search.backend.LuceneWork;
 import org.hibernate.search.backend.impl.CommitPolicy;
 import org.hibernate.search.engine.spi.DocumentBuilderIndexedEntity;
+import org.hibernate.search.spi.IndexedTypeIdentifier;
 
 /**
  * @deprecated This interface will be moved and should be considered non-public API [HSEARCH-1915]
@@ -22,7 +23,7 @@ import org.hibernate.search.engine.spi.DocumentBuilderIndexedEntity;
 @Deprecated
 public interface Workspace {
 
-	DocumentBuilderIndexedEntity getDocumentBuilder(Class<?> entity);
+	DocumentBuilderIndexedEntity getDocumentBuilder(IndexedTypeIdentifier type);
 
 	Analyzer getAnalyzer(String name);
 

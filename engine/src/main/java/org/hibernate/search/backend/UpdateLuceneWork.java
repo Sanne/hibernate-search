@@ -54,7 +54,7 @@ public class UpdateLuceneWork extends LuceneWork {
 	@Override
 	public String toString() {
 		String tenant = getTenantId() == null ? "" : " [" + getTenantId() + "] ";
-		return "UpdateLuceneWork" + tenant + ": " + this.getEntityClass().getName() + "#" + this.getIdInString();
+		return "UpdateLuceneWork" + tenant + ": " + this.getEntityType().getName() + "#" + this.getIdInString();
 	}
 
 }

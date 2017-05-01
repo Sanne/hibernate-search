@@ -8,7 +8,6 @@ package org.hibernate.search.engine.impl;
 
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Predicate;
@@ -42,10 +41,13 @@ import org.hibernate.search.query.dsl.QueryContextBuilder;
 import org.hibernate.search.query.engine.spi.HSQuery;
 import org.hibernate.search.query.engine.spi.TimeoutExceptionFactory;
 import org.hibernate.search.spi.CustomTypeMetadata;
+import org.hibernate.search.spi.IndexedTypeIdentifier;
+import org.hibernate.search.spi.IndexedTypesSet;
 import org.hibernate.search.spi.IndexingMode;
 import org.hibernate.search.spi.InstanceInitializer;
 import org.hibernate.search.spi.SearchIntegrator;
 import org.hibernate.search.spi.SearchIntegratorBuilder;
+import org.hibernate.search.spi.IndexedTypeMap;
 import org.hibernate.search.spi.WorkerBuildContext;
 import org.hibernate.search.spi.impl.ExtendedSearchIntegratorWithShareableState;
 import org.hibernate.search.spi.impl.TypeHierarchy;
@@ -80,7 +82,7 @@ public class MutableSearchFactory implements ExtendedSearchIntegratorWithShareab
 	}
 
 	@Override
-	public Map<Class<?>, EntityIndexBinding> getIndexBindings() {
+	public IndexedTypeMap<EntityIndexBinding> getIndexBindings() {
 		return delegate.getIndexBindings();
 	}
 
@@ -166,12 +168,14 @@ public class MutableSearchFactory implements ExtendedSearchIntegratorWithShareab
 	}
 
 	@Override
-	public Set<Class<?>> getConfiguredTypesPolymorphic(Class<?>[] classes) {
+	@Deprecated
+	public IndexedTypesSet getConfiguredTypesPolymorphic(Class<?>[] classes) {
 		return delegate.getConfiguredTypesPolymorphic( classes );
 	}
 
 	@Override
-	public Set<Class<?>> getIndexedTypesPolymorphic(Class<?>[] classes) {
+	@Deprecated
+	public IndexedTypesSet getIndexedTypesPolymorphic(Class<?>[] classes) {
 		return delegate.getIndexedTypesPolymorphic( classes );
 	}
 
@@ -256,7 +260,7 @@ public class MutableSearchFactory implements ExtendedSearchIntegratorWithShareab
 	}
 
 	@Override
-	public Map<Class<?>, DocumentBuilderContainedEntity> getDocumentBuildersContainedEntities() {
+	public IndexedTypeMap<DocumentBuilderContainedEntity> getDocumentBuildersContainedEntities() {
 		return delegate.getDocumentBuildersContainedEntities();
 	}
 
@@ -316,7 +320,7 @@ public class MutableSearchFactory implements ExtendedSearchIntegratorWithShareab
 	}
 
 	@Override
-	public Set<Class<?>> getIndexedTypes() {
+	public IndexedTypesSet getIndexedTypes() {
 		return delegate.getIndexedTypes();
 	}
 
@@ -408,6 +412,21 @@ public class MutableSearchFactory implements ExtendedSearchIntegratorWithShareab
 	@Override
 	public OperationDispatcher createRemoteOperationDispatcher(Predicate<IndexManager> indexManagerFilter) {
 		return delegate.createRemoteOperationDispatcher( indexManagerFilter );
+	}
+
+	@Override
+	public EntityIndexBinding getIndexBinding(IndexedTypeIdentifier entityType) {
+		return delegate.getIndexBinding( entityType );
+	}
+
+	@Override
+	public IndexedTypesSet getConfiguredTypesPolymorphic(IndexedTypesSet types) {
+		return delegate.getConfiguredTypesPolymorphic( types );
+	}
+
+	@Override
+	public IndexedTypesSet getIndexedTypesPolymorphic(IndexedTypesSet queryTarget) {
+		return delegate.getIndexedTypesPolymorphic( queryTarget );
 	}
 
 }

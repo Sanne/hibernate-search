@@ -14,7 +14,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.hibernate.Criteria;
 import org.hibernate.annotations.common.reflection.XMember;
@@ -31,6 +30,7 @@ import org.hibernate.search.engine.spi.DocumentBuilderIndexedEntity;
 import org.hibernate.search.exception.AssertionFailure;
 import org.hibernate.search.query.engine.spi.EntityInfo;
 import org.hibernate.search.query.engine.spi.TimeoutManager;
+import org.hibernate.search.spi.IndexedTypesSet;
 import org.hibernate.search.spi.InstanceInitializer;
 import org.hibernate.search.util.impl.ReflectionHelper;
 import org.hibernate.search.util.logging.impl.Log;
@@ -244,7 +244,7 @@ public class CriteriaObjectInitializer implements ObjectInitializer {
 	}
 
 	private DocumentBuilderIndexedEntity getDocumentBuilder(Class<?> entityType, ExtendedSearchIntegrator extendedIntegrator) {
-		Set<Class<?>> indexedEntities = extendedIntegrator.getIndexedTypesPolymorphic( new Class<?>[] { entityType } );
+		IndexedTypesSet indexedEntities = extendedIntegrator.getIndexedTypesPolymorphic( new Class<?>[] { entityType } );
 		if ( indexedEntities.size() > 0 ) {
 			return extendedIntegrator.getIndexBinding(
 					indexedEntities.iterator().next()

@@ -20,6 +20,7 @@ import org.hibernate.search.engine.spi.DocumentBuilderIndexedEntity;
 import org.hibernate.search.exception.impl.ErrorContextBuilder;
 import org.hibernate.search.indexes.impl.PropertiesParseHelper;
 import org.hibernate.search.indexes.spi.DirectoryBasedIndexManager;
+import org.hibernate.search.spi.IndexedTypeIdentifier;
 import org.hibernate.search.spi.WorkerBuildContext;
 import org.hibernate.search.store.Workspace;
 import org.hibernate.search.store.optimization.OptimizerStrategy;
@@ -60,8 +61,8 @@ public abstract class AbstractWorkspaceImpl implements Workspace {
 	}
 
 	@Override
-	public DocumentBuilderIndexedEntity getDocumentBuilder(Class<?> entity) {
-		return indexManager.getIndexBinding( entity ).getDocumentBuilder();
+	public DocumentBuilderIndexedEntity getDocumentBuilder(IndexedTypeIdentifier type) {
+		return indexManager.getIndexBinding( type ).getDocumentBuilder();
 	}
 
 	@Override

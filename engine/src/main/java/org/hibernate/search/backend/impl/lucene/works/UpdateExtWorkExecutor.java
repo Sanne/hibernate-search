@@ -13,6 +13,8 @@ import java.util.Map;
 import org.apache.lucene.index.Term;
 import org.hibernate.search.exception.AssertionFailure;
 import org.hibernate.search.exception.SearchException;
+import org.hibernate.search.spi.IndexedTypeIdentifier;
+import org.hibernate.search.spi.impl.PojoIndexedTypeIdentifier;
 import org.hibernate.search.analyzer.spi.ScopedAnalyzerReference;
 import org.hibernate.search.backend.IndexingMonitor;
 import org.hibernate.search.backend.LuceneWork;
@@ -37,7 +39,7 @@ public final class UpdateExtWorkExecutor extends UpdateWorkExecutor {
 	private static final Log log = LoggerFactory.make();
 
 	private final AddWorkExecutor addDelegate;
-	private final Class<?> managedType;
+	private final IndexedTypeIdentifier managedType;
 	private final DocumentBuilderIndexedEntity builder;
 	private final boolean idIsNumeric;
 	private final Workspace workspace;
@@ -46,7 +48,7 @@ public final class UpdateExtWorkExecutor extends UpdateWorkExecutor {
 		super( null, null );
 		this.workspace = workspace;
 		this.addDelegate = addDelegate;
-		this.managedType = workspace.getEntitiesInIndexManager().iterator().next();
+		this.managedType = new PojoIndexedTypeIdentifier( workspace.getEntitiesInIndexManager().iterator().next() );
 		this.builder = workspace.getDocumentBuilder( managedType );
 		this.idIsNumeric = DeleteWorkExecutor.isIdNumeric( builder );
 	}
@@ -82,8 +84,8 @@ public final class UpdateExtWorkExecutor extends UpdateWorkExecutor {
 	}
 
 	private void checkType(final LuceneWork work) {
-		if ( work.getEntityClass() != managedType ) {
-			throw new AssertionFailure( "Unexpected type: " + work.getEntityClass() + " This workspace expects: " + managedType );
+		if ( ! work.getEntityType().equals( managedType ) ) {
+			throw new AssertionFailure( "Unexpected type: " + work.getEntityType() + " This workspace expects: " + managedType );
 		}
 	}
 

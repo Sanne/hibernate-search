@@ -7,9 +7,7 @@
 package org.hibernate.search.impl;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Properties;
-import java.util.Set;
 
 import org.hibernate.engine.spi.SessionDelegatorBaseImpl;
 import org.hibernate.engine.spi.SessionImplementor;
@@ -36,6 +34,9 @@ import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.query.engine.spi.HSQuery;
 import org.hibernate.search.query.engine.spi.QueryDescriptor;
 import org.hibernate.search.query.hibernate.impl.FullTextQueryImpl;
+import org.hibernate.search.spi.IndexedTypeIdentifier;
+import org.hibernate.search.spi.IndexedTypesSet;
+import org.hibernate.search.spi.impl.IndexedTypesSets;
 import org.hibernate.search.util.impl.ClassLoaderHelper;
 import org.hibernate.search.util.logging.impl.Log;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
@@ -79,7 +80,7 @@ final class FullTextSessionImpl extends SessionDelegatorBaseImpl implements Full
 	@Override
 	public FullTextQuery createFullTextQuery(QueryDescriptor queryDescriptor, Class<?>... entities) {
 		HSQuery hsQuery = queryDescriptor.createHSQuery( getSearchIntegrator() )
-				.targetedEntities( Arrays.asList( entities ) );
+				.targetedEntities( IndexedTypesSets.fromClasses( entities ) );
 		return createFullTextQuery( hsQuery );
 	}
 
@@ -108,7 +109,7 @@ final class FullTextSessionImpl extends SessionDelegatorBaseImpl implements Full
 			return;
 		}
 
-		Set<Class<?>> targetedClasses = getSearchIntegrator().getIndexedTypesPolymorphic(
+		IndexedTypesSet targetedClasses = getSearchIntegrator().getIndexedTypesPolymorphic(
 				new Class[] {
 						entityType
 				}
@@ -118,12 +119,12 @@ final class FullTextSessionImpl extends SessionDelegatorBaseImpl implements Full
 			throw new IllegalArgumentException( msg );
 		}
 
-		for ( Class<?> clazz : targetedClasses ) {
+		for ( IndexedTypeIdentifier clazz : targetedClasses ) {
 			if ( id == null ) {
-				createAndPerformWork( clazz, null, WorkType.PURGE_ALL );
+				createAndPerformWork( clazz.getPojoType(), null, WorkType.PURGE_ALL );
 			}
 			else {
-				createAndPerformWork( clazz, id, WorkType.PURGE );
+				createAndPerformWork( clazz.getPojoType(), id, WorkType.PURGE );
 			}
 		}
 	}

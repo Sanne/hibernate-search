@@ -8,13 +8,17 @@ package org.hibernate.search.spi;
 
 import java.util.Set;
 
-/**
- * @author Yoann Rodiere
- */
-public interface CustomTypeMetadata {
+public interface IndexedTypesSet extends Iterable<IndexedTypeIdentifier> {
 
-	IndexedTypeIdentifier getEntityType();
+	int size();
 
-	Set<String> getSortableFields();
+	boolean isEmpty();
+
+	/**
+	 * Return the set of the unrelying POJOs.
+	 * @deprecated This only exists to facilitate an iterative integration, and will be removed ASAP.
+	 */
+	@Deprecated
+	Set<Class<?>> toPojosSet();
 
 }

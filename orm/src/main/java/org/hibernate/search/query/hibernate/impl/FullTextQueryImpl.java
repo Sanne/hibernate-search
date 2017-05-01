@@ -164,7 +164,7 @@ public class FullTextQueryImpl extends AbstractProducedQuery implements FullText
 		ObjectLoaderBuilder loaderBuilder = new ObjectLoaderBuilder()
 				.criteria( criteria )
 				.targetedEntities( hSearchQuery.getTargetedEntities() )
-				.indexedTargetedEntities( hSearchQuery.getIndexedTargetedEntities() )
+				.indexedTargetedEntities( hSearchQuery.getIndexedTargetedEntities().toPojosSet() )
 				.session( session )
 				.searchFactory( hSearchQuery.getExtendedSearchIntegrator() )
 				.timeoutManager( hSearchQuery.getTimeoutManager() )

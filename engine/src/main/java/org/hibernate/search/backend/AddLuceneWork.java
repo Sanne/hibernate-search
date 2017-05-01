@@ -50,7 +50,7 @@ public class AddLuceneWork extends LuceneWork {
 	@Override
 	public String toString() {
 		String tenant = getTenantId() == null ? "" : " [" + getTenantId() + "] ";
-		return "AddLuceneWork" + tenant + ": " + this.getEntityClass().getName() + "#" + this.getIdInString();
+		return "AddLuceneWork" + tenant + ": " + this.getEntityType().getName() + "#" + this.getIdInString();
 	}
 
 }

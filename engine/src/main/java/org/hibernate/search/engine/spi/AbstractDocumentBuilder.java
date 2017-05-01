@@ -28,6 +28,7 @@ import org.hibernate.search.engine.metadata.impl.EmbeddedTypeMetadata;
 import org.hibernate.search.engine.metadata.impl.PropertyMetadata;
 import org.hibernate.search.engine.metadata.impl.TypeMetadata;
 import org.hibernate.search.exception.AssertionFailure;
+import org.hibernate.search.spi.IndexedTypesSet;
 import org.hibernate.search.spi.InstanceInitializer;
 import org.hibernate.search.util.impl.ReflectionHelper;
 import org.hibernate.search.util.logging.impl.Log;
@@ -133,7 +134,8 @@ public abstract class AbstractDocumentBuilder {
 		return mappedSubclasses;
 	}
 
-	public void postInitialize(Set<Class<?>> indexedClasses) {
+	public void postInitialize(IndexedTypesSet indexedClassesSet) {
+		Set<Class<?>> indexedClasses = indexedClassesSet.toPojosSet();
 		//we initialize only once because we no longer have a reference to the reflectionManager
 		//in theory
 		Class<?> plainClass = beanClass;

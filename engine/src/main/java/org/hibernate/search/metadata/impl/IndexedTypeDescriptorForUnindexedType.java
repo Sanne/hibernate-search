@@ -15,6 +15,8 @@ import org.hibernate.search.metadata.FieldDescriptor;
 import org.hibernate.search.metadata.IndexDescriptor;
 import org.hibernate.search.metadata.IndexedTypeDescriptor;
 import org.hibernate.search.metadata.PropertyDescriptor;
+import org.hibernate.search.spi.IndexedTypeIdentifier;
+import org.hibernate.search.spi.impl.PojoIndexedTypeIdentifier;
 
 /**
  * Dummy descriptor for an unindexed type
@@ -23,9 +25,11 @@ import org.hibernate.search.metadata.PropertyDescriptor;
  */
 public class IndexedTypeDescriptorForUnindexedType implements IndexedTypeDescriptor {
 	private final Class<?> type;
+	private final IndexedTypeIdentifier freeFormType;
 
 	public IndexedTypeDescriptorForUnindexedType(Class<?> type) {
 		this.type = type;
+		this.freeFormType = new PojoIndexedTypeIdentifier( type );
 	}
 
 	@Override
@@ -92,6 +96,11 @@ public class IndexedTypeDescriptorForUnindexedType implements IndexedTypeDescrip
 		sb.append( '}' );
 		return sb.toString();
 	}
-}
 
+	@Override
+	public IndexedTypeIdentifier getIndexedType() {
+		return freeFormType;
+	}
+
+}
 

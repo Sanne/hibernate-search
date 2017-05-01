@@ -21,6 +21,8 @@ import org.hibernate.search.backend.spi.BatchBackend;
 import org.hibernate.search.batchindexing.MassIndexerProgressMonitor;
 import org.hibernate.search.engine.integration.impl.ExtendedSearchIntegrator;
 import org.hibernate.search.exception.AssertionFailure;
+import org.hibernate.search.spi.IndexedTypeIdentifier;
+import org.hibernate.search.spi.IndexedTypesSet;
 import org.hibernate.search.util.impl.Executors;
 import org.hibernate.search.util.logging.impl.Log;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
@@ -141,7 +143,7 @@ public class BatchCoordinator extends ErrorHandledRunnable {
 	 * @param backend
 	 */
 	private void afterBatch(BatchBackend backend) {
-		Set<Class<?>> targetedClasses = extendedIntegrator.getIndexedTypesPolymorphic( rootEntities );
+		IndexedTypesSet targetedClasses = extendedIntegrator.getIndexedTypesPolymorphic( rootEntities );
 		if ( this.optimizeAtEnd ) {
 			backend.optimize( targetedClasses );
 		}
@@ -154,7 +156,7 @@ public class BatchCoordinator extends ErrorHandledRunnable {
 	 * @param backend
 	 */
 	private void afterBatchOnInterruption(BatchBackend backend) {
-		Set<Class<?>> targetedClasses = extendedIntegrator.getIndexedTypesPolymorphic( rootEntities );
+		IndexedTypesSet targetedClasses = extendedIntegrator.getIndexedTypesPolymorphic( rootEntities );
 		backend.flush( targetedClasses );
 	}
 
@@ -165,10 +167,10 @@ public class BatchCoordinator extends ErrorHandledRunnable {
 	private void beforeBatch(BatchBackend backend) {
 		if ( this.purgeAtStart ) {
 			//purgeAll for affected entities
-			Set<Class<?>> targetedClasses = extendedIntegrator.getIndexedTypesPolymorphic( rootEntities );
-			for ( Class<?> clazz : targetedClasses ) {
+			IndexedTypesSet targetedClasses = extendedIntegrator.getIndexedTypesPolymorphic( rootEntities );
+			for ( IndexedTypeIdentifier clazz : targetedClasses ) {
 				//needs do be in-sync work to make sure we wait for the end of it.
-				backend.doWorkInSync( new PurgeAllLuceneWork( tenantId, clazz ) );
+				backend.doWorkInSync( new PurgeAllLuceneWork( tenantId, clazz.getPojoType() ) );
 			}
 			if ( this.optimizeAfterPurge ) {
 				backend.optimize( targetedClasses );

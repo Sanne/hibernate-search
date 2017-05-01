@@ -30,6 +30,8 @@ import org.hibernate.search.engine.impl.ConfigContext;
 import org.hibernate.search.engine.impl.LuceneOptionsImpl;
 import org.hibernate.search.exception.SearchException;
 import org.hibernate.search.indexes.spi.IndexManagerType;
+import org.hibernate.search.spi.IndexedTypeIdentifier;
+import org.hibernate.search.spi.impl.PojoIndexedTypeIdentifier;
 import org.hibernate.search.util.StringHelper;
 import org.hibernate.search.util.logging.impl.Log;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
@@ -46,7 +48,12 @@ public class TypeMetadata {
 	/**
 	 * The type for this metadata
 	 */
-	private final Class<?> indexedType;
+	private final IndexedTypeIdentifier type;
+
+	/**
+	 * Used when mapping annotated classes (POJO mode)
+	 */
+	private final Class<?> legacyPojo;
 
 	/**
 	 * The class boost for this type (class level @Boost)
@@ -162,7 +169,8 @@ public class TypeMetadata {
 	private final Set<SortableFieldMetadata> classBridgeSortableFieldMetadata;
 
 	protected TypeMetadata(Builder builder) {
-		this.indexedType = builder.indexedType;
+		this.legacyPojo = builder.indexedType;
+		this.type = new PojoIndexedTypeIdentifier( legacyPojo );
 		this.boost = builder.boost;
 		this.scopedAnalyzerReference = builder.scopedAnalyzerReferenceBuilder == null ? null
 				: builder.scopedAnalyzerReferenceBuilder.build();
@@ -187,8 +195,8 @@ public class TypeMetadata {
 		this.classBridgeSortableFieldMetadata = Collections.unmodifiableSet( builder.classBridgeSortableFieldMetadata );
 	}
 
-	public Class<?> getType() {
-		return indexedType;
+	public IndexedTypeIdentifier getType() {
+		return type;
 	}
 
 	public Set<PropertyMetadata> getAllPropertyMetadata() {

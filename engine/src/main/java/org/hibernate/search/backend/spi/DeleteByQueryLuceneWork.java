@@ -42,7 +42,7 @@ public class DeleteByQueryLuceneWork extends LuceneWork {
 
 	@Override
 	public String toString() {
-		return "DeleteByQueryLuceneWork: " + this.getEntityClass().getName() + ": " + this.deletionQuery.toString();
+		return "DeleteByQueryLuceneWork: " + this.getEntityType().getName() + ": " + this.deletionQuery.toString();
 	}
 
 }

@@ -14,15 +14,16 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.Set;
-
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.cfg.SearchMapping;
 import org.hibernate.search.exception.SearchException;
 import org.hibernate.search.metadata.IndexedTypeDescriptor;
+import org.hibernate.search.spi.IndexedTypesSet;
 import org.hibernate.search.spi.SearchIntegrator;
+import org.hibernate.search.spi.SearchIntegratorBuilder;
+import org.hibernate.search.spi.impl.PojoIndexedTypeIdentifier;
 import org.hibernate.search.testsupport.BytemanHelper;
 import org.hibernate.search.testsupport.TestForIssue;
 import org.hibernate.search.testsupport.BytemanHelper.BytemanAccessor;
@@ -206,7 +207,7 @@ public class SearchFactoryTest {
 		SearchConfigurationForTest cfg = getManualConfiguration();
 
 		SearchIntegrator si = integratorResource.create( cfg );
-		Set<Class<?>> indexedClasses = si.getIndexedTypes();
+		IndexedTypesSet indexedClasses = si.getIndexedTypes();
 		assertEquals( "Wrong number of indexed entities", 0, indexedClasses.size() );
 	}
 
@@ -222,9 +223,9 @@ public class SearchFactoryTest {
 		cfg.setProgrammaticMapping( mapping );
 
 		SearchIntegrator si = integratorResource.create( cfg );
-		Set<Class<?>> indexedClasses = si.getIndexedTypes();
+		IndexedTypesSet indexedClasses = si.getIndexedTypes();
 		assertEquals( "Wrong number of indexed entities", 1, indexedClasses.size() );
-		assertTrue( indexedClasses.iterator().next().equals( Foo.class ) );
+		assertTrue( indexedClasses.iterator().next().equals( new PojoIndexedTypeIdentifier( Foo.class ) ) );
 	}
 
 	@Test
@@ -241,7 +242,7 @@ public class SearchFactoryTest {
 		cfg.setProgrammaticMapping( mapping );
 
 		SearchIntegrator si = integratorResource.create( cfg );
-		Set<Class<?>> indexedClasses = si.getIndexedTypes();
+		IndexedTypesSet indexedClasses = si.getIndexedTypes();
 		assertEquals( "Wrong number of indexed entities", 2, indexedClasses.size() );
 	}
 

@@ -34,6 +34,7 @@ import org.hibernate.search.analyzer.impl.LuceneAnalyzerReference;
 import org.hibernate.search.exception.AssertionFailure;
 import org.hibernate.search.exception.EmptyQueryException;
 import org.hibernate.search.exception.SearchException;
+import org.hibernate.search.spi.IndexedTypeIdentifier;
 import org.hibernate.search.store.DirectoryProvider;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger.Level;
@@ -593,7 +594,7 @@ public interface Log extends BasicLogger {
 	SearchException incorrectEditDistance();
 
 	@Message(id = 202, value = "Unable to find entity $1%s with id $2%s")
-	SearchException entityWithIdNotFound(@FormatWith(ClassFormatter.class) Class<?> entityType, String id);
+	SearchException entityWithIdNotFound(@FormatWith(IndexedTypeIdentifierFormatter.class) IndexedTypeIdentifier entityType, String id);
 
 	@Message(id = 203, value = "No field from %s can be used for More Like This queries. They are neither stored or including the term vectors.")
 	SearchException noFieldCompatibleForMoreLikeThis(@FormatWith(ClassFormatter.class) Class<?> entityType);
@@ -773,7 +774,7 @@ public interface Log extends BasicLogger {
 	void loadingNonExistentField(String name);
 
 	@Message(id = 259, value = "Unable to delete all %s matching Query: %s")
-	SearchException unableToDeleteByQuery(@FormatWith(ClassFormatter.class) Class<?> entityClass, DeletionQuery deletionQuery, @Cause Exception e );
+	SearchException unableToDeleteByQuery(@FormatWith(IndexedTypeIdentifierFormatter.class) IndexedTypeIdentifier entityType, DeletionQuery deletionQuery, @Cause Exception e );
 
 	// Only used in ORM; Defining it here for now until there is a Log interface in hibernate-search-orm
 	@LogMessage(level = Level.WARN)
@@ -872,7 +873,7 @@ public interface Log extends BasicLogger {
 
 	@LogMessage(level = Level.WARN)
 	@Message(id = 289, value = "Requested sort field(s) %3$s are not configured for entity type %1$s mapped to index %2$s, thus an uninverting reader must be created. You should declare the missing sort fields using @SortableField." )
-	void uncoveredSortsRequested(@FormatWith(ClassFormatter.class) Class<?> entityType, String indexName, String uncoveredSorts);
+	void uncoveredSortsRequested(@FormatWith(IndexedTypeIdentifierFormatter.class) IndexedTypeIdentifier entityType, String indexName, String uncoveredSorts);
 
 	@Message(id = 290, value = "The 'indexNullAs' property for fields indexed as Doubles must represent a Double number." )
 	IllegalArgumentException invalidNullMarkerForDouble(@Cause Exception e);
@@ -905,7 +906,7 @@ public interface Log extends BasicLogger {
 	SearchException severalNumericFieldAnnotationsForSameField(@FormatWith(ClassFormatter.class) Class<?> entityClass, String memberName);
 
 	@Message(id = 301, value = "Requested sort field(s) %3$s are not configured for entity type %1$s mapped to index %2$s, thus an uninverting reader must be created. You should declare the missing sort fields using @SortableField." )
-	SearchException uncoveredSortsRequestedWithUninvertingNotAllowed(@FormatWith(ClassFormatter.class) Class<?> entityType, String indexName, String uncoveredSorts);
+	SearchException uncoveredSortsRequestedWithUninvertingNotAllowed(@FormatWith(IndexedTypeIdentifierFormatter.class) IndexedTypeIdentifier entityType, String indexName, String uncoveredSorts);
 
 	@Message(id = 302, value = "Cannot execute query '%2$s', as targeted entity type '%1$s' is not mapped to an embedded Lucene index." )
 	SearchException cannotRunLuceneQueryTargetingEntityIndexedWithNonLuceneIndexManager(@FormatWith(ClassFormatter.class) Class<?> entityType, String query);

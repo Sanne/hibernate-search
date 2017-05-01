@@ -32,7 +32,7 @@ public class PurgeAllLuceneWork extends LuceneWork {
 	@Override
 	public String toString() {
 		String tenant = getTenantId() == null ? "" : " [" + getTenantId() + "] ";
-		return "PurgeAllLuceneWork" + tenant + ": " + this.getEntityClass().getName();
+		return "PurgeAllLuceneWork" + tenant + ": " + this.getEntityType().getName();
 	}
 
 }

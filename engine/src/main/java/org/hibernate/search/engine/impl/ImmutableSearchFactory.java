@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
@@ -65,11 +64,16 @@ import org.hibernate.search.query.engine.spi.HSQuery;
 import org.hibernate.search.query.engine.spi.QueryDescriptor;
 import org.hibernate.search.query.engine.spi.TimeoutExceptionFactory;
 import org.hibernate.search.spi.CustomTypeMetadata;
+import org.hibernate.search.spi.IndexedTypeIdentifier;
+import org.hibernate.search.spi.IndexedTypesSet;
 import org.hibernate.search.spi.IndexingMode;
 import org.hibernate.search.spi.InstanceInitializer;
 import org.hibernate.search.spi.SearchIntegrator;
+import org.hibernate.search.spi.IndexedTypeMap;
 import org.hibernate.search.spi.WorkerBuildContext;
 import org.hibernate.search.spi.impl.ExtendedSearchIntegratorWithShareableState;
+import org.hibernate.search.spi.impl.IndexedTypesSets;
+import org.hibernate.search.spi.impl.PojoIndexedTypeIdentifier;
 import org.hibernate.search.spi.impl.TypeHierarchy;
 import org.hibernate.search.spi.impl.SearchFactoryState;
 import org.hibernate.search.stat.Statistics;
@@ -92,8 +96,8 @@ public class ImmutableSearchFactory implements ExtendedSearchIntegratorWithShare
 
 	private static final Log log = LoggerFactory.make();
 
-	private final Map<Class<?>, EntityIndexBinding> indexBindingForEntities;
-	private final Map<Class<?>, DocumentBuilderContainedEntity> documentBuildersContainedEntities;
+	private final IndexedTypeMap<EntityIndexBinding> indexBindingForEntities;
+	private final IndexedTypeMap<DocumentBuilderContainedEntity> documentBuildersContainedEntities;
 	/**
 	 * Lazily populated map of type descriptors
 	 */
@@ -293,24 +297,27 @@ public class ImmutableSearchFactory implements ExtendedSearchIntegratorWithShare
 
 	@Override
 	public HSQuery createHSQuery(Query luceneQuery, Class<?>... entityTypes) {
-		QueryDescriptor descriptor = createQueryDescriptor( luceneQuery, entityTypes );
-
-		return descriptor.createHSQuery( this ).targetedEntities( Arrays.asList( entityTypes ) );
+		IndexedTypeIdentifier[] newtypes = Arrays.asList( entityTypes )
+				.stream()
+				.map( PojoIndexedTypeIdentifier::new )
+				.toArray( IndexedTypeIdentifier[]::new );
+		QueryDescriptor descriptor = createQueryDescriptor( luceneQuery, newtypes );
+		return descriptor.createHSQuery( this ).targetedEntities( IndexedTypesSets.fromClasses( entityTypes ) );
 	}
 
 	@Override
 	public HSQuery createHSQuery(Query luceneQuery, CustomTypeMetadata... types) {
 		List<CustomTypeMetadata> typeList = Arrays.asList( types );
-		Class<?>[] entityTypes = typeList.stream()
+		IndexedTypeIdentifier[] entityTypes = typeList.stream()
 				.map( CustomTypeMetadata::getEntityType )
-				.toArray( Class<?>[]::new );
+				.toArray( IndexedTypeIdentifier[]::new );
 
 		QueryDescriptor descriptor = createQueryDescriptor( luceneQuery, entityTypes );
 
 		return descriptor.createHSQuery( this ).targetedTypes( typeList );
 	}
 
-	private QueryDescriptor createQueryDescriptor(Query luceneQuery, Class<?>[] entityTypes) {
+	private QueryDescriptor createQueryDescriptor(Query luceneQuery, IndexedTypeIdentifier[] entityTypes) {
 		QueryDescriptor descriptor = null;
 
 		if ( queryTranslatorPresent ) {
@@ -330,17 +337,22 @@ public class ImmutableSearchFactory implements ExtendedSearchIntegratorWithShare
 	}
 
 	@Override
-	public Map<Class<?>, DocumentBuilderContainedEntity> getDocumentBuildersContainedEntities() {
+	public IndexedTypeMap<DocumentBuilderContainedEntity> getDocumentBuildersContainedEntities() {
 		return documentBuildersContainedEntities;
 	}
 
 	@Override
-	public Map<Class<?>, EntityIndexBinding> getIndexBindings() {
+	public IndexedTypeMap<EntityIndexBinding> getIndexBindings() {
 		return indexBindingForEntities;
 	}
 
-	@Override
+	@Override @Deprecated
 	public EntityIndexBinding getIndexBinding(Class<?> entityType) {
+		return indexBindingForEntities.get( new PojoIndexedTypeIdentifier( entityType ) );
+	}
+
+	@Override
+	public EntityIndexBinding getIndexBinding(IndexedTypeIdentifier entityType) {
 		return indexBindingForEntities.get( entityType );
 	}
 
@@ -461,13 +473,25 @@ public class ImmutableSearchFactory implements ExtendedSearchIntegratorWithShare
 	}
 
 	@Override
-	public Set<Class<?>> getConfiguredTypesPolymorphic(Class<?>[] classes) {
-		return configuredTypeHierarchy.getConfiguredClasses( classes );
+	@Deprecated
+	public IndexedTypesSet getConfiguredTypesPolymorphic(Class<?>[] types) {
+		return getConfiguredTypesPolymorphic( IndexedTypesSets.fromClasses( types ) );
 	}
 
 	@Override
-	public Set<Class<?>> getIndexedTypesPolymorphic(Class<?>[] classes) {
-		return indexedTypeHierarchy.getConfiguredClasses( classes );
+	public IndexedTypesSet getConfiguredTypesPolymorphic(IndexedTypesSet types) {
+		return configuredTypeHierarchy.getConfiguredClasses( types );
+	}
+
+	@Override
+	@Deprecated
+	public IndexedTypesSet getIndexedTypesPolymorphic(Class<?>[] types) {
+		return getIndexedTypesPolymorphic( IndexedTypesSets.fromClasses( types ) );
+	}
+
+	@Override
+	public IndexedTypesSet getIndexedTypesPolymorphic(IndexedTypesSet types) {
+		return indexedTypeHierarchy.getConfiguredClasses( types );
 	}
 
 	@Override
@@ -552,6 +576,7 @@ public class ImmutableSearchFactory implements ExtendedSearchIntegratorWithShare
 		return this.allIndexesManager;
 	}
 
+	@Deprecated
 	public EntityIndexBinding getSafeIndexBindingForEntity(Class<?> entityType) {
 		if ( entityType == null ) {
 			throw log.nullIsInvalidIndexedType();
@@ -559,6 +584,17 @@ public class ImmutableSearchFactory implements ExtendedSearchIntegratorWithShare
 		EntityIndexBinding entityIndexBinding = getIndexBinding( entityType );
 		if ( entityIndexBinding == null ) {
 			throw log.notAnIndexedType( entityType.getName() );
+		}
+		return entityIndexBinding;
+	}
+
+	public EntityIndexBinding getSafeIndexBindingForEntity(IndexedTypeIdentifier type) {
+		if ( type == null ) {
+			throw log.nullIsInvalidIndexedType();
+		}
+		EntityIndexBinding entityIndexBinding = getIndexBinding( type );
+		if ( entityIndexBinding == null ) {
+			throw log.notAnIndexedType( type.getName() );
 		}
 		return entityIndexBinding;
 	}
@@ -574,16 +610,17 @@ public class ImmutableSearchFactory implements ExtendedSearchIntegratorWithShare
 	}
 
 	@Override
-	public IndexedTypeDescriptor getIndexedTypeDescriptor(Class<?> entityType) {
+	public IndexedTypeDescriptor getIndexedTypeDescriptor(Class<?> classType) {
 		IndexedTypeDescriptor typeDescriptor;
-		if ( indexedTypeDescriptors.containsKey( entityType ) ) {
-			typeDescriptor = indexedTypeDescriptors.get( entityType );
+		if ( indexedTypeDescriptors.containsKey( classType ) ) {
+			typeDescriptor = indexedTypeDescriptors.get( classType );
 		}
 		else {
+			IndexedTypeIdentifier entityType = new PojoIndexedTypeIdentifier( classType );
 			EntityIndexBinding indexBinder = indexBindingForEntities.get( entityType );
 			IndexedTypeDescriptor indexedTypeDescriptor;
 			if ( indexBinder == null ) {
-				indexedTypeDescriptor = new IndexedTypeDescriptorForUnindexedType( entityType );
+				indexedTypeDescriptor = new IndexedTypeDescriptorForUnindexedType( classType );
 			}
 			else {
 				indexedTypeDescriptor = new IndexedTypeDescriptorImpl(
@@ -591,14 +628,14 @@ public class ImmutableSearchFactory implements ExtendedSearchIntegratorWithShare
 						indexBinder.getIndexManagers()
 				);
 			}
-			indexedTypeDescriptors.put( entityType, indexedTypeDescriptor );
+			indexedTypeDescriptors.put( classType, indexedTypeDescriptor );
 			typeDescriptor = indexedTypeDescriptor;
 		}
 		return typeDescriptor;
 	}
 
 	@Override
-	public Set<Class<?>> getIndexedTypes() {
+	public IndexedTypesSet getIndexedTypes() {
 		return indexBindingForEntities.keySet();
 	}
 
