@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
@@ -71,6 +70,7 @@ import org.hibernate.search.spi.InstanceInitializer;
 import org.hibernate.search.spi.SearchIntegrator;
 import org.hibernate.search.spi.IndexedTypeMap;
 import org.hibernate.search.spi.WorkerBuildContext;
+import org.hibernate.search.spi.impl.ConcurrentIndexedTypeMap;
 import org.hibernate.search.spi.impl.ExtendedSearchIntegratorWithShareableState;
 import org.hibernate.search.spi.impl.IndexedTypesSets;
 import org.hibernate.search.spi.impl.PojoIndexedTypeIdentifier;
@@ -101,7 +101,7 @@ public class ImmutableSearchFactory implements ExtendedSearchIntegratorWithShare
 	/**
 	 * Lazily populated map of type descriptors
 	 */
-	private final ConcurrentHashMap<Class, IndexedTypeDescriptor> indexedTypeDescriptors;
+	private final IndexedTypeMap<IndexedTypeDescriptor> indexedTypeDescriptors;
 	private final Worker worker;
 	private final Map<String, FilterDef> filterDefinitions;
 	private final FilterCachingStrategy filterCachingStrategy;
@@ -189,7 +189,7 @@ public class ImmutableSearchFactory implements ExtendedSearchIntegratorWithShare
 		}
 
 		this.indexReaderAccessor = new DefaultIndexReaderAccessor( this );
-		this.indexedTypeDescriptors = new ConcurrentHashMap<>();
+		this.indexedTypeDescriptors = new ConcurrentIndexedTypeMap<>();
 
 		this.defaultObjectLookupMethod = determineDefaultObjectLookupMethod();
 		this.defaultDatabaseRetrievalMethod = determineDefaultDatabaseRetrievalMethod();
@@ -611,13 +611,10 @@ public class ImmutableSearchFactory implements ExtendedSearchIntegratorWithShare
 
 	@Override
 	public IndexedTypeDescriptor getIndexedTypeDescriptor(Class<?> classType) {
-		IndexedTypeDescriptor typeDescriptor;
-		if ( indexedTypeDescriptors.containsKey( classType ) ) {
-			typeDescriptor = indexedTypeDescriptors.get( classType );
-		}
-		else {
-			IndexedTypeIdentifier entityType = new PojoIndexedTypeIdentifier( classType );
-			EntityIndexBinding indexBinder = indexBindingForEntities.get( entityType );
+		final IndexedTypeIdentifier type = new PojoIndexedTypeIdentifier( classType );
+		IndexedTypeDescriptor typeDescriptor = indexedTypeDescriptors.get( type );
+		if ( typeDescriptor == null ) {
+			EntityIndexBinding indexBinder = indexBindingForEntities.get( type );
 			IndexedTypeDescriptor indexedTypeDescriptor;
 			if ( indexBinder == null ) {
 				indexedTypeDescriptor = new IndexedTypeDescriptorForUnindexedType( classType );
@@ -628,7 +625,7 @@ public class ImmutableSearchFactory implements ExtendedSearchIntegratorWithShare
 						indexBinder.getIndexManagers()
 				);
 			}
-			indexedTypeDescriptors.put( classType, indexedTypeDescriptor );
+			indexedTypeDescriptors.put( type, indexedTypeDescriptor );
 			typeDescriptor = indexedTypeDescriptor;
 		}
 		return typeDescriptor;

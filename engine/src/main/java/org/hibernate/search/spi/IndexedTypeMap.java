@@ -15,11 +15,16 @@ import java.util.Map.Entry;
  * Also improves type-safety as it enforces usage of IndexedTypeIdentifier as keys,
  * something the standard Map contract doesn't help with.
  *
+ * In an ideal world, we will expose less methods than what is currently listed:
+ * some methods have been introduced as Deprecated since the beginning as the plan
+ * is to eventually remove them; they currently exist merely to allow a
+ * pratical migration of code to the new approach in smaller, testable steps.
+ *
  * @author Sanne Grinovero
  */
 public interface IndexedTypeMap<V> {
 
-	V get(IndexedTypeIdentifier key);
+	V get(IndexedTypeIdentifier type);
 
 	Iterable<Entry<IndexedTypeIdentifier, V>> entrySet();
 
@@ -49,6 +54,12 @@ public interface IndexedTypeMap<V> {
 	 */
 	boolean containsKey(IndexedTypeIdentifier type);
 
+	/**
+	 * @deprecated This method will be removed. The implementations will be refactored to become immutable.
+	 * @param type The key to be used.
+	 * @param typeBinding The value being put in the underlying key/value map.
+	 */
+	@Deprecated
 	void put(IndexedTypeIdentifier type, V typeBinding);
 
 	/**
@@ -59,14 +70,18 @@ public interface IndexedTypeMap<V> {
 	@Deprecated
 	V get(Class<?> legacyPojo);
 
-
 	/**
-	 * @param entity
-	 * @return
+	 * @param legacyPojo the Class whose type is to be used as a key.
+	 * @return true if the argument represents an identifier which is mapped to something.
 	 */
 	@Deprecated
-	boolean containsKey(Class<?> entity);
+	boolean containsKey(Class<?> legacyPojo);
 
+	/**
+	 * @deprecated This method will be removed. The implementations will be refactored to become immutable.
+	 * @param type The key to be used.
+	 * @param typeBinding The value being put in the underlying key/value map.
+	 */
 	@Deprecated
 	void put(Class<?> type, V typeBinding);
 

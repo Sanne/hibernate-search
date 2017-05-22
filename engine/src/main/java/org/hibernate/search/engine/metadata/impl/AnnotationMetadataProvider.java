@@ -91,6 +91,7 @@ import org.hibernate.search.indexes.spi.IndexManagerType;
 import org.hibernate.search.metadata.NumericFieldSettingsDescriptor.NumericEncodingType;
 import org.hibernate.search.spatial.Coordinates;
 import org.hibernate.search.spatial.SpatialFieldBridge;
+import org.hibernate.search.spi.IndexedTypeIdentifier;
 import org.hibernate.search.util.StringHelper;
 import org.hibernate.search.util.impl.ClassLoaderHelper;
 import org.hibernate.search.util.impl.ReflectionHelper;
@@ -145,7 +146,8 @@ public class AnnotationMetadataProvider implements MetadataProvider {
 	}
 
 	@Override
-	public TypeMetadata getTypeMetadataForContainedIn(Class<?> clazz) {
+	public TypeMetadata getTypeMetadataForContainedIn(IndexedTypeIdentifier type) {
+		final Class<?> clazz = type.getPojoType();
 		XClass xClass = reflectionManager.toXClass( clazz );
 
 		ParseContext parseContext = new ParseContext();
@@ -156,6 +158,16 @@ public class AnnotationMetadataProvider implements MetadataProvider {
 	}
 
 	@Override
+	public TypeMetadata getTypeMetadataFor(IndexedTypeIdentifier type, IndexManagerType indexManagerType) {
+		final Class<?> clazz = type.getPojoType();
+		return getTypeMetadataFor( clazz, indexManagerType );
+	}
+
+	/**
+	 * Use {@link #getTypeMetadataFor(IndexedTypeIdentifier, IndexManagerType)} instead.
+	 * @deprecated
+	 */
+	@Deprecated
 	public TypeMetadata getTypeMetadataFor(Class<?> clazz, IndexManagerType indexManagerType) {
 		XClass xClass = reflectionManager.toXClass( clazz );
 
@@ -208,7 +220,8 @@ public class AnnotationMetadataProvider implements MetadataProvider {
 	}
 
 	@Override
-	public boolean containsSearchMetadata(Class<?> clazz) {
+	public boolean containsSearchMetadata(IndexedTypeIdentifier type) {
+		final Class<?> clazz = type.getPojoType();
 		XClass xClass = reflectionManager.toXClass( clazz );
 		return ReflectionHelper.containsSearchAnnotations( xClass );
 	}

@@ -380,8 +380,9 @@ public class SearchIntegratorBuilder {
 				new AnnotationMetadataProvider( searchConfiguration.getReflectionManager(), configContext );
 
 		for ( Map.Entry<XClass, Class<?>> mapping : classMappings.entrySet() ) {
-			XClass mappedXClass = mapping.getKey();
-			Class<?> mappedClass = mapping.getValue();
+			final XClass mappedXClass = mapping.getKey();
+			final Class<?> mappedClass = mapping.getValue();
+			final IndexedTypeIdentifier mappedClassIdentifier = new PojoIndexedTypeIdentifier( mappedClass );
 
 			if ( mappedXClass.isAnnotationPresent( Indexed.class ) ) {
 				if ( mappedXClass.isAbstract() ) {
@@ -393,14 +394,11 @@ public class SearchIntegratorBuilder {
 				configuredTypeHierarchy.addConfiguredClass( mappedClass );
 				indexedTypeHierarchy.addConfiguredClass( mappedClass );
 			}
-			else if ( metadataProvider.containsSearchMetadata( mappedClass ) ) {
-				//FIXME DocumentBuilderIndexedEntity needs to be built by a helper method receiving Class<T> to infer T properly
-				//XClass unfortunately is not (yet) genericized: TODO?
-
+			else if ( metadataProvider.containsSearchMetadata( mappedClassIdentifier ) ) {
 				// For ContainedIn, we get partial metadata information as we can't build
 				// the FieldBridges and the analyzers. This is not a problem as these metadata information
 				// are only used to track dependencies.
-				TypeMetadata typeMetadata = metadataProvider.getTypeMetadataForContainedIn( mappedClass );
+				TypeMetadata typeMetadata = metadataProvider.getTypeMetadataForContainedIn( mappedClassIdentifier );
 				final DocumentBuilderContainedEntity documentBuilder = new DocumentBuilderContainedEntity(
 						mappedXClass,
 						typeMetadata,
@@ -410,7 +408,7 @@ public class SearchIntegratorBuilder {
 				);
 				//TODO enhance that, I don't like to expose EntityState
 				if ( documentBuilder.getEntityState() != EntityState.NON_INDEXABLE ) {
-					documentBuildersContainedEntities.put( mappedClass, documentBuilder );
+					documentBuildersContainedEntities.put( mappedClassIdentifier, documentBuilder );
 				}
 				configuredTypeHierarchy.addConfiguredClass( mappedClass );
 			}

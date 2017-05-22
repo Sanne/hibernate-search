@@ -7,6 +7,7 @@
 package org.hibernate.search.engine.metadata.impl;
 
 import org.hibernate.search.indexes.spi.IndexManagerType;
+import org.hibernate.search.spi.IndexedTypeIdentifier;
 
 /**
  * @author Hardy Ferentschik
@@ -21,6 +22,12 @@ public interface MetadataProvider {
 	 *
 	 * @return the {@code TypeMetadata} for the specified type
 	 */
+	TypeMetadata getTypeMetadataFor(IndexedTypeIdentifier type, IndexManagerType indexManagerType);
+
+	/**
+	 * @deprecated use {@link #getTypeMetadataFor(IndexedTypeIdentifier, IndexManagerType)}
+	 */
+	@Deprecated
 	TypeMetadata getTypeMetadataFor(Class<?> clazz, IndexManagerType indexManagerType);
 
 	/**
@@ -36,7 +43,8 @@ public interface MetadataProvider {
 	 *
 	 * @return the {@code ContainedInTypeMetadata} for the specified type
 	 */
-	TypeMetadata getTypeMetadataForContainedIn(Class<?> clazz);
+	TypeMetadata getTypeMetadataForContainedIn(IndexedTypeIdentifier type);
 
-	boolean containsSearchMetadata(Class<?> clazz);
+	boolean containsSearchMetadata(IndexedTypeIdentifier type);
+
 }
