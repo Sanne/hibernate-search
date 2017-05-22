@@ -8,6 +8,7 @@ package org.hibernate.search.spi.impl;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
@@ -48,6 +49,14 @@ final class HashSetIndexedTypesSet implements IndexedTypesSet, Serializable {
 		return set.stream().map( IndexedTypeIdentifier::getPojoType ).collect( Collectors.toSet() );
 	}
 
+	boolean contains(IndexedTypeIdentifier id) {
+		return set.contains( id );
+	}
+
+	Set<IndexedTypeIdentifier> cloneMap() {
+		return new HashSet( set );
+	}
+
 	@Override
 	public String toString() {
 		return set.toString();
@@ -73,6 +82,16 @@ final class HashSetIndexedTypesSet implements IndexedTypesSet, Serializable {
 			HashSetIndexedTypesSet other = (HashSetIndexedTypesSet) obj;
 			return set.equals( other.set );
 		}
+	}
+
+	@Override
+	public boolean containsAll(IndexedTypesSet subsetCandidate) {
+		for ( IndexedTypeIdentifier e : subsetCandidate ) {
+			if ( ! set.contains( e ) ) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 }

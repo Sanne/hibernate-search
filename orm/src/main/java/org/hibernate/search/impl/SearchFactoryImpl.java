@@ -73,7 +73,7 @@ final class SearchFactoryImpl implements SearchFactory {
 
 	@Override
 	public Set<Class<?>> getIndexedTypes() {
-		return searchIntegrator.getIndexedTypes().toPojosSet();
+		return searchIntegrator.getIndexedTypes();
 	}
 
 	@Override

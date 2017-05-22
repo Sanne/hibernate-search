@@ -38,7 +38,7 @@ public final class IndexedTypesSets {
 		}
 	}
 
-	public static IndexedTypesSet fromClass(Class clazz) {
+	public static IndexedTypesSet fromClass(Class<?> clazz) {
 		Objects.requireNonNull( clazz );
 		return fromIdentifier( new PojoIndexedTypeIdentifier( clazz ) );
 	}
@@ -78,6 +78,69 @@ public final class IndexedTypesSets {
 				set.add( c );
 			}
 			return new HashSetIndexedTypesSet( set );
+		}
+	}
+
+	public static IndexedTypesSet composite(final IndexedTypesSet set, final IndexedTypeIdentifier additionalId) {
+		if ( set.isEmpty() ) {
+			return additionalId.asTypeSet();
+		}
+		//We have only one internal representation; casting as I don't want
+		//to expose additional methods on the IndexedTypesSet interface.
+		HashSetIndexedTypesSet casted = (HashSetIndexedTypesSet) set;
+		if ( casted.contains( additionalId ) ) {
+			return set;
+		}
+		else {
+			HashSet<IndexedTypeIdentifier> newSet = new HashSet<>( set.size() + 1 );
+			for ( IndexedTypeIdentifier existingId : set ) {
+				newSet.add( existingId );
+			}
+			newSet.add( additionalId );
+			return new HashSetIndexedTypesSet( newSet );
+		}
+	}
+
+	public static IndexedTypesSet composite(final IndexedTypesSet setA, final IndexedTypesSet setB) {
+		if ( setA.isEmpty() ) {
+			return setB;
+		}
+		else if ( setB.isEmpty() ) {
+			return setA;
+		}
+		else {
+			HashSet<IndexedTypeIdentifier> newSet = new HashSet<>( setA.size() + setB.size() );
+			for ( IndexedTypeIdentifier existingId : setA ) {
+				newSet.add( existingId );
+			}
+			for ( IndexedTypeIdentifier existingId : setB ) {
+				newSet.add( existingId );
+			}
+			return new HashSetIndexedTypesSet( newSet );
+		}
+	}
+
+	/**
+	 * @param containedEntityTypes
+	 * @param initializedContainedEntityTypes
+	 * @return
+	 */
+	public static IndexedTypesSet subtraction(IndexedTypesSet referenceSet, IndexedTypesSet subtraend) {
+		if ( referenceSet.isEmpty() || subtraend.isEmpty() ) {
+			return referenceSet;
+		}
+		else {
+			HashSetIndexedTypesSet casted = (HashSetIndexedTypesSet) referenceSet;
+			Set<IndexedTypeIdentifier> cloned = casted.cloneMap();
+			for ( IndexedTypeIdentifier toRemove : subtraend ) {
+				cloned.remove( toRemove );
+			}
+			if ( cloned.isEmpty() ) {
+				return empty();
+			}
+			else {
+				return new HashSetIndexedTypesSet( cloned );
+			}
 		}
 	}
 

@@ -24,6 +24,7 @@ import org.hibernate.search.query.engine.spi.HSQuery;
 import org.hibernate.search.spi.IndexedTypesSet;
 import org.hibernate.search.spi.InstanceInitializer;
 import org.hibernate.search.spi.SearchIntegrator;
+import org.hibernate.search.spi.IndexedTypeIdentifier;
 import org.hibernate.search.spi.IndexedTypeMap;
 import org.hibernate.search.stat.spi.StatisticsImplementor;
 
@@ -44,7 +45,10 @@ public interface ExtendedSearchIntegrator extends SearchIntegrator {
 	 */
 	IndexedTypeMap<EntityIndexBinding> getIndexBindings();
 
+	@Deprecated
 	DocumentBuilderContainedEntity getDocumentBuilderContainedEntity(Class<?> entityType);
+
+	DocumentBuilderContainedEntity getDocumentBuilderContainedEntity(IndexedTypeIdentifier entityType);
 
 	FilterCachingStrategy getFilterCachingStrategy();
 

@@ -6,14 +6,13 @@
  */
 package org.hibernate.search.store;
 
-import java.util.Set;
-
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexWriter;
 import org.hibernate.search.backend.LuceneWork;
 import org.hibernate.search.backend.impl.CommitPolicy;
 import org.hibernate.search.engine.spi.DocumentBuilderIndexedEntity;
 import org.hibernate.search.spi.IndexedTypeIdentifier;
+import org.hibernate.search.spi.IndexedTypesSet;
 
 /**
  * @deprecated This interface will be moved and should be considered non-public API [HSEARCH-1915]
@@ -54,7 +53,7 @@ public interface Workspace {
 	 * @return The set of entity types being indexed
 	 * in the underlying IndexManager backing this Workspace.
 	 */
-	Set<Class<?>> getEntitiesInIndexManager();
+	IndexedTypesSet getEntitiesInIndexManager();
 
 	/**
 	 * Invoked after all changes of a transaction are applied.

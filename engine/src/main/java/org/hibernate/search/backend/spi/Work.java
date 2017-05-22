@@ -8,6 +8,9 @@ package org.hibernate.search.backend.spi;
 
 import java.io.Serializable;
 
+import org.hibernate.search.spi.IndexedTypeIdentifier;
+import org.hibernate.search.spi.impl.PojoIndexedTypeIdentifier;
+
 /**
  * A unit of work. Only make sense inside the same session since it uses the scope principle.
  *
@@ -16,7 +19,7 @@ import java.io.Serializable;
  */
 public class Work {
 	private final Object entity;
-	private final Class<?> entityClass;
+	private final IndexedTypeIdentifier entityTypeId;
 	private final Serializable id;
 	private final WorkType type;
 	private final boolean identifierWasRolledBack;
@@ -57,15 +60,21 @@ public class Work {
 	private Work(String tenantId, Object entity, Class<?> entityClass, Serializable id,
 			WorkType type, boolean identifierWasRolledBack) {
 		this.entity = entity;
-		this.entityClass = entityClass;
+		//TODO guarantee the entityTypeId is never null
+		this.entityTypeId = entityClass == null ? null : new PojoIndexedTypeIdentifier( entityClass );
 		this.id = id;
 		this.type = type;
 		this.identifierWasRolledBack = identifierWasRolledBack;
 		this.tenantIdentifier = tenantId;
 	}
 
+	@Deprecated
 	public Class<?> getEntityClass() {
-		return entityClass;
+		return entityTypeId != null ? entityTypeId.getPojoType() : null;
+	}
+
+	public IndexedTypeIdentifier getTypeIdentifier() {
+		return entityTypeId;
 	}
 
 	public String getTenantIdentifier() {
@@ -91,7 +100,7 @@ public class Work {
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder( "Work{" );
-		sb.append( "entityClass=" ).append( entityClass );
+		sb.append( "entityTypeId=" ).append( entityTypeId );
 		sb.append( ", tenantId=" ).append( tenantIdentifier );
 		sb.append( ", id=" ).append( id );
 		sb.append( ", type=" ).append( type );

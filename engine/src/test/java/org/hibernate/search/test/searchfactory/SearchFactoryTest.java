@@ -22,7 +22,6 @@ import org.hibernate.search.exception.SearchException;
 import org.hibernate.search.metadata.IndexedTypeDescriptor;
 import org.hibernate.search.spi.IndexedTypesSet;
 import org.hibernate.search.spi.SearchIntegrator;
-import org.hibernate.search.spi.SearchIntegratorBuilder;
 import org.hibernate.search.spi.impl.PojoIndexedTypeIdentifier;
 import org.hibernate.search.testsupport.BytemanHelper;
 import org.hibernate.search.testsupport.TestForIssue;
@@ -207,7 +206,7 @@ public class SearchFactoryTest {
 		SearchConfigurationForTest cfg = getManualConfiguration();
 
 		SearchIntegrator si = integratorResource.create( cfg );
-		IndexedTypesSet indexedClasses = si.getIndexedTypes();
+		IndexedTypesSet indexedClasses = si.getIndexedTypeIdentifiers();
 		assertEquals( "Wrong number of indexed entities", 0, indexedClasses.size() );
 	}
 
@@ -223,7 +222,7 @@ public class SearchFactoryTest {
 		cfg.setProgrammaticMapping( mapping );
 
 		SearchIntegrator si = integratorResource.create( cfg );
-		IndexedTypesSet indexedClasses = si.getIndexedTypes();
+		IndexedTypesSet indexedClasses = si.getIndexedTypeIdentifiers();
 		assertEquals( "Wrong number of indexed entities", 1, indexedClasses.size() );
 		assertTrue( indexedClasses.iterator().next().equals( new PojoIndexedTypeIdentifier( Foo.class ) ) );
 	}
@@ -242,7 +241,7 @@ public class SearchFactoryTest {
 		cfg.setProgrammaticMapping( mapping );
 
 		SearchIntegrator si = integratorResource.create( cfg );
-		IndexedTypesSet indexedClasses = si.getIndexedTypes();
+		IndexedTypesSet indexedClasses = si.getIndexedTypeIdentifiers();
 		assertEquals( "Wrong number of indexed entities", 2, indexedClasses.size() );
 	}
 

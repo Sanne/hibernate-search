@@ -92,6 +92,7 @@ import org.hibernate.search.metadata.NumericFieldSettingsDescriptor.NumericEncod
 import org.hibernate.search.spatial.Coordinates;
 import org.hibernate.search.spatial.SpatialFieldBridge;
 import org.hibernate.search.spi.IndexedTypeIdentifier;
+import org.hibernate.search.spi.impl.PojoIndexedTypeIdentifier;
 import org.hibernate.search.util.StringHelper;
 import org.hibernate.search.util.impl.ClassLoaderHelper;
 import org.hibernate.search.util.impl.ReflectionHelper;
@@ -180,7 +181,8 @@ public class AnnotationMetadataProvider implements MetadataProvider {
 	}
 
 	private TypeMetadata doGetTypeMetadataFor(Class<?> clazz, XClass xClass, ParseContext parseContext) {
-		TypeMetadata.Builder typeMetadataBuilder = new TypeMetadata.Builder( clazz, configContext, parseContext )
+		IndexedTypeIdentifier classTypeId = new PojoIndexedTypeIdentifier( clazz );
+		TypeMetadata.Builder typeMetadataBuilder = new TypeMetadata.Builder( classTypeId, configContext, parseContext )
 				.boost( getBoost( xClass ) )
 				.boostStrategy( AnnotationProcessingHelper.getDynamicBoost( xClass ) );
 
@@ -1194,7 +1196,7 @@ public class AnnotationMetadataProvider implements MetadataProvider {
 		}
 	}
 
-	private NumericFieldsConfiguration buildNumericFieldsConfiguration(Class<?> indexedType,
+	private NumericFieldsConfiguration buildNumericFieldsConfiguration(IndexedTypeIdentifier indexedTypeIdentifier,
 			XProperty member,
 			String prefix,
 			PathsContext pathsContext,
@@ -1224,13 +1226,13 @@ public class AnnotationMetadataProvider implements MetadataProvider {
 				) || !parseContext.isMaxLevelReached() ) {
 					NumericField existing = fieldsMarkedAsNumeric.put( numericField.forField(), numericField );
 					if ( existing != null ) {
-						throw log.severalNumericFieldAnnotationsForSameField( indexedType, member.getName() );
+						throw log.severalNumericFieldAnnotationsForSameField( indexedTypeIdentifier, member.getName() );
 					}
 				}
 			}
 		}
 
-		return new NumericFieldsConfiguration( indexedType, member, fieldsMarkedAsNumeric );
+		return new NumericFieldsConfiguration( indexedTypeIdentifier, member.getName(), fieldsMarkedAsNumeric );
 	}
 
 	private void checkForField(XProperty member,
@@ -1497,7 +1499,7 @@ public class AnnotationMetadataProvider implements MetadataProvider {
 
 	private NullMarkerCodec determineNullMarkerCodec(PartialDocumentFieldMetadata fieldMetadata,
 			FieldBridge fieldBridge, org.hibernate.search.annotations.Field fieldAnnotation,
-			ConfigContext context, ParseContext parseContext, Class<?> indexedType) {
+			ConfigContext context, ParseContext parseContext, IndexedTypeIdentifier indexedTypeIdentifier) {
 		if ( parseContext.skipNullMarkerCodec() ) {
 			return NotEncodingCodec.SINGLETON;
 		}
@@ -1528,7 +1530,7 @@ public class AnnotationMetadataProvider implements MetadataProvider {
 			IndexManagerType indexManagerType = parseContext.getIndexManagerType();
 			MissingValueStrategy missingValueStrategy = context.forType( indexManagerType ).getMissingValueStrategy();
 
-			return missingValueStrategy.createNullMarkerCodec( indexedType, fieldMetadata, nullMarker );
+			return missingValueStrategy.createNullMarkerCodec( indexedTypeIdentifier, fieldMetadata, nullMarker );
 		}
 	}
 
@@ -1878,11 +1880,12 @@ public class AnnotationMetadataProvider implements MetadataProvider {
 				indexedEmbeddedAnnotation
 		) ) {
 			parseContext.processingClass( elementClass ); //push
+			final IndexedTypeIdentifier elementTypeIdentifier = new PojoIndexedTypeIdentifier( reflectionManager.toClass( elementClass ) );
 
 			EmbeddedTypeMetadata.Builder embeddedTypeMetadataBuilder =
 					new EmbeddedTypeMetadata.Builder(
 							typeMetadataBuilder,
-							reflectionManager.toClass( elementClass ),
+							elementTypeIdentifier,
 							propertyMetadataBuilder.getResultReference(),
 							member,
 							localPrefix

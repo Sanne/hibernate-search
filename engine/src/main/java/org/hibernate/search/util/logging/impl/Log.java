@@ -420,15 +420,15 @@ public interface Log extends BasicLogger {
 
 	@LogMessage(level = TRACE)
 	@Message(id = 125, value = "Interceptor enforces skip index operation %2$s on instance of class %1$s")
-	void forceSkipIndexOperationViaInterception(@FormatWith(ClassFormatter.class) Class<?> entityClass, WorkType type);
+	void forceSkipIndexOperationViaInterception(@FormatWith(IndexedTypeIdentifierFormatter.class) IndexedTypeIdentifier entityType, WorkType type);
 
 	@LogMessage(level = TRACE)
 	@Message(id = 126, value = "Interceptor enforces removal of index data instead of index operation %2$s on instance of class %1$s")
-	void forceRemoveOnIndexOperationViaInterception(@FormatWith(ClassFormatter.class) Class<?> entityClass, WorkType type);
+	void forceRemoveOnIndexOperationViaInterception(@FormatWith(IndexedTypeIdentifierFormatter.class) IndexedTypeIdentifier entityType, WorkType type);
 
 	@LogMessage(level = TRACE)
 	@Message(id = 128, value = "Interceptor enforces update of index data instead of index operation %2$s on instance of class %1$s")
-	void forceUpdateOnIndexOperationViaInterception(@FormatWith(ClassFormatter.class) Class<?> entityClass, WorkType type);
+	void forceUpdateOnIndexOperationViaInterception(@FormatWith(IndexedTypeIdentifierFormatter.class) IndexedTypeIdentifier entityType, WorkType type);
 
 	@Message(id = 131, value = "The field '%1$s#%2$s' used for the spatial query is not configured as spatial field. Check the proper use of @Spatial respectively SpatialFieldBridge")
 	SearchException targetedFieldNotSpatial(String className, String fieldName);
@@ -554,7 +554,7 @@ public interface Log extends BasicLogger {
 	String massIndexerUnableToIndexInstance(String clazz, String value);
 
 	@Message(id = 184, value = "Cannot define an entity with 0 shard on '%1$s'")
-	SearchException entityWithNoShard(@FormatWith(ClassFormatter.class) Class<?> type);
+	SearchException entityWithNoShard(@FormatWith(IndexedTypeIdentifierFormatter.class) IndexedTypeIdentifier type);
 
 	@Message(id = 186, value = "[AssertionFailure: open a bug report] SearchFactory from entityIndexBinding is not assignable to WorkerBuilderContext. Actual class is %1$s")
 	SearchException assertionFailureCannotCastToWorkerBuilderContext(@FormatWith(ClassFormatter.class) Class<?> type);
@@ -597,16 +597,16 @@ public interface Log extends BasicLogger {
 	SearchException entityWithIdNotFound(@FormatWith(IndexedTypeIdentifierFormatter.class) IndexedTypeIdentifier entityType, String id);
 
 	@Message(id = 203, value = "No field from %s can be used for More Like This queries. They are neither stored or including the term vectors.")
-	SearchException noFieldCompatibleForMoreLikeThis(@FormatWith(ClassFormatter.class) Class<?> entityType);
+	SearchException noFieldCompatibleForMoreLikeThis(@FormatWith(IndexedTypeIdentifierFormatter.class) IndexedTypeIdentifier entityType);
 
 	@Message(id = 205, value = "An IOException happened while accessing the Lucene indexes related to '%1$s'")
-	SearchException ioExceptionOnIndexOfEntity(@Cause IOException e, @FormatWith(ClassFormatter.class) Class<?> entityType);
+	SearchException ioExceptionOnIndexOfEntity(@Cause IOException e, @FormatWith(IndexedTypeIdentifierFormatter.class) IndexedTypeIdentifier entityType);
 
 	@Message(id = 206, value = "MoreLikeThis queries require a TFIDFSimilarity for entity '$1%s'")
-	SearchException requireTFIDFSimilarity(@FormatWith(ClassFormatter.class) Class<?> beanClass);
+	SearchException requireTFIDFSimilarity(@FormatWith(IndexedTypeIdentifierFormatter.class) IndexedTypeIdentifier entityType);
 
 	@Message(id = 207, value = "Field %s of entity %s cannot be used in a MoreLikeThis query: the term vector (preferred) or the value itself need to be stored.")
-	SearchException fieldNotStoredNorTermVectorCannotBeUsedInMoreLikeThis(String fieldName, @FormatWith(ClassFormatter.class) Class<?> entityType);
+	SearchException fieldNotStoredNorTermVectorCannotBeUsedInMoreLikeThis(String fieldName, @FormatWith(IndexedTypeIdentifierFormatter.class) IndexedTypeIdentifier entityType);
 
 	@Message(id = 208, value = "ClassLoaderService cannot be provided via SearchConfiguration#getProvidedServices. Use SearchConfiguration#getClassLoaderService!")
 	SearchException classLoaderServiceContainedInProvidedServicesException();
@@ -624,10 +624,10 @@ public interface Log extends BasicLogger {
 	String massIndexerExceptionWhileTransformingIds();
 
 	@Message(id = 213, value = "Field %s of entity %s cannot be used in a MoreLikeThis query. Ids and embedded ids are excluded.")
-	SearchException fieldIdCannotBeUsedInMoreLikeThis(String fieldName, @FormatWith(ClassFormatter.class) Class<?> entityType);
+	SearchException fieldIdCannotBeUsedInMoreLikeThis(String fieldName, @FormatWith(IndexedTypeIdentifierFormatter.class) IndexedTypeIdentifier entityType);
 
 	@Message(id = 214, value = "Field %s of entity %s cannot be used in a MoreLikeThis query. Numeric fields are not considered for the moment.")
-	SearchException numericFieldCannotBeUsedInMoreLikeThis(String fieldName, @FormatWith(ClassFormatter.class) Class<?> entityType);
+	SearchException numericFieldCannotBeUsedInMoreLikeThis(String fieldName, @FormatWith(IndexedTypeIdentifierFormatter.class) IndexedTypeIdentifier entityType);
 
 	@Message(id = 215, value = "Multiple matching FieldBridges found for %s of return type %s: %s" )
 	SearchException multipleMatchingFieldBridges(XMember member, XClass memberType, String listOfFieldBridges);
@@ -787,7 +787,7 @@ public interface Log extends BasicLogger {
 	SearchException unknownDeletionQueryKeySpecified(int queryKey);
 
 	@Message(id = 262, value = "@NumericField annotation is used on %1$s#%2$s without a matching @Field annotation")
-	SearchException numericFieldAnnotationWithoutMatchingField(@FormatWith(ClassFormatter.class) Class<?> entityClass, String memberName);
+	SearchException numericFieldAnnotationWithoutMatchingField(@FormatWith(IndexedTypeIdentifierFormatter.class) IndexedTypeIdentifier entityType, String memberName);
 
 	@Message(id = 263, value = "@Facet annotation is used on %1$s#%2$s without a matching @Field annotation")
 	SearchException facetAnnotationWithoutMatchingField(String className, String memberName);
@@ -900,16 +900,16 @@ public interface Log extends BasicLogger {
 	SearchException inconsistentSortableFieldConfigurationForSharedIndex(String indexName, String requestedSortFields);
 
 	@Message(id = 299, value = "@SortableField declared on %s#%s references to undeclared field '%s'" )
-	SearchException sortableFieldRefersToUndefinedField(@FormatWith(ClassFormatter.class) Class<?> entityType, String property, String sortedFieldName);
+	SearchException sortableFieldRefersToUndefinedField(@FormatWith(IndexedTypeIdentifierFormatter.class) IndexedTypeIdentifier entityType, String property, String sortedFieldName);
 
 	@Message(id = 300, value = "Several @NumericField annotations used on %1$s#%2$s refer to the same field")
-	SearchException severalNumericFieldAnnotationsForSameField(@FormatWith(ClassFormatter.class) Class<?> entityClass, String memberName);
+	SearchException severalNumericFieldAnnotationsForSameField(@FormatWith(IndexedTypeIdentifierFormatter.class) IndexedTypeIdentifier entityType, String memberName);
 
 	@Message(id = 301, value = "Requested sort field(s) %3$s are not configured for entity type %1$s mapped to index %2$s, thus an uninverting reader must be created. You should declare the missing sort fields using @SortableField." )
 	SearchException uncoveredSortsRequestedWithUninvertingNotAllowed(@FormatWith(IndexedTypeIdentifierFormatter.class) IndexedTypeIdentifier entityType, String indexName, String uncoveredSorts);
 
 	@Message(id = 302, value = "Cannot execute query '%2$s', as targeted entity type '%1$s' is not mapped to an embedded Lucene index." )
-	SearchException cannotRunLuceneQueryTargetingEntityIndexedWithNonLuceneIndexManager(@FormatWith(ClassFormatter.class) Class<?> entityType, String query);
+	SearchException cannotRunLuceneQueryTargetingEntityIndexedWithNonLuceneIndexManager(@FormatWith(IndexedTypeIdentifierFormatter.class) IndexedTypeIdentifier entityType, String query);
 
 	@LogMessage(level = Level.WARN)
 	@Message(id = 303, value = "Timeout while waiting for indexing resources to properly flush and close on shut down of"
@@ -982,7 +982,7 @@ public interface Log extends BasicLogger {
 	SearchException indexNamesCollisionDetected(String string);
 
 	@Message(id = 327, value = "Unsupported indexNullAs token type '%3$s' on field '%2$s' of entity '%1$s'." )
-	SearchException unsupportedNullTokenType(Class<?> entityType, String fieldName, Class<?> tokenType);
+	SearchException unsupportedNullTokenType(String entityName, String fieldName, Class<?> tokenType);
 
 	@Message(id = 328, value = "Cannot create context for class: %1$s" )
 	SearchException cannotCreateBridgeDefinedField(@FormatWith(ClassFormatter.class) Class<?> backend, @Cause Exception e);
@@ -1019,8 +1019,8 @@ public interface Log extends BasicLogger {
 	SearchException conflictingParameterDefined(String name, String value1, String value2);
 
 	@Message(id = 338, value = "Incomplete entity information in a document retrieved from the index:"
-			+ " the entity class ('%1$s') or identifier ('%2$s') was missing." )
-	SearchException incompleteEntityInfo(@FormatWith(ClassFormatter.class) Class<?> clazz, Object id);
+			+ " the entity type ('%1$s') or identifier ('%2$s') was missing." )
+	SearchException incompleteEntityInfo(@FormatWith(IndexedTypeIdentifierFormatter.class) IndexedTypeIdentifier entityType, Object id);
 
 	@Message(id = 339, value = "BeanResolver cannot be provided via SearchConfiguration#getProvidedServices. Use SearchConfiguration#getBeanResolver!")
 	SearchException beanResolverContainedInProvidedServicesException();
@@ -1032,7 +1032,7 @@ public interface Log extends BasicLogger {
 	SearchException normalizerDefinitionNamingConflict(String normalizerDefinitionName);
 
 	@Message(id = 342, value = "Field '%2$s' on entity '%1$s' refers to both an analyzer and a normalizer." )
-	SearchException cannotReferenceAnalyzerAndNormalizer(@FormatWith(ClassFormatter.class) Class<?> entityType, String relativeFieldPath);
+	SearchException cannotReferenceAnalyzerAndNormalizer(@FormatWith(IndexedTypeIdentifierFormatter.class) IndexedTypeIdentifier entityType, String relativeFieldPath);
 
 	@Message(id = 343, value = "Normalizer definition for '%s' must define at least a char filter or a token filter (or both)." )
 	SearchException invalidEmptyNormalizerDefinition(String name);
@@ -1048,6 +1048,6 @@ public interface Log extends BasicLogger {
 	@Message(id = 345, value = "Field '%2$s' on entity '%1$s' is marked as sortable and will be analyzed,"
 			+ " but is assigned an Analyzer instead of a Normalizer."
 			+ " Sortable fields should be assigned normalizers in order to avoid problems with tokenization.")
-	void sortableFieldWithNonNormalizerAnalyzer(@FormatWith(ClassFormatter.class) Class<?> entityType, String absoluteFieldPath);
+	void sortableFieldWithNonNormalizerAnalyzer(@FormatWith(IndexedTypeIdentifierFormatter.class) IndexedTypeIdentifier entityType, String absoluteFieldPath);
 
 }

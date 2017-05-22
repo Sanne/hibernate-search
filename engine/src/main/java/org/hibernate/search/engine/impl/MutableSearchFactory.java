@@ -8,6 +8,7 @@ package org.hibernate.search.engine.impl;
 
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Predicate;
@@ -320,8 +321,13 @@ public class MutableSearchFactory implements ExtendedSearchIntegratorWithShareab
 	}
 
 	@Override
-	public IndexedTypesSet getIndexedTypes() {
+	public Set<Class<?>> getIndexedTypes() {
 		return delegate.getIndexedTypes();
+	}
+
+	@Override
+	public IndexedTypesSet getIndexedTypeIdentifiers() {
+		return delegate.getIndexedTypeIdentifiers();
 	}
 
 	@Override
@@ -427,6 +433,11 @@ public class MutableSearchFactory implements ExtendedSearchIntegratorWithShareab
 	@Override
 	public IndexedTypesSet getIndexedTypesPolymorphic(IndexedTypesSet queryTarget) {
 		return delegate.getIndexedTypesPolymorphic( queryTarget );
+	}
+
+	@Override
+	public DocumentBuilderContainedEntity getDocumentBuilderContainedEntity(IndexedTypeIdentifier entityType) {
+		return delegate.getDocumentBuilderContainedEntity( entityType );
 	}
 
 }

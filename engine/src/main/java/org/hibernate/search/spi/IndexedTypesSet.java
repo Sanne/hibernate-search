@@ -21,4 +21,10 @@ public interface IndexedTypesSet extends Iterable<IndexedTypeIdentifier> {
 	@Deprecated
 	Set<Class<?>> toPojosSet();
 
+	/**
+	 * @param asList
+	 * @return
+	 */
+	boolean containsAll(IndexedTypesSet subsetCandidate);
+
 }

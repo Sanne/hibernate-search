@@ -73,6 +73,7 @@ import org.hibernate.search.engine.nesting.impl.NestingContextFactory;
 import org.hibernate.search.engine.nesting.impl.NestingContextFactoryProvider;
 import org.hibernate.search.exception.AssertionFailure;
 import org.hibernate.search.exception.SearchException;
+import org.hibernate.search.spi.IndexedTypeIdentifier;
 import org.hibernate.search.spi.InstanceInitializer;
 import org.hibernate.search.util.impl.CollectionHelper;
 import org.hibernate.search.util.impl.InternalAnalyzerUtils;
@@ -148,9 +149,10 @@ public class DocumentBuilderIndexedEntity extends AbstractDocumentBuilder {
 
 	private NestingContextFactory nestingContextFactory;
 
+	private final IndexedTypeIdentifier mappedClassId;
+
 	/**
 	 * Creates a document builder for entities annotated with <code>@Indexed</code>.
-	 *
 	 * @param clazz The class for which to build a <code>DocumentBuilderContainedEntity</code>
 	 * @param typeMetadata all the metadata for the entity type
 	 * @param context Handle to default configuration settings
@@ -161,6 +163,7 @@ public class DocumentBuilderIndexedEntity extends AbstractDocumentBuilder {
 	public DocumentBuilderIndexedEntity(XClass clazz, TypeMetadata typeMetadata, ConfigContext context,
 			ReflectionManager reflectionManager, Set<XClass> optimizationBlackList, InstanceInitializer instanceInitializer) {
 		super( clazz, typeMetadata, reflectionManager, optimizationBlackList, instanceInitializer );
+		this.mappedClassId = typeMetadata.getType();
 
 		ProvidedId providedIdAnnotation = findProvidedId( clazz, reflectionManager );
 		if ( providedIdAnnotation != null || context.isProvidedIdImplicit() ) {
@@ -206,6 +209,13 @@ public class DocumentBuilderIndexedEntity extends AbstractDocumentBuilder {
 
 	public XMember getIdGetter() {
 		return idPropertyMetadata.getPropertyAccessor();
+	}
+
+	/**
+	 * @return which indexed type is being mapped by this DocumentBuilder
+	 */
+	public IndexedTypeIdentifier getTypeIdentifier() {
+		return this.mappedClassId;
 	}
 
 	private ProvidedId findProvidedId(XClass clazz, ReflectionManager reflectionManager) {
@@ -1160,4 +1170,5 @@ public class DocumentBuilderIndexedEntity extends AbstractDocumentBuilder {
 	public boolean isIdMatchingJpaId() {
 		return ( !idProvided && getTypeMetadata().isJpaIdUsedAsDocumentId() );
 	}
+
 }

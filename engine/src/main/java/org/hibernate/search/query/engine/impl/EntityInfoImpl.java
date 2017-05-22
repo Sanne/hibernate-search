@@ -10,6 +10,7 @@ import java.io.Serializable;
 
 import org.hibernate.search.engine.ProjectionConstants;
 import org.hibernate.search.query.engine.spi.EntityInfo;
+import org.hibernate.search.spi.impl.PojoIndexedTypeIdentifier;
 import org.hibernate.search.util.logging.impl.Log;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
 
@@ -64,7 +65,7 @@ public class EntityInfoImpl implements EntityInfo {
 			 * Only throw an exception here, not in the constructor,
 			 * because in some cases we don't need the class at all (e.g. projections).
 			 */
-			throw log.incompleteEntityInfo( clazz, id );
+			throw log.incompleteEntityInfo( null, id );
 		}
 		return clazz;
 	}
@@ -76,7 +77,13 @@ public class EntityInfoImpl implements EntityInfo {
 			 * Only throw an exception here, not in the constructor,
 			 * because in some cases we don't need the identifier at all (e.g. projections).
 			 */
-			throw log.incompleteEntityInfo( clazz, id );
+			if ( clazz == null ) {
+				//FIXME this is horrible, but a temporary refactoring as we move to IndexedTypeIdentifier
+				throw log.incompleteEntityInfo( null, null );
+			}
+			else {
+				throw log.incompleteEntityInfo( new PojoIndexedTypeIdentifier( clazz ), id );
+			}
 		}
 		return id;
 	}

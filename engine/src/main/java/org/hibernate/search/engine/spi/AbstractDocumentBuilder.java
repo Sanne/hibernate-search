@@ -54,16 +54,17 @@ public abstract class AbstractDocumentBuilder {
 
 	protected EntityState entityState;
 
+
 	/**
 	 * Constructor.
-	 *
 	 * @param xClass The class for which to build a document builder
 	 * @param typeMetadata metadata for the specified class
 	 * @param reflectionManager Reflection manager to use for processing the annotations
 	 * @param optimizationBlackList keeps track of types on which we need to disable collection events optimizations
 	 * @param instanceInitializer a {@link org.hibernate.search.spi.InstanceInitializer} object.
 	 */
-	public AbstractDocumentBuilder(XClass xClass,
+	public AbstractDocumentBuilder(
+			XClass xClass,
 			TypeMetadata typeMetadata,
 			ReflectionManager reflectionManager,
 			Set<XClass> optimizationBlackList,
@@ -110,14 +111,26 @@ public abstract class AbstractDocumentBuilder {
 		return isRoot;
 	}
 
+	/**
+	 * @deprecated use {@link #getTypeMetadata()}
+	 */
+	@Deprecated
 	public Class<?> getBeanClass() {
 		return beanClass;
 	}
 
+	/**
+	 * @deprecated use {@link #getTypeMetadata()}
+	 */
+	@Deprecated
 	public XClass getBeanXClass() {
 		return beanXClass;
 	}
 
+	/**
+	 * @deprecated use {@link #getTypeMetadata()}
+	 */
+	@Deprecated
 	public TypeMetadata getMetadata() {
 		return typeMetadata;
 	}

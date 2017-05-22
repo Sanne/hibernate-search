@@ -61,7 +61,8 @@ public final class PojoIndexedTypeIdentifier implements IndexedTypeIdentifier, S
 			//Be paranoid about type matching: converting among types on Map isn't entirely typesafe as Map#get, remove, etc.. accept Object rather than
 			//restricting to the generic type of the Map.
 			//This new "type system" is designed having in mind that only one type model will be used, so no mixed implementations of IndexedTypeIdentifier
-			//are allowed. We prefer a ClassCastException over "return false".
+			//are allowed.
+			//We prefer a ClassCastException here over "return false" to spot any mistakes aggressively.
 			assert PojoIndexedTypeIdentifier.class == obj.getClass() : "This should never happen. If it happens, you're mixing types in the same Map and that's a bug";
 			PojoIndexedTypeIdentifier other = (PojoIndexedTypeIdentifier) obj;
 			return pojoType.equals( other.pojoType );

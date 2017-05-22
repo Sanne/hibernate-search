@@ -106,7 +106,7 @@ public abstract class ConnectedMoreLikeThisQueryBuilder {
 			}
 		}
 		if ( fieldNames.size() == 0 ) {
-			throw log.noFieldCompatibleForMoreLikeThis( documentBuilder.getBeanClass() );
+			throw log.noFieldCompatibleForMoreLikeThis( documentBuilder.getTypeIdentifier() );
 		}
 		return fieldNames.toArray( new String[fieldNames.size()] );
 	}

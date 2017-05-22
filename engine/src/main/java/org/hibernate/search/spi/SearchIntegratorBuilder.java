@@ -423,10 +423,11 @@ public class SearchIntegratorBuilder {
 
 		// Create all IndexManagers, configure and start them:
 		for ( XClass mappedXClass : rootIndexedEntities ) {
-			Class mappedClass = classMappings.get( mappedXClass );
+			final Class mappedClass = classMappings.get( mappedXClass );
+			final IndexedTypeIdentifier mappedClassId = new PojoIndexedTypeIdentifier( mappedClass );
 			MutableEntityIndexBinding entityIndexBinding = indexesFactory.buildEntityIndexBinding(
 					mappedXClass,
-					mappedClass,
+					mappedClassId,
 					searchConfiguration,
 					buildContext
 			);
@@ -441,7 +442,7 @@ public class SearchIntegratorBuilder {
 			// Create all DocumentBuilderIndexedEntity
 			// FIXME DocumentBuilderIndexedEntity needs to be built by a helper method receiving Class<T> to infer T properly
 			// XClass unfortunately is not (yet) genericized: TODO ?
-			TypeMetadata typeMetadata = metadataProvider.getTypeMetadataFor( mappedClass, indexManagerType );
+			TypeMetadata typeMetadata = metadataProvider.getTypeMetadataFor( mappedClassId, indexManagerType );
 			final DocumentBuilderIndexedEntity documentBuilder =
 					new DocumentBuilderIndexedEntity(
 							mappedXClass,
@@ -453,7 +454,7 @@ public class SearchIntegratorBuilder {
 					);
 			entityIndexBinding.setDocumentBuilderIndexedEntity( documentBuilder );
 
-			documentBuildersIndexedEntities.put( new PojoIndexedTypeIdentifier( mappedClass ), entityIndexBinding );
+			documentBuildersIndexedEntities.put( mappedClassId, entityIndexBinding );
 		}
 
 		detectIndexNamesCollisions( indexesFactory.getIndexManagers() );

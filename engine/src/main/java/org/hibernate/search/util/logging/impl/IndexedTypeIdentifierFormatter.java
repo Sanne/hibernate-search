@@ -10,9 +10,9 @@ import org.hibernate.search.spi.IndexedTypeIdentifier;
 
 public final class IndexedTypeIdentifierFormatter {
 
-	private IndexedTypeIdentifier type;
+	private final IndexedTypeIdentifier type;
 
-	public IndexedTypeIdentifierFormatter(IndexedTypeIdentifier type) {
+	public IndexedTypeIdentifierFormatter(final IndexedTypeIdentifier type) {
 		this.type = type;
 	}
 

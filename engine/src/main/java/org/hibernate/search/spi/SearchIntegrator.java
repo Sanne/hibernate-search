@@ -6,6 +6,7 @@
  */
 package org.hibernate.search.spi;
 
+import java.util.Set;
 import java.util.function.Predicate;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -40,11 +41,14 @@ public interface SearchIntegrator extends AutoCloseable {
 	/**
 	 * Returns the entity to index binding for the given type.
 	 *
+	 * @deprecated Use {@link #getIndexBinding(IndexedTypeIdentifier)} instead.
+	 *
 	 * @param entityType the type for which to retrieve the binding
 	 *
 	 * @return the entity to index binding for the given type. {@code null} is returned for types which are unindexed or
 	 *         unknown.
 	 */
+	@Deprecated
 	EntityIndexBinding getIndexBinding(Class<?> entityType);
 
 	/**
@@ -196,9 +200,19 @@ public interface SearchIntegrator extends AutoCloseable {
 	/**
 	 * Returns the set of currently indexed types.
 	 *
+	 * @deprecated Use {@link #getIndexedTypeIdentifiers()}
+	 *
 	 * @return the set of currently indexed types. If no types are indexed the empty set is returned.
 	 */
-	IndexedTypesSet getIndexedTypes();
+	@Deprecated
+	Set<Class<?>> getIndexedTypes();
+
+	/**
+	 * Returns the set of currently indexed types.
+	 *
+	 * @return the set of currently indexed types. This might be empty.
+	 */
+	IndexedTypesSet getIndexedTypeIdentifiers();
 
 	/**
 	 * Unwraps some internal Hibernate Search types.

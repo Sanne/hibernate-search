@@ -32,7 +32,9 @@ import org.hibernate.search.engine.spi.DocumentBuilderContainedEntity;
 import org.hibernate.search.engine.spi.EntityIndexBinding;
 import org.hibernate.search.indexes.interceptor.EntityIndexingInterceptor;
 import org.hibernate.search.indexes.interceptor.IndexingOverride;
+import org.hibernate.search.spi.IndexedTypeIdentifier;
 import org.hibernate.search.spi.InstanceInitializer;
+import org.hibernate.search.spi.impl.PojoIndexedTypeIdentifier;
 import org.hibernate.search.util.logging.impl.Log;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
 
@@ -51,7 +53,7 @@ public class WorkPlan {
 
 	private static final Log log = LoggerFactory.make();
 
-	private final HashMap<Class<?>, PerClassWork> byClass = new HashMap<Class<?>, PerClassWork>();
+	private final HashMap<IndexedTypeIdentifier, PerClassWork> byClass = new HashMap<IndexedTypeIdentifier, PerClassWork>();
 
 	private final ExtendedSearchIntegrator extendedIntegrator;
 
@@ -75,8 +77,8 @@ public class WorkPlan {
 	 */
 	public void addWork(Work work) {
 		approximateWorkQueueSize++;
-		Class<?> entityClass = instanceInitializer.getClassFromWork( work );
-		PerClassWork classWork = getClassWork( work.getTenantIdentifier(), entityClass );
+		IndexedTypeIdentifier typeIdentifier = instanceInitializer.getIndexedTypeIdFromWork( work );
+		PerClassWork classWork = getClassWork( work.getTenantIdentifier(), typeIdentifier );
 		classWork.addWork( work );
 	}
 
@@ -101,15 +103,15 @@ public class WorkPlan {
 
 	/**
 	 * @param tenantId the tenant identifier
-	 * @param entityClass The entity class for which to retrieve the work
+	 * @param typeIdentifier The entity class for which to retrieve the work
 	 *
 	 * @return returns (and creates if needed) the {@code PerClassWork} from the {@link #byClass} map.
 	 */
-	private PerClassWork getClassWork(String tenantId, Class<?> entityClass) {
-		PerClassWork classWork = byClass.get( entityClass );
+	private PerClassWork getClassWork(String tenantId, IndexedTypeIdentifier typeIdentifier) {
+		PerClassWork classWork = byClass.get( typeIdentifier );
 		if ( classWork == null ) {
-			classWork = new PerClassWork( tenantId, entityClass );
-			byClass.put( entityClass, classWork );
+			classWork = new PerClassWork( tenantId, typeIdentifier );
+			byClass.put( typeIdentifier, classWork );
 		}
 		return classWork;
 	}
@@ -141,7 +143,8 @@ public class WorkPlan {
 	 */
 	public <T> void recurseContainedIn(T value, ContainedInRecursionContext context, String tenantId) {
 		Class<T> entityClass = instanceInitializer.getClass( value );
-		PerClassWork classWork = getClassWork( tenantId, entityClass );
+		//TODO separate the ContainedIn processing in its own registry of types
+		PerClassWork classWork = getClassWork( tenantId, new PojoIndexedTypeIdentifier( entityClass ) );
 		classWork.recurseContainedIn( value, context );
 	}
 
@@ -181,7 +184,7 @@ public class WorkPlan {
 		/**
 		 * The type of all classes being managed
 		 */
-		private final Class<?> entityClass;
+		private final IndexedTypeIdentifier typeIdentifier;
 
 		private final String tenantId;
 
@@ -196,11 +199,11 @@ public class WorkPlan {
 		private final boolean containedInOnly;
 
 		/**
-		 * @param clazz The type of entities being managed by this instance
+		 * @param typeIdentifier The type of entities being managed by this instance
 		 */
-		PerClassWork(String tenantId, Class<?> clazz) {
-			this.entityClass = clazz;
-			this.documentBuilder = getEntityBuilder( extendedIntegrator, clazz );
+		PerClassWork(String tenantId, IndexedTypeIdentifier typeIdentifier) {
+			this.typeIdentifier = typeIdentifier;
+			this.documentBuilder = getEntityBuilder( extendedIntegrator, typeIdentifier );
 			this.containedInOnly = documentBuilder instanceof DocumentBuilderContainedEntity;
 			this.tenantId = tenantId;
 		}
@@ -268,7 +271,8 @@ public class WorkPlan {
 		 */
 		public void enqueueLuceneWork(List<LuceneWork> luceneQueue) {
 			final Set<Entry<Serializable, PerEntityWork>> entityInstances = entityById.entrySet();
-			ConversionContext conversionContext = new ContextualExceptionBridgeHelper();
+			final ConversionContext conversionContext = new ContextualExceptionBridgeHelper();
+			final Class<?> entityClass = typeIdentifier.getPojoType();
 			if ( purgeAll ) {
 				luceneQueue.add( new PurgeAllLuceneWork( tenantId, entityClass ) );
 			}
@@ -332,10 +336,10 @@ public class WorkPlan {
 								entityById.put( extractedId, entityWork );
 								break;
 							case SKIP:
-								log.forceSkipIndexOperationViaInterception( entityClass, WorkType.UPDATE );
+								log.forceSkipIndexOperationViaInterception( this.typeIdentifier, WorkType.UPDATE );
 								break;
 							case REMOVE:
-								log.forceRemoveOnIndexOperationViaInterception( entityClass, WorkType.UPDATE );
+								log.forceRemoveOnIndexOperationViaInterception( this.typeIdentifier, WorkType.UPDATE );
 								Work work = new Work( tenantId, value, extractedId, WorkType.DELETE );
 								entityWork = new PerEntityWork( work );
 								entityById.put( extractedId, entityWork );
@@ -358,7 +362,7 @@ public class WorkPlan {
 
 		private EntityIndexingInterceptor getEntityInterceptor() {
 			EntityIndexBinding indexBindingForEntity = extendedIntegrator.getIndexBinding(
-					entityClass
+					this.typeIdentifier
 			);
 			return indexBindingForEntity != null ? indexBindingForEntity.getEntityIndexingInterceptor() : null;
 		}
@@ -549,20 +553,20 @@ public class WorkPlan {
 	 * we can fetch it once.
 	 *
 	 * @param extendedIntegrator the search factory (implementor)
-	 * @param entityClass the entity type for which to retrieve the document builder
+	 * @param typeIdentifier the entity type for which to retrieve the document builder
 	 *
 	 * @return the DocumentBuilder for this type
 	 */
-	private static AbstractDocumentBuilder getEntityBuilder(ExtendedSearchIntegrator extendedIntegrator, Class<?> entityClass) {
-		EntityIndexBinding entityIndexBinding = extendedIntegrator.getIndexBinding( entityClass );
+	private static AbstractDocumentBuilder getEntityBuilder(ExtendedSearchIntegrator extendedIntegrator, IndexedTypeIdentifier typeIdentifier) {
+		EntityIndexBinding entityIndexBinding = extendedIntegrator.getIndexBinding( typeIdentifier );
 		if ( entityIndexBinding == null ) {
 			DocumentBuilderContainedEntity entityBuilder = extendedIntegrator.getDocumentBuilderContainedEntity(
-					entityClass
+					typeIdentifier
 			);
 			if ( entityBuilder == null ) {
 				// should never happen but better be safe than sorry
 				throw new SearchException(
-						"Unable to perform work. Entity Class is not @Indexed nor hosts @ContainedIn: " + entityClass
+						"Unable to perform work. Entity Class is not @Indexed nor hosts @ContainedIn: " + typeIdentifier
 				);
 			}
 			else {

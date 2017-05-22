@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
@@ -356,8 +357,14 @@ public class ImmutableSearchFactory implements ExtendedSearchIntegratorWithShare
 		return indexBindingForEntities.get( entityType );
 	}
 
+	@Deprecated
 	@Override
 	public DocumentBuilderContainedEntity getDocumentBuilderContainedEntity(Class entityType) {
+		return documentBuildersContainedEntities.get( entityType );
+	}
+
+	@Override
+	public DocumentBuilderContainedEntity getDocumentBuilderContainedEntity(IndexedTypeIdentifier entityType) {
 		return documentBuildersContainedEntities.get( entityType );
 	}
 
@@ -631,8 +638,14 @@ public class ImmutableSearchFactory implements ExtendedSearchIntegratorWithShare
 		return typeDescriptor;
 	}
 
+	@Deprecated
 	@Override
-	public IndexedTypesSet getIndexedTypes() {
+	public Set<Class<?>> getIndexedTypes() {
+		return indexBindingForEntities.keySet().toPojosSet();
+	}
+
+	@Override
+	public IndexedTypesSet getIndexedTypeIdentifiers() {
 		return indexBindingForEntities.keySet();
 	}
 

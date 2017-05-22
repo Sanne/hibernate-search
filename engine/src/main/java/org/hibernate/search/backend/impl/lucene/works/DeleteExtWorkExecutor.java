@@ -12,7 +12,6 @@ import org.apache.lucene.index.Term;
 import org.hibernate.search.exception.AssertionFailure;
 import org.hibernate.search.exception.SearchException;
 import org.hibernate.search.spi.IndexedTypeIdentifier;
-import org.hibernate.search.spi.impl.PojoIndexedTypeIdentifier;
 import org.hibernate.search.backend.IndexingMonitor;
 import org.hibernate.search.backend.LuceneWork;
 import org.hibernate.search.backend.impl.lucene.IndexWriterDelegate;
@@ -39,7 +38,7 @@ public final class DeleteExtWorkExecutor extends DeleteWorkExecutor {
 
 	DeleteExtWorkExecutor(Workspace workspace) {
 		super( workspace );
-		managedType = new PojoIndexedTypeIdentifier( workspace.getEntitiesInIndexManager().iterator().next() );
+		managedType = workspace.getEntitiesInIndexManager().iterator().next();
 		builder = workspace.getDocumentBuilder( managedType );
 		idIsNumeric = isIdNumeric( builder );
 	}
