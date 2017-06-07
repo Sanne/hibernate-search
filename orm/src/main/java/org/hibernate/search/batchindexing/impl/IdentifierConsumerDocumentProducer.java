@@ -284,7 +284,7 @@ public class IdentifierConsumerDocumentProducer implements Runnable {
 		//that we hit the database several times during work construction.
 		AddLuceneWork addWork = docBuilder.createAddWork(
 				tenantId,
-				clazz,
+				docBuilder.getTypeIdentifier(),
 				entity,
 				id,
 				idInString,

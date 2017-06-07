@@ -22,7 +22,9 @@ import org.hibernate.search.engine.spi.DocumentBuilderIndexedEntity;
 import org.hibernate.search.engine.spi.EntityIndexBinding;
 import org.hibernate.search.query.engine.spi.HSQuery;
 import org.hibernate.search.spi.DefaultInstanceInitializer;
+import org.hibernate.search.spi.IndexedTypeIdentifier;
 import org.hibernate.search.spi.impl.IndexedTypesSets;
+import org.hibernate.search.spi.impl.PojoIndexedTypeIdentifier;
 import org.hibernate.search.testsupport.TestForIssue;
 import org.hibernate.search.testsupport.junit.SearchFactoryHolder;
 
@@ -91,12 +93,13 @@ public class ElasticsearchFlushIT {
 
 	private LuceneWork createUpdateWork(Serializable id, Object entity) {
 		Class<?> clazz = entity.getClass();
+		IndexedTypeIdentifier typeId = new PojoIndexedTypeIdentifier( clazz );
 		ExtendedSearchIntegrator searchFactory = sfHolder.getSearchFactory();
-		EntityIndexBinding entityIndexBinding = searchFactory.getIndexBinding( clazz );
+		EntityIndexBinding entityIndexBinding = searchFactory.getIndexBinding( typeId );
 		DocumentBuilderIndexedEntity docBuilder = entityIndexBinding.getDocumentBuilder();
 		return docBuilder.createUpdateWork(
 				null,
-				clazz,
+				typeId,
 				entity,
 				id,
 				id.toString(),

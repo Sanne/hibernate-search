@@ -88,6 +88,7 @@ public class MutableSearchFactory implements ExtendedSearchIntegratorWithShareab
 	}
 
 	@Override
+	@Deprecated
 	public EntityIndexBinding getIndexBinding(Class<?> entityType) {
 		return delegate.getIndexBinding( entityType );
 	}
@@ -226,7 +227,13 @@ public class MutableSearchFactory implements ExtendedSearchIntegratorWithShareab
 	}
 
 	@Override
+	@Deprecated
 	public void optimize(Class entityType) {
+		delegate.optimize( entityType );
+	}
+
+	@Override
+	public void optimize(IndexedTypeIdentifier entityType) {
 		delegate.optimize( entityType );
 	}
 
@@ -241,11 +248,18 @@ public class MutableSearchFactory implements ExtendedSearchIntegratorWithShareab
 	}
 
 	@Override
+	@Deprecated
 	public Analyzer getAnalyzer(Class<?> clazz) {
 		return delegate.getAnalyzer( clazz );
 	}
 
 	@Override
+	public Analyzer getAnalyzer(IndexedTypeIdentifier type) {
+		return delegate.getAnalyzer( type );
+	}
+
+	@Override
+	@Deprecated
 	public ScopedAnalyzerReference getAnalyzerReference(Class<?> clazz) {
 		return delegate.getAnalyzerReference( clazz );
 	}
@@ -438,6 +452,11 @@ public class MutableSearchFactory implements ExtendedSearchIntegratorWithShareab
 	@Override
 	public DocumentBuilderContainedEntity getDocumentBuilderContainedEntity(IndexedTypeIdentifier entityType) {
 		return delegate.getDocumentBuilderContainedEntity( entityType );
+	}
+
+	@Override
+	public ScopedAnalyzerReference getAnalyzerReference(IndexedTypeIdentifier type) {
+		return delegate.getAnalyzerReference( type );
 	}
 
 }

@@ -54,7 +54,7 @@ public class ConnectedQueryContextBuilder implements QueryContextBuilder {
 			indexBoundType = getIndexBoundType( entityType, factory );
 
 			if ( indexBoundType == null ) {
-				IndexedTypesSet configuredSubTypes = factory.getConfiguredTypesPolymorphic( new Class<?>[] { entityType.getPojoType() } );
+				IndexedTypesSet configuredSubTypes = factory.getConfiguredTypesPolymorphic( entityType.asTypeSet() );
 				if ( configuredSubTypes.isEmpty() ) {
 					throw log.cantQueryUnconfiguredType( entityType.getName() );
 				}
@@ -63,9 +63,9 @@ public class ConnectedQueryContextBuilder implements QueryContextBuilder {
 				}
 			}
 
-			originalAnalyzerReference = factory.getAnalyzerReference( indexBoundType.getPojoType() );
-			queryAnalyzerReferenceBuilder = factory.getAnalyzerReference( indexBoundType.getPojoType() ).startCopy();
-			IndexManagerType indexManagerType = factory.getIndexBinding( indexBoundType.getPojoType() ).getIndexManagerType();
+			originalAnalyzerReference = factory.getAnalyzerReference( indexBoundType );
+			queryAnalyzerReferenceBuilder = factory.getAnalyzerReference( indexBoundType ).startCopy();
+			IndexManagerType indexManagerType = factory.getIndexBinding( indexBoundType ).getIndexManagerType();
 			analyzerRegistry = factory.getIntegration( indexManagerType ).getAnalyzerRegistry();
 		}
 
@@ -82,7 +82,7 @@ public class ConnectedQueryContextBuilder implements QueryContextBuilder {
 				return entityType;
 			}
 
-			IndexedTypesSet indexedSubTypes = factory.getIndexedTypesPolymorphic( new Class<?>[] { entityType.getPojoType() } );
+			IndexedTypesSet indexedSubTypes = factory.getIndexedTypesPolymorphic( entityType.asTypeSet() );
 
 			if ( !indexedSubTypes.isEmpty() ) {
 				return indexedSubTypes.iterator().next();

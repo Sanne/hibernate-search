@@ -272,18 +272,17 @@ public class WorkPlan {
 		public void enqueueLuceneWork(List<LuceneWork> luceneQueue) {
 			final Set<Entry<Serializable, PerEntityWork>> entityInstances = entityById.entrySet();
 			final ConversionContext conversionContext = new ContextualExceptionBridgeHelper();
-			final Class<?> entityClass = typeIdentifier.getPojoType();
 			if ( purgeAll ) {
-				luceneQueue.add( new PurgeAllLuceneWork( tenantId, entityClass ) );
+				luceneQueue.add( new PurgeAllLuceneWork( tenantId, typeIdentifier ) );
 			}
 			for ( DeletionQuery delQuery : this.deletionQueries ) {
-				luceneQueue.add( new DeleteByQueryLuceneWork( tenantId, entityClass, delQuery ) );
+				luceneQueue.add( new DeleteByQueryLuceneWork( tenantId, typeIdentifier, delQuery ) );
 			}
 			for ( Entry<Serializable, PerEntityWork> entry : entityInstances ) {
 				Serializable indexingId = entry.getKey();
 				PerEntityWork perEntityWork = entry.getValue();
 				String tenantIdentifier = perEntityWork.getTenantIdentifier();
-				perEntityWork.enqueueLuceneWork( tenantIdentifier, entityClass, indexingId, documentBuilder, luceneQueue, conversionContext );
+				perEntityWork.enqueueLuceneWork( tenantIdentifier, typeIdentifier, indexingId, documentBuilder, luceneQueue, conversionContext );
 			}
 		}
 
@@ -513,15 +512,15 @@ public class WorkPlan {
 		 * Adds the needed LuceneWork to the queue for this entity instance
 		 *
 		 * @param tenantIdentifier the tenant identifier
-		 * @param entityClass the type
+		 * @param typeIdentifier the type
 		 * @param indexingId identifier of the instance
 		 * @param entityBuilder the DocumentBuilder for this type
 		 * @param luceneQueue the queue collecting all changes
 		 */
-		public void enqueueLuceneWork(String tenantIdentifier, Class entityClass, Serializable indexingId, AbstractDocumentBuilder entityBuilder,
+		public void enqueueLuceneWork(String tenantIdentifier, IndexedTypeIdentifier typeIdentifier, Serializable indexingId, AbstractDocumentBuilder entityBuilder,
 				List<LuceneWork> luceneQueue, ConversionContext conversionContext) {
 			if ( add || delete ) {
-				entityBuilder.addWorkToQueue( tenantIdentifier, entityClass, entity, indexingId, delete, add, luceneQueue, conversionContext );
+				entityBuilder.addWorkToQueue( tenantIdentifier, typeIdentifier, entity, indexingId, delete, add, luceneQueue, conversionContext );
 			}
 		}
 

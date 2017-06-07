@@ -25,8 +25,8 @@ public class FlushLuceneWork extends LuceneWork {
 	 * @param tenantId the tenant identifier. It might be null
 	 * @param entity the entity type for which to flush the index
 	 */
-	public FlushLuceneWork(String tenantId, Class<?> entity) {
-		super( tenantId, null, null, entity );
+	public FlushLuceneWork(String tenantId, IndexedTypeIdentifier typeIdentifier) {
+		super( tenantId, null, null, typeIdentifier );
 	}
 
 	/**

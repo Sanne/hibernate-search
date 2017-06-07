@@ -55,7 +55,7 @@ public class PerTransactionWorker implements Worker {
 
 	@Override
 	public void performWork(Work work, TransactionContext transactionContext) {
-		final Class<?> entityType = instanceInitializer.getClassFromWork( work );
+		final IndexedTypeIdentifier entityType = instanceInitializer.getIndexedTypeIdFromWork( work );
 		EntityIndexBinding indexBindingForEntity = factory.getIndexBinding( entityType );
 		if ( indexBindingForEntity == null
 				&& factory.getDocumentBuilderContainedEntity( entityType ) == null ) {

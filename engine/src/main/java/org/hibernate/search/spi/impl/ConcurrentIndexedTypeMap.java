@@ -13,10 +13,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.hibernate.search.spi.IndexedTypeIdentifier;
 import org.hibernate.search.spi.IndexedTypeMap;
 import org.hibernate.search.spi.IndexedTypesSet;
+import org.hibernate.search.util.logging.impl.Log;
+import org.hibernate.search.util.logging.impl.LoggerFactory;
 
 public class ConcurrentIndexedTypeMap<V> implements IndexedTypeMap<V> {
 
+	private static final Log log = LoggerFactory.make();
+
 	private final ConcurrentHashMap<IndexedTypeIdentifier,V> map = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<String,IndexedTypeIdentifier> name2keyMapping = new ConcurrentHashMap<>();
 
 	@Override
 	public V get(IndexedTypeIdentifier key) {
@@ -65,12 +70,39 @@ public class ConcurrentIndexedTypeMap<V> implements IndexedTypeMap<V> {
 
 	@Override
 	public void put(IndexedTypeIdentifier type, V value) {
+		//technically there's a race condition here but we only do
+		//writes during initialization, which is sequential.
+		//Writing the names first makes this safe even for parallel
+		//initializations.
+		name2keyMapping.put( type.getName(), type );
 		map.put( type, value );
 	}
 
 	@Override
 	public void put(Class<?> type, V typeBinding) {
 		put( new PojoIndexedTypeIdentifier( type ), typeBinding );
+	}
+
+	@Override
+	public IndexedTypeIdentifier keyFromName(String entityClassName) {
+		if ( entityClassName == null ) {
+			throw log.nullIsInvalidIndexedType();
+		}
+		IndexedTypeIdentifier id = name2keyMapping.get( entityClassName );
+		if ( id == null ) {
+			throw log.notAnIndexedType( entityClassName );
+		}
+		return id;
+	}
+
+	@Override
+	public IndexedTypeIdentifier keyFromPojoType(Class<?> clazz) {
+		if ( clazz == null ) {
+			throw log.nullIsInvalidIndexedType();
+		}
+		// TODO this can be optimised for read performance:
+		// Class type is a great candidates for maps lookups.
+		return keyFromName( clazz.getName() );
 	}
 
 }

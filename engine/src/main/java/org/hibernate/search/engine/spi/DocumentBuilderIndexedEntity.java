@@ -229,17 +229,17 @@ public class DocumentBuilderIndexedEntity extends AbstractDocumentBuilder {
 	}
 
 	@Override
-	public void addWorkToQueue(String tenantId, Class<?> entityClass, Object entity, Serializable id, boolean delete, boolean add, List<LuceneWork> queue, ConversionContext contextualBridge) {
+	public void addWorkToQueue(String tenantId, IndexedTypeIdentifier typeIdentifier, Object entity, Serializable id, boolean delete, boolean add, List<LuceneWork> queue, ConversionContext contextualBridge) {
 		DocumentFieldMetadata idFieldMetadata = idPropertyMetadata.getFieldMetadata( idFieldName );
 		String idInString = objectToString( getIdBridge(), idFieldMetadata.getAbsoluteName(), id, contextualBridge );
 		if ( delete && !add ) {
-			queue.add( new DeleteLuceneWork( tenantId, id, idInString, entityClass ) );
+			queue.add( new DeleteLuceneWork( tenantId, id, idInString, typeIdentifier ) );
 		}
 		else if ( add && !delete ) {
 			queue.add(
 					createAddWork(
 							tenantId,
-							entityClass,
+							typeIdentifier,
 							entity,
 							id,
 							idInString,
@@ -252,7 +252,7 @@ public class DocumentBuilderIndexedEntity extends AbstractDocumentBuilder {
 			queue.add(
 					createUpdateWork(
 							tenantId,
-							entityClass,
+							typeIdentifier,
 							entity,
 							id,
 							idInString,
@@ -293,28 +293,28 @@ public class DocumentBuilderIndexedEntity extends AbstractDocumentBuilder {
 		return stringValue;
 	}
 
-	public AddLuceneWork createAddWork(String tenantId, Class<?> entityClass, Object entity, Serializable id, String idInString, InstanceInitializer sessionInitializer, ConversionContext conversionContext) {
+	public AddLuceneWork createAddWork(String tenantId, IndexedTypeIdentifier entityType, Object entity, Serializable id, String idInString, InstanceInitializer sessionInitializer, ConversionContext conversionContext) {
 		Map<String, String> fieldToAnalyzerMap = new HashMap<String, String>();
 		Document doc = getDocument( tenantId, entity, id, fieldToAnalyzerMap, sessionInitializer, conversionContext, null );
 		final AddLuceneWork addWork;
 		if ( fieldToAnalyzerMap.isEmpty() ) {
-			addWork = new AddLuceneWork( tenantId, id, idInString, entityClass, doc );
+			addWork = new AddLuceneWork( tenantId, id, idInString, entityType, doc );
 		}
 		else {
-			addWork = new AddLuceneWork( tenantId, id, idInString, entityClass, doc, fieldToAnalyzerMap );
+			addWork = new AddLuceneWork( tenantId, id, idInString, entityType, doc, fieldToAnalyzerMap );
 		}
 		return addWork;
 	}
 
-	public UpdateLuceneWork createUpdateWork(String tenantId, Class entityClass, Object entity, Serializable id, String idInString, InstanceInitializer sessionInitializer, ConversionContext contextualBridge) {
+	public UpdateLuceneWork createUpdateWork(String tenantId, IndexedTypeIdentifier entityType, Object entity, Serializable id, String idInString, InstanceInitializer sessionInitializer, ConversionContext contextualBridge) {
 		Map<String, String> fieldToAnalyzerMap = new HashMap<String, String>();
 		Document doc = getDocument( tenantId, entity, id, fieldToAnalyzerMap, sessionInitializer, contextualBridge, null );
 		final UpdateLuceneWork addWork;
 		if ( fieldToAnalyzerMap.isEmpty() ) {
-			addWork = new UpdateLuceneWork( tenantId, id, idInString, entityClass, doc );
+			addWork = new UpdateLuceneWork( tenantId, id, idInString, entityType, doc );
 		}
 		else {
-			addWork = new UpdateLuceneWork( tenantId, id, idInString, entityClass, doc, fieldToAnalyzerMap );
+			addWork = new UpdateLuceneWork( tenantId, id, idInString, entityType, doc, fieldToAnalyzerMap );
 		}
 		return addWork;
 	}

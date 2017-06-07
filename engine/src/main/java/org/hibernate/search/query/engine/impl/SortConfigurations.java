@@ -18,9 +18,8 @@ import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
 import org.hibernate.search.engine.metadata.impl.SortableFieldMetadata;
 import org.hibernate.search.spi.IndexedTypeIdentifier;
-import org.hibernate.search.spi.IndexedTypeMap;
 import org.hibernate.search.spi.IndexedTypesSet;
-import org.hibernate.search.spi.impl.ConcurrentIndexedTypeMap;
+import org.hibernate.search.spi.impl.IndexedTypesSets;
 import org.hibernate.search.spi.impl.PojoIndexedTypeIdentifier;
 
 /**
@@ -54,9 +53,9 @@ public class SortConfigurations implements Iterable<SortConfigurations.SortConfi
 	public static class SortConfiguration {
 
 		private final String indexName;
-		private final IndexedTypeMap<List<SortableFieldMetadata>> sortableFieldsByType;
+		private final Map<IndexedTypeIdentifier,List<SortableFieldMetadata>> sortableFieldsByType;
 
-		public SortConfiguration(String indexName, IndexedTypeMap<List<SortableFieldMetadata>> sortableFieldsByType) {
+		public SortConfiguration(String indexName, Map<IndexedTypeIdentifier,List<SortableFieldMetadata>> sortableFieldsByType) {
 			this.indexName = indexName;
 			this.sortableFieldsByType = sortableFieldsByType;
 		}
@@ -93,7 +92,7 @@ public class SortConfigurations implements Iterable<SortConfigurations.SortConfi
 		}
 
 		public IndexedTypesSet getEntityTypes() {
-			return sortableFieldsByType.keySet();
+			return IndexedTypesSets.fromIdentifiers( sortableFieldsByType.keySet() );
 		}
 
 		public String getIndexName() {
@@ -113,14 +112,14 @@ public class SortConfigurations implements Iterable<SortConfigurations.SortConfi
 	 */
 	public static class Builder {
 
-		private final Map<String, IndexedTypeMap<List<SortableFieldMetadata>>> builtConfigurations = new HashMap<>();
-		private IndexedTypeMap<List<SortableFieldMetadata>> currentIndexBucket;
+		private final Map<String, Map<IndexedTypeIdentifier,List<SortableFieldMetadata>>> builtConfigurations = new HashMap<>();
+		private Map<IndexedTypeIdentifier,List<SortableFieldMetadata>> currentIndexBucket;
 		private List<SortableFieldMetadata> currentEntityTypeBucket;
 
 		public Builder setIndex(String indexName) {
 			currentIndexBucket = builtConfigurations.get( indexName );
 			if ( currentIndexBucket == null ) {
-				currentIndexBucket = new ConcurrentIndexedTypeMap<>();
+				currentIndexBucket = new HashMap<>();
 				builtConfigurations.put( indexName, currentIndexBucket );
 			}
 			return this;
@@ -155,7 +154,7 @@ public class SortConfigurations implements Iterable<SortConfigurations.SortConfi
 		public SortConfigurations build() {
 			ArrayList<SortConfiguration> configurations = new ArrayList<>( builtConfigurations.size() );
 
-			for ( Entry<String, IndexedTypeMap<List<SortableFieldMetadata>>> configuration : builtConfigurations.entrySet() ) {
+			for ( Entry<String, Map<IndexedTypeIdentifier,List<SortableFieldMetadata>>> configuration : builtConfigurations.entrySet() ) {
 				configurations.add( new SortConfiguration( configuration.getKey(), configuration.getValue() ) );
 			}
 

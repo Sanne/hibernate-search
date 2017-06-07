@@ -64,18 +64,18 @@ public interface IndexedTypeMap<V> {
 
 	/**
 	 * @deprecated use {@link #get(IndexedTypeIdentifier)}. This method will be removed.
-	 * @param legacyPojo the Class whose type is to be used as a key.
+	 * @param legacyPojoClass the Class whose type is to be used as a key.
 	 * @return the value mapped to this key.
 	 */
 	@Deprecated
-	V get(Class<?> legacyPojo);
+	V get(Class<?> legacyPojoClass);
 
 	/**
-	 * @param legacyPojo the Class whose type is to be used as a key.
+	 * @param legacyPojoClass the Class whose type is to be used as a key.
 	 * @return true if the argument represents an identifier which is mapped to something.
 	 */
 	@Deprecated
-	boolean containsKey(Class<?> legacyPojo);
+	boolean containsKey(Class<?> legacyPojoClass);
 
 	/**
 	 * @deprecated This method will be removed. The implementations will be refactored to become immutable.
@@ -84,5 +84,17 @@ public interface IndexedTypeMap<V> {
 	 */
 	@Deprecated
 	void put(Class<?> type, V typeBinding);
+
+	/**
+	 * @param entityClassName
+	 * @return
+	 */
+	IndexedTypeIdentifier keyFromName(String entityClassName);
+
+	/**
+	 * @param clazz
+	 * @return
+	 */
+	IndexedTypeIdentifier keyFromPojoType(Class<?> clazz);
 
 }

@@ -35,8 +35,17 @@ import org.hibernate.search.stat.Statistics;
  * its clients.
  *
  * @author Emmanuel Bernard
+ * @author Sanne Grinovero
  */
 public interface SearchIntegrator extends AutoCloseable {
+
+	/**
+	 * Returns a map of all known entity index binding (indexed entities) keyed against the indexed type
+	 *
+	 * @return a map of all known entity index binding (indexed entities) keyed against the indexed type. The empty
+	 * map is returned if there are no indexed types.
+	 */
+	IndexedTypeMap<EntityIndexBinding> getIndexBindings();
 
 	/**
 	 * Returns the entity to index binding for the given type.
@@ -138,10 +147,19 @@ public interface SearchIntegrator extends AutoCloseable {
 
 	/**
 	 * Optimize the index holding {@code entityType}
+	 * @deprecated Use {@link #optimize(IndexedTypeIdentifier)}
 	 *
 	 * @param entityType the entity type (index) to optimize
 	 */
+	@Deprecated
 	void optimize(Class entityType);
+
+	/**
+	 * Optimize the index holding {@code entityType}
+	 *
+	 * @param entityType the entity type (index) to optimize
+	 */
+	void optimize(IndexedTypeIdentifier entityType);
 
 	/**
 	 * Retrieve an analyzer instance by its definition name
@@ -157,6 +175,8 @@ public interface SearchIntegrator extends AutoCloseable {
 	/**
 	 * Retrieves the scoped analyzer for a given class.
 	 *
+	 * @deprecated Use {@link #getAnalyzer(IndexedTypeIdentifier)}
+	 *
 	 * @param clazz The class for which to retrieve the analyzer.
 	 *
 	 * @return The scoped analyzer for the specified class.
@@ -164,7 +184,20 @@ public interface SearchIntegrator extends AutoCloseable {
 	 * @throws java.lang.IllegalArgumentException in case {@code clazz == null} or the specified
 	 * class is not an indexed entity.
 	 */
+	@Deprecated
 	Analyzer getAnalyzer(Class<?> clazz);
+
+	/**
+	 * Retrieves the scoped analyzer for a given indexed type.
+	 *
+	 * @param typeId The indexed type identifier for which to retrieve the analyzer.
+	 *
+	 * @return The scoped analyzer for the specified class.
+	 *
+	 * @throws java.lang.IllegalArgumentException in case {@code clazz == null} or the specified
+	 * class is not an indexed entity.
+	 */
+	Analyzer getAnalyzer(IndexedTypeIdentifier typeId);
 
 	/**
 	 * @return return a query builder providing a fluent API to create Lucene queries

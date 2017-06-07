@@ -168,9 +168,9 @@ public class BatchCoordinator extends ErrorHandledRunnable {
 		if ( this.purgeAtStart ) {
 			//purgeAll for affected entities
 			IndexedTypesSet targetedClasses = extendedIntegrator.getIndexedTypesPolymorphic( rootEntities );
-			for ( IndexedTypeIdentifier clazz : targetedClasses ) {
+			for ( IndexedTypeIdentifier type : targetedClasses ) {
 				//needs do be in-sync work to make sure we wait for the end of it.
-				backend.doWorkInSync( new PurgeAllLuceneWork( tenantId, clazz.getPojoType() ) );
+				backend.doWorkInSync( new PurgeAllLuceneWork( tenantId, type ) );
 			}
 			if ( this.optimizeAfterPurge ) {
 				backend.optimize( targetedClasses );

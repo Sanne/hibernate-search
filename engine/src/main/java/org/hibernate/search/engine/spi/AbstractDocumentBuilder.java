@@ -28,6 +28,7 @@ import org.hibernate.search.engine.metadata.impl.EmbeddedTypeMetadata;
 import org.hibernate.search.engine.metadata.impl.PropertyMetadata;
 import org.hibernate.search.engine.metadata.impl.TypeMetadata;
 import org.hibernate.search.exception.AssertionFailure;
+import org.hibernate.search.spi.IndexedTypeIdentifier;
 import org.hibernate.search.spi.IndexedTypesSet;
 import org.hibernate.search.spi.InstanceInitializer;
 import org.hibernate.search.util.impl.ReflectionHelper;
@@ -84,7 +85,7 @@ public abstract class AbstractDocumentBuilder {
 
 	public abstract void addWorkToQueue(
 			String tenantIdentifier,
-			Class<?> entityClass,
+			IndexedTypeIdentifier typeIdentifier,
 			Object entity, Serializable id,
 			boolean delete,
 			boolean add,

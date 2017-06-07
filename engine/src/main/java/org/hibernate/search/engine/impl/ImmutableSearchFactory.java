@@ -386,7 +386,16 @@ public class ImmutableSearchFactory implements ExtendedSearchIntegratorWithShare
 	}
 
 	@Override
+	@Deprecated
 	public void optimize(Class entityType) {
+		EntityIndexBinding entityIndexBinding = getSafeIndexBindingForEntity( entityType );
+		for ( IndexManager im : entityIndexBinding.getIndexManagers() ) {
+			im.optimize();
+		}
+	}
+
+	@Override
+	public void optimize(IndexedTypeIdentifier entityType) {
 		EntityIndexBinding entityIndexBinding = getSafeIndexBindingForEntity( entityType );
 		for ( IndexManager im : entityIndexBinding.getIndexManagers() ) {
 			im.optimize();
@@ -423,13 +432,27 @@ public class ImmutableSearchFactory implements ExtendedSearchIntegratorWithShare
 	}
 
 	@Override
+	@Deprecated
 	public Analyzer getAnalyzer(Class<?> clazz) {
 		return getAnalyzerReference( clazz ).unwrap( LuceneAnalyzerReference.class ).getAnalyzer();
 	}
 
 	@Override
+	public Analyzer getAnalyzer(IndexedTypeIdentifier type) {
+		return getAnalyzerReference( type ).unwrap( LuceneAnalyzerReference.class ).getAnalyzer();
+	}
+
+	@Override
+	@Deprecated
 	public ScopedAnalyzerReference getAnalyzerReference(Class<?> clazz) {
 		EntityIndexBinding entityIndexBinding = getSafeIndexBindingForEntity( clazz );
+		DocumentBuilderIndexedEntity builder = entityIndexBinding.getDocumentBuilder();
+		return builder.getAnalyzerReference();
+	}
+
+	@Override
+	public ScopedAnalyzerReference getAnalyzerReference(IndexedTypeIdentifier type) {
+		EntityIndexBinding entityIndexBinding = getSafeIndexBindingForEntity( type );
 		DocumentBuilderIndexedEntity builder = entityIndexBinding.getDocumentBuilder();
 		return builder.getAnalyzerReference();
 	}
