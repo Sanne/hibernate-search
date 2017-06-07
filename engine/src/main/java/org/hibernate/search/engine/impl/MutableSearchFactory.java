@@ -454,4 +454,9 @@ public class MutableSearchFactory implements ExtendedSearchIntegratorWithShareab
 		return delegate.getAnalyzerReference( type );
 	}
 
+	@Override
+	public IndexedTypeDescriptor getIndexedTypeDescriptor(IndexedTypeIdentifier typeId) {
+		return delegate.getIndexedTypeDescriptor( typeId );
+	}
+
 }

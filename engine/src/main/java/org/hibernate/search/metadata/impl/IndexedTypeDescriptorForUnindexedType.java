@@ -7,6 +7,7 @@
 package org.hibernate.search.metadata.impl;
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 
 import org.hibernate.search.engine.BoostStrategy;
@@ -16,7 +17,6 @@ import org.hibernate.search.metadata.IndexDescriptor;
 import org.hibernate.search.metadata.IndexedTypeDescriptor;
 import org.hibernate.search.metadata.PropertyDescriptor;
 import org.hibernate.search.spi.IndexedTypeIdentifier;
-import org.hibernate.search.spi.impl.PojoIndexedTypeIdentifier;
 
 /**
  * Dummy descriptor for an unindexed type
@@ -24,17 +24,18 @@ import org.hibernate.search.spi.impl.PojoIndexedTypeIdentifier;
  * @author Hardy Ferentschik
  */
 public class IndexedTypeDescriptorForUnindexedType implements IndexedTypeDescriptor {
-	private final Class<?> type;
+
 	private final IndexedTypeIdentifier freeFormType;
 
-	public IndexedTypeDescriptorForUnindexedType(Class<?> type) {
-		this.type = type;
-		this.freeFormType = new PojoIndexedTypeIdentifier( type );
+	public IndexedTypeDescriptorForUnindexedType(IndexedTypeIdentifier freeFormType) {
+		Objects.requireNonNull( freeFormType );
+		this.freeFormType = freeFormType;
 	}
 
 	@Override
+	@Deprecated
 	public Class<?> getType() {
-		return type;
+		return freeFormType.getPojoType();
 	}
 
 	@Override
@@ -92,7 +93,7 @@ public class IndexedTypeDescriptorForUnindexedType implements IndexedTypeDescrip
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder( "IndexedTypeDescriptorForUnindexedType{" );
-		sb.append( "type=" ).append( type );
+		sb.append( "type=" ).append( freeFormType );
 		sb.append( '}' );
 		return sb.toString();
 	}

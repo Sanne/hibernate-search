@@ -206,6 +206,8 @@ public interface SearchIntegrator extends AutoCloseable {
 	/**
 	 * Returns a descriptor for the specified entity type describing its indexed state.
 	 *
+	 * @deprecated Use {@link #getIndexedTypeDescriptor(IndexedTypeIdentifier)}
+	 *
 	 * @param entityType the entity for which to retrieve the descriptor
 	 *
 	 * @return a non {@code null} {@code IndexedEntityDescriptor}. This method can also be called for non indexed types.
@@ -213,7 +215,20 @@ public interface SearchIntegrator extends AutoCloseable {
 	 *
 	 * @throws IllegalArgumentException in case {@code entityType} is {@code null}
 	 */
+	@Deprecated
 	IndexedTypeDescriptor getIndexedTypeDescriptor(Class<?> entityType);
+
+	/**
+	 * Returns a descriptor for the specified entity type describing its indexed state.
+	 *
+	 * @param typeId the identification of the indexed entity for which to retrieve the descriptor
+	 *
+	 * @return a non {@code null} {@code IndexedEntityDescriptor}. This method can also be called for non indexed types.
+	 *         To determine whether the entity is actually indexed {@link org.hibernate.search.metadata.IndexedTypeDescriptor#isIndexed()} can be used.
+	 *
+	 * @throws IllegalArgumentException in case {@code entityType} is {@code null}
+	 */
+	IndexedTypeDescriptor getIndexedTypeDescriptor(IndexedTypeIdentifier typeId);
 
 	/**
 	 * Returns the set of currently indexed types.
