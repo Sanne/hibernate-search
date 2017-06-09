@@ -58,9 +58,9 @@ discovery.zen.minimum_master_nodes: 1
 # ---------------------------------- Various -----------------------------------
 #
 # Require explicit names when deleting indices:
-#
-#action.destructive_requires_name: true
-#
+
+action.destructive_requires_name: true
+
 # Disable starting multiple nodes on a single system:
 #
 node.max_local_storage_nodes: 1
