@@ -9,9 +9,11 @@ package org.hibernate.search.elasticsearch.test;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.hibernate.search.elasticsearch.dialect.impl.es52.Elasticsearch52Dialect;
@@ -174,9 +176,15 @@ public class GsonStreamedEncodingTest {
 	}
 
 	private void verifyProducedContent(final List<JsonObject> jsonObjects) {
-		assertArrayEquals(
-				traditionalEncoding( jsonObjects ),
-				optimisedEncoding( jsonObjects ) );
+		byte[] expected = traditionalEncoding( jsonObjects );
+		byte[] optimised = optimisedEncoding( jsonObjects );
+		if ( Arrays.equals( expected, optimised ) == false ) {
+			CharBuffer decodedExpected = StandardCharsets.UTF_8.decode( ByteBuffer.wrap( expected ) );
+			CharBuffer decodedOptimised = StandardCharsets.UTF_8.decode( ByteBuffer.wrap( optimised ) );
+			System.out.println( "Rendered :\n" + decodedOptimised );
+			System.out.println( "Should be:\n" + decodedExpected );
+		}
+		assertArrayEquals( expected, optimised );
 	}
 
 	byte[] optimisedEncoding(List<JsonObject> bodyParts) {
@@ -195,7 +203,9 @@ public class GsonStreamedEncodingTest {
 		int loopCounter = 0;
 		while ( sink.isCompleted() == false ) {
 			entity.produceContent( sink, fakeIO );
-			sink.setNextAcceptedBytesSize( loopCounter++ );
+			//For testing, be really aggressive on the need to
+			//manage small write windows the right way.
+			sink.setNextAcceptedBytesSize( loopCounter++ % 3 );
 		}
 		return sink.flipAndRead();
 	}
@@ -266,7 +276,17 @@ public class GsonStreamedEncodingTest {
 			byte[] currentRead = new byte[toRead];
 			byteBuffer.get( currentRead );
 			buf.put( currentRead );
+//			debugReadSoFar( currentRead );
 			return toRead;
+		}
+
+		private void debugReadSoFar(byte[] currentRead) {
+			if ( currentRead.length > 0 ) {
+				CharBuffer decodedExpected = StandardCharsets.UTF_8.decode( ByteBuffer.wrap( currentRead ) );
+				String easy = decodedExpected.toString();
+				System.out.println( easy );
+				return;
+			}
 		}
 
 		@Override
