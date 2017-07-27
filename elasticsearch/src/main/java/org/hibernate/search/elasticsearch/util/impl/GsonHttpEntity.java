@@ -205,7 +205,9 @@ public final class GsonHttpEntity implements HttpEntity, HttpAsyncContentProduce
 			throw new SearchException( e );
 		}
 		if ( writer.flowControlPushingBack == false ) {
-			return writer.totalWrittenBytes;
+			//Can't flip the buffer yet but the position is final,
+			//as we know the entire content has been rendered already.
+			return writer.availableBuffer.position();
 		}
 		else {
 			return -1l;
@@ -231,7 +233,6 @@ public final class GsonHttpEntity implements HttpEntity, HttpAsyncContentProduce
 				return;
 			}
 		}
-		writer.flush();
 	}
 
 	@Override
@@ -257,7 +258,11 @@ public final class GsonHttpEntity implements HttpEntity, HttpAsyncContentProduce
 			//Just quit: return control to the caller and trust we'll be called again.
 			return;
 		}
-
+		writer.flushToOutput();
+		if ( writer.flowControlPushingBack ) {
+			//Just quit: return control to the caller and trust we'll be called again.
+			return;
+		}
 		// If we haven't aborted yet, we finished!
 		encoder.complete();
 
@@ -436,6 +441,12 @@ public final class GsonHttpEntity implements HttpEntity, HttpAsyncContentProduce
 
 		@Override
 		public void flush() throws IOException {
+			// don't flush for real as this is invoked by the
+			// wrapping BufferedWriter when we flush that one:
+			// we want to control actual flushing independently.
+		}
+
+		public void flushToOutput() throws IOException {
 			attemptFlushPendingBuffers( true );
 		}
 
