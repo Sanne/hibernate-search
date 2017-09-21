@@ -42,6 +42,10 @@
         <module>integrationtest/performance/sandbox</module>
         <module>integrationtest/performance/engine-lucene</module>
         <module>integrationtest/performance/engine-elasticsearch</module>
+        <!-- The below modules are known to fail in Java 9 -->
+        <module>integrationtest/osgi/karaf-it</module>
+        <module>documentation</module>
+        <module>integrationtest/performance/orm</module>
     </modules>
 
     <issueManagement>
@@ -1568,9 +1572,6 @@ org.hibernate.search.spi.SearchIntegratorBuilder#buildSearchIntegrator()
                 <jdk>1.8</jdk>
             </activation>
             <modules>
-                <module>documentation</module>
-                <module>integrationtest/osgi/karaf-it</module>
-                <module>integrationtest/performance/orm</module>
             </modules>
         </profile>
 
