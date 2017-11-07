@@ -30,6 +30,7 @@ public class BasicTypeCollectionsTest {
 	@Test
 	public void nullVararg() {
 		assertIsEmpty( IndexedTypeSets.fromClasses( (Class<?>[]) null ) );
+		assertIsEmpty( IndexedTypeSets.fromClasses( (Class<?>) null ) );
 	}
 
 	@Test
