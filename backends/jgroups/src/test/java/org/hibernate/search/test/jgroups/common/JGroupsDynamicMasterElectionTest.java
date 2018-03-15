@@ -152,7 +152,7 @@ public class JGroupsDynamicMasterElectionTest extends DynamicMasterSlaveSearchTe
 		/*
 		 * Do *not* drop the schema upon factory closing, or the slave won't be able to use it.
 		 */
-		cfg.put( org.hibernate.cfg.Environment.HBM2DDL_AUTO, "create-drop" );
+		cfg.put( org.hibernate.cfg.Environment.HBM2DDL_DATABASE_ACTION, "drop-and-create" );
 	}
 
 	@Override

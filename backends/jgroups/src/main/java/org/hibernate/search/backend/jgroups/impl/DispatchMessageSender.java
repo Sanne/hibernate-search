@@ -27,7 +27,6 @@ import org.jgroups.View;
 import org.jgroups.blocks.MessageDispatcher;
 import org.jgroups.blocks.RequestOptions;
 import org.jgroups.util.Buffer;
-import org.jgroups.util.Rsp;
 import org.jgroups.util.RspList;
 
 /**
@@ -77,7 +76,7 @@ public final class DispatchMessageSender implements MessageSenderService, Starta
 	public void send(final Buffer data, final boolean synchronous, final long timeout) throws Exception {
 		final RequestOptions options = synchronous ? RequestOptions.SYNC() : RequestOptions.ASYNC();
 		options.exclusionList( dispatcher.getChannel().getAddress() );
-		options.setTransientFlags(TransientFlag.DONT_LOOPBACK );
+		options.setTransientFlags( TransientFlag.DONT_LOOPBACK );
 		options.setTimeout( timeout );
 		if ( synchronous ) {
 			try {
@@ -124,8 +123,8 @@ public final class DispatchMessageSender implements MessageSenderService, Starta
 
 		MessageListenerToRequestHandlerAdapter requestHandler = new MessageListenerToRequestHandlerAdapter( listener );
 		dispatcher = new MessageDispatcher( channel, requestHandler );
-		//Do not start the Channel before having installed the dispatcher:
-		channel.setReceiver( listener );
+		dispatcher.setMembershipListener( listener );
+		//Only now that the Dispatcher is installed we can start the channel:
 		channelContainer.start();
 
 		masterNodeSelector.setLocalAddress( channel.getAddress() );
